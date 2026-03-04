@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  color: #1A1A1A;
+  background: #F8F9FA;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
