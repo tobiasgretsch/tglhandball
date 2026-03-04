@@ -1,3 +1,5 @@
+// ─── Primitives ───────────────────────────────────────────────────────────────
+
 export interface SanityImage {
   _type: "image";
   asset: {
@@ -5,6 +7,16 @@ export interface SanityImage {
     _type: "reference";
   };
   alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+}
+
+export interface SanityFile {
+  _type: "file";
+  asset: {
+    _ref: string;
+    _type: "reference";
+    url?: string;
+  };
 }
 
 export interface Slug {
@@ -12,14 +24,43 @@ export interface Slug {
   current: string;
 }
 
+export interface PortableTextBlock {
+  _type: string;
+  _key: string;
+  [key: string]: unknown;
+}
+
+// ─── News ─────────────────────────────────────────────────────────────────────
+
+export type NewsCategory = "herren" | "damen" | "jugend" | "verein";
+
 export interface NewsArticle {
   _id: string;
   title: string;
   slug: Slug;
   publishedAt: string;
-  excerpt?: string;
+  category?: NewsCategory;
   mainImage?: SanityImage;
+  teaser?: string;
   body?: PortableTextBlock[];
+  author?: string;
+}
+
+// ─── Team ─────────────────────────────────────────────────────────────────────
+
+export interface Coach {
+  _key: string;
+  name: string;
+  role?: string;
+  image?: SanityImage;
+}
+
+export interface Player {
+  _key: string;
+  number?: number;
+  name: string;
+  position?: string;
+  image?: SanityImage;
 }
 
 export interface Team {
@@ -27,33 +68,73 @@ export interface Team {
   name: string;
   slug: Slug;
   league?: string;
-  image?: SanityImage;
-  players?: Player[];
+  headerImage?: SanityImage;
+  description?: PortableTextBlock[];
+  coaches?: Coach[];
+  squad?: Player[];
+  order?: number;
 }
 
-export interface Player {
-  _id: string;
-  name: string;
-  position?: string;
-  number?: number;
-  image?: SanityImage;
-}
+// ─── Match ────────────────────────────────────────────────────────────────────
 
-export interface Game {
+export interface Match {
   _id: string;
   date: string;
   homeTeam: string;
   awayTeam: string;
-  homeScore?: number;
-  awayScore?: number;
+  result?: string;
+  team?: Pick<Team, "_id" | "name" | "slug">;
   venue?: string;
-  competition?: string;
-  team?: Pick<Team, "_id" | "name">;
+  isHomeGame?: boolean;
 }
 
-// Portable Text block type (used for rich text from Sanity)
-export interface PortableTextBlock {
-  _type: string;
-  _key: string;
-  [key: string]: unknown;
+// ─── Magazine ─────────────────────────────────────────────────────────────────
+
+export interface Magazine {
+  _id: string;
+  season?: string;
+  matchday?: number;
+  opponent?: string;
+  date?: string;
+  pdfFile?: SanityFile;
+}
+
+// ─── Partner ──────────────────────────────────────────────────────────────────
+
+export type PartnerTier = "premium" | "standard";
+
+export interface Partner {
+  _id: string;
+  name: string;
+  logo?: SanityImage;
+  websiteUrl?: string;
+  tier?: PartnerTier;
+  isPartnerOfTheDay?: boolean;
+  active?: boolean;
+}
+
+// ─── Gallery ──────────────────────────────────────────────────────────────────
+
+export type GalleryCategory = "herren" | "damen" | "jugend" | "events";
+
+export interface GalleryItem {
+  _id: string;
+  image: SanityImage;
+  caption?: string;
+  category?: GalleryCategory;
+  date?: string;
+}
+
+// ─── Settings (singleton) ────────────────────────────────────────────────────
+
+export interface Settings {
+  clubName?: string;
+  logo?: SanityImage;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  youtubeUrl?: string;
+  contactEmail?: string;
+  venueAddress?: string;
+  venueLat?: number;
+  venueLng?: number;
 }

@@ -6,9 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **TGL MIPA Landshut Handball** — club website. Repository: https://github.com/tobiasgretsch/tglhandball
 
-**Stack:** Next.js 14 (App Router) · TypeScript · Tailwind CSS · Sanity CMS (next-sanity) · Framer Motion · lucide-react · next-sitemap · Resend
+**Stack:** Next.js 16 (App Router, Turbopack) · React 19 · TypeScript 5 · Tailwind CSS 4 · Sanity CMS (next-sanity@12, sanity@5) · Framer Motion · lucide-react · next-sitemap · Resend
 
 **Runtime:** Node.js 24.14.0 LTS · npm
+
+**Key package versions:**
+- `next@16` · `react@19` · `tailwindcss@4` · `eslint@10`
+- `next-sanity@12` · `sanity@5` · `@sanity/client@7` · `@sanity/image-url@2` · `@sanity/vision@5`
 
 ## Commands
 
@@ -21,31 +25,42 @@ npm run lint     # ESLint check
 ## Architecture
 
 ```
-app/                  # Next.js App Router pages
-  layout.tsx          # Root layout — Inter font, lang="de", global metadata
-  page.tsx            # Home page
-  news/               # News listing + detail routes
-  teams/              # Teams overview
-  spielplan/          # Fixtures/schedule
-  kontakt/            # Contact page (uses Resend for email)
-  verein/             # Club info
+app/                        # Next.js App Router pages
+  layout.tsx                # Root layout — Inter font, lang="de", global metadata
+  page.tsx                  # Home page
+  news/                     # News listing + detail routes
+  teams/                    # Teams overview
+  spielplan/                # Fixtures/schedule
+  kontakt/                  # Contact page (uses Resend for email)
+  verein/                   # Club info
+  studio/[[...tool]]/       # Embedded Sanity Studio (accessible at /studio)
+    page.tsx                # Server component — exports metadata/viewport
+    _studio-client.tsx      # 'use client' wrapper for NextStudio
 
 components/
-  ui/                 # Primitive UI components (buttons, cards, …)
-  layout/             # Header, Footer, Navigation
-  sections/           # Full-page sections composed from ui/ primitives
+  ui/                       # Primitive UI components (buttons, cards, …)
+  layout/                   # Header, Footer, Navigation
+  sections/                 # Full-page sections composed from ui/ primitives
 
 lib/
-  sanity.ts           # Sanity client + urlFor() image helper
-  queries.ts          # All GROQ queries (allNewsQuery, allTeamsQuery, spielplanQuery, …)
+  sanity.ts                 # Sanity client + urlFor() image helper
+  queries.ts                # All GROQ queries for every content type
+
+sanity/
+  schemas/                  # One file per Sanity document type
+    news.ts · team.ts · match.ts · magazine.ts
+    partner.ts · gallery.ts · settings.ts · index.ts
+
+sanity.config.ts            # Studio config — basePath "/studio", singleton settings
 
 types/
-  index.ts            # Domain types: NewsArticle, Team, Player, Game, SanityImage
+  index.ts                  # Domain types: NewsArticle, Team, Match, Magazine,
+                            #   Partner, GalleryItem, Settings, SanityImage
 ```
 
 **Data flow:** Sanity CMS → GROQ queries in `lib/queries.ts` → fetched in Server Components → rendered via `components/sections/`.
 
-**Color palette (Tailwind custom tokens):**
+**Color palette** — defined via `@theme` in `app/globals.css` (Tailwind v4 CSS-first config, no `tailwind.config.ts`):
 | Token | Hex |
 |---|---|
 | `primary` | `#da251c` |
@@ -113,7 +128,9 @@ Claude must treat every mistake as a learning event and record it in this file.
 
 | Date | Category | What went wrong | Rule derived |
 |------|----------|-----------------|--------------|
-| _YYYY-MM-DD_ | _Placeholder_ | _No entries yet_ | _—_ |
+| 2026-03-04 | Dependency | `npm install sanity` resolved to v5, which requires React 19. Project uses Next.js 14 / React 18. Build failed with `react/compiler-runtime` not found. | Always pin Sanity to v3 + next-sanity to v9 for Next.js 14. Never `npm install sanity` without a version pin. |
+| 2026-03-04 | Sanity Studio SSR | `NextStudio` in a plain Server Component page causes `createContext is not a function` at build time — reproducible with both React 18 and React 19 / Next.js 16, caused by `styled-components` in the Studio bundle. | Studio page must split into a Server Component (for metadata) and a `'use client'` child (`_studio-client.tsx`) that renders `<NextStudio />`. This is a permanent pattern for this project. |
+| 2026-03-04 | Package types | `@sanity/image-url` v1 exports `SanityImageSource` from `@sanity/image-url/lib/types/types`, not from the package root. v2 exports it from the root but requires @sanity/client@7 (incompatible). | Always check image-url version before writing the import path. |
 
 ### Active Rules Derived from Past Mistakes
 
