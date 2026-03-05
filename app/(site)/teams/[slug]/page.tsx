@@ -86,14 +86,16 @@ export default async function TeamDetailPage({ params }: Props) {
       {/* ── 1. Hero ────────────────────────────────────────────────────── */}
       <section className="relative min-h-[50vh] md:min-h-[60vh] flex items-end overflow-hidden bg-accent">
         {heroUrl ? (
-          <Image
-            src={heroUrl}
-            alt={team.name}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
+          <div className="absolute inset-x-0 bottom-0 top-[68px] lg:top-[76px]">
+            <Image
+              src={heroUrl}
+              alt={team.name}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-top"
+            />
+          </div>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-accent to-[#003a7a]" />
         )}
