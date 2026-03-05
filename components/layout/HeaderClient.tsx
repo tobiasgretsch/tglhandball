@@ -20,6 +20,56 @@ interface HeaderClientProps {
   teams: TeamItem[];
 }
 
+// Each entry: array of [pathD, strokeColor, strokeWidth, opacity]
+type WispStrand = [string, string, number, number];
+interface SmokeWisp { strands: WispStrand[] }
+
+const SMOKE_WISPS: SmokeWisp[] = [
+  { strands: [
+    ["M0,40 C120,22 280,58 450,36 C600,18 720,52 820,38", "rgba(255,70,20,0.55)", 2.0, 1],
+    ["M0,46 C140,30 300,64 480,42 C640,24 750,58 820,46", "rgba(255,70,20,0.28)", 1.5, 1],
+  ]},
+  { strands: [
+    ["M0,35 C80,16 200,54 340,30 C470,10 590,50 720,26 C780,16 812,38 820,32", "rgba(110,75,210,0.52)", 2.0, 1],
+    ["M0,42 C100,24 220,62 360,38 C490,16 610,56 740,32 C792,20 816,44 820,40", "rgba(110,75,210,0.26)", 1.5, 1],
+  ]},
+  { strands: [
+    ["M0,50 C200,36 400,66 600,46 C710,34 792,58 820,50", "rgba(255,200,215,0.45)", 2.0, 1],
+    ["M0,44 C180,30 380,60 580,40 C700,28 792,54 820,44", "rgba(255,200,215,0.22)", 1.5, 1],
+  ]},
+  { strands: [
+    ["M0,38 C150,18 350,58 520,30 C660,12 762,50 820,36", "rgba(200,10,0,0.58)", 2.5, 1],
+    ["M0,46 C170,28 370,64 550,38 C680,20 772,54 820,44", "rgba(200,10,0,0.28)", 1.5, 1],
+    ["M0,32 C130,14 320,52 500,26 C650,8 755,46 820,30", "rgba(200,10,0,0.18)", 1.0, 1],
+  ]},
+  { strands: [
+    ["M0,36 C250,18 450,58 650,30 C742,18 802,46 820,36", "rgba(40,20,160,0.45)", 2.0, 1],
+    ["M0,44 C240,28 440,64 640,40 C742,26 804,52 820,44", "rgba(40,20,160,0.22)", 1.5, 1],
+    ["M0,52 C260,36 460,70 660,48 C752,34 806,60 820,52", "rgba(40,20,160,0.14)", 1.0, 1],
+  ]},
+  { strands: [
+    ["M0,28 C100,12 240,50 400,22 C520,4 642,44 762,20 C802,10 818,32 820,26", "rgba(255,255,255,0.40)", 1.5, 1],
+    ["M0,36 C120,18 260,58 420,30 C542,12 662,52 782,26 C812,16 820,38 820,34", "rgba(255,255,255,0.18)", 1.0, 1],
+  ]},
+  { strands: [
+    ["M0,54 C180,36 360,72 540,48 C680,30 772,64 820,52", "rgba(255,55,10,0.50)", 2.0, 1],
+    ["M0,60 C200,44 400,76 600,54 C732,36 802,68 820,60", "rgba(255,55,10,0.24)", 1.5, 1],
+  ]},
+  { strands: [
+    ["M0,38 C160,20 320,58 500,32 C642,14 752,52 820,36", "rgba(100,55,200,0.50)", 2.0, 1],
+    ["M0,46 C180,28 340,64 520,40 C662,22 762,58 820,44", "rgba(100,55,200,0.24)", 1.5, 1],
+  ]},
+  { strands: [
+    ["M0,42 C220,24 440,64 640,36 C742,22 802,54 820,42", "rgba(255,170,195,0.44)", 2.0, 1],
+    ["M0,50 C240,34 460,70 660,44 C756,30 808,60 820,50", "rgba(255,170,195,0.20)", 1.5, 1],
+  ]},
+  { strands: [
+    ["M0,34 C280,16 520,58 720,30 C792,18 818,46 820,34", "rgba(185,0,0,0.55)", 2.5, 1],
+    ["M0,42 C300,24 540,66 740,38 C804,24 820,52 820,42", "rgba(185,0,0,0.26)", 1.5, 1],
+    ["M0,28 C260,10 500,52 700,24 C784,12 818,40 820,28", "rgba(185,0,0,0.16)", 1.0, 1],
+  ]},
+];
+
 interface StaticDropdownItem {
   label: string;
   href: string;
@@ -122,10 +172,29 @@ export default function HeaderClient({
         scrolled ? "shadow-[0_4px_32px_rgba(0,0,0,0.35)]" : ""
       }`}
     >
-      {/* Smoke cloud layer */}
+      {/* Smoke wisp layer */}
       <div ref={cloudsRef} className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 10 }, (_, i) => (
-          <div key={i} data-cloud className={`hcloud-${i + 1}`} />
+        {SMOKE_WISPS.map((wisp, i) => (
+          <svg
+            key={i}
+            data-cloud
+            className={`hcloud-${i + 1}`}
+            viewBox="0 0 820 76"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+          >
+            {wisp.strands.map(([d, stroke, strokeWidth, opacity], j) => (
+              <path
+                key={j}
+                d={d}
+                stroke={stroke}
+                strokeWidth={strokeWidth}
+                strokeLinecap="round"
+                opacity={opacity}
+                fill="none"
+              />
+            ))}
+          </svg>
         ))}
         <div className="header-overlay" />
       </div>
