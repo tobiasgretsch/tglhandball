@@ -20,56 +20,6 @@ interface HeaderClientProps {
   teams: TeamItem[];
 }
 
-// Each entry: array of [pathD, strokeColor, strokeWidth, opacity]
-type WispStrand = [string, string, number, number];
-interface SmokeWisp { strands: WispStrand[] }
-
-const SMOKE_WISPS: SmokeWisp[] = [
-  { strands: [
-    ["M0,40 C120,22 280,58 450,36 C600,18 720,52 820,38", "rgba(255,70,20,0.55)", 2.0, 1],
-    ["M0,46 C140,30 300,64 480,42 C640,24 750,58 820,46", "rgba(255,70,20,0.28)", 1.5, 1],
-  ]},
-  { strands: [
-    ["M0,35 C80,16 200,54 340,30 C470,10 590,50 720,26 C780,16 812,38 820,32", "rgba(110,75,210,0.52)", 2.0, 1],
-    ["M0,42 C100,24 220,62 360,38 C490,16 610,56 740,32 C792,20 816,44 820,40", "rgba(110,75,210,0.26)", 1.5, 1],
-  ]},
-  { strands: [
-    ["M0,50 C200,36 400,66 600,46 C710,34 792,58 820,50", "rgba(255,200,215,0.45)", 2.0, 1],
-    ["M0,44 C180,30 380,60 580,40 C700,28 792,54 820,44", "rgba(255,200,215,0.22)", 1.5, 1],
-  ]},
-  { strands: [
-    ["M0,38 C150,18 350,58 520,30 C660,12 762,50 820,36", "rgba(200,10,0,0.58)", 2.5, 1],
-    ["M0,46 C170,28 370,64 550,38 C680,20 772,54 820,44", "rgba(200,10,0,0.28)", 1.5, 1],
-    ["M0,32 C130,14 320,52 500,26 C650,8 755,46 820,30", "rgba(200,10,0,0.18)", 1.0, 1],
-  ]},
-  { strands: [
-    ["M0,36 C250,18 450,58 650,30 C742,18 802,46 820,36", "rgba(40,20,160,0.45)", 2.0, 1],
-    ["M0,44 C240,28 440,64 640,40 C742,26 804,52 820,44", "rgba(40,20,160,0.22)", 1.5, 1],
-    ["M0,52 C260,36 460,70 660,48 C752,34 806,60 820,52", "rgba(40,20,160,0.14)", 1.0, 1],
-  ]},
-  { strands: [
-    ["M0,28 C100,12 240,50 400,22 C520,4 642,44 762,20 C802,10 818,32 820,26", "rgba(255,255,255,0.40)", 1.5, 1],
-    ["M0,36 C120,18 260,58 420,30 C542,12 662,52 782,26 C812,16 820,38 820,34", "rgba(255,255,255,0.18)", 1.0, 1],
-  ]},
-  { strands: [
-    ["M0,54 C180,36 360,72 540,48 C680,30 772,64 820,52", "rgba(255,55,10,0.50)", 2.0, 1],
-    ["M0,60 C200,44 400,76 600,54 C732,36 802,68 820,60", "rgba(255,55,10,0.24)", 1.5, 1],
-  ]},
-  { strands: [
-    ["M0,38 C160,20 320,58 500,32 C642,14 752,52 820,36", "rgba(100,55,200,0.50)", 2.0, 1],
-    ["M0,46 C180,28 340,64 520,40 C662,22 762,58 820,44", "rgba(100,55,200,0.24)", 1.5, 1],
-  ]},
-  { strands: [
-    ["M0,42 C220,24 440,64 640,36 C742,22 802,54 820,42", "rgba(255,170,195,0.44)", 2.0, 1],
-    ["M0,50 C240,34 460,70 660,44 C756,30 808,60 820,50", "rgba(255,170,195,0.20)", 1.5, 1],
-  ]},
-  { strands: [
-    ["M0,34 C280,16 520,58 720,30 C792,18 818,46 820,34", "rgba(185,0,0,0.55)", 2.5, 1],
-    ["M0,42 C300,24 540,66 740,38 C804,24 820,52 820,42", "rgba(185,0,0,0.26)", 1.5, 1],
-    ["M0,28 C260,10 500,52 700,24 C784,12 818,40 820,28", "rgba(185,0,0,0.16)", 1.0, 1],
-  ]},
-];
-
 interface StaticDropdownItem {
   label: string;
   href: string;
@@ -96,6 +46,90 @@ const NAV_LINKS: NavLink[] = [
   { label: "Verein", href: "/ueberuns", dropdown: "verein", staticItems: VEREIN_ITEMS },
 ];
 
+// ─── WebGL smoke shaders ───────────────────────────────────────────────────────
+
+const VERT_SHADER = `
+  attribute vec2 a_position;
+  void main() {
+    gl_Position = vec4(a_position, 0.0, 1.0);
+  }
+`;
+
+// FBM (fractional Brownian motion) smoke, adapted from:
+// https://www.shadertoy.com/view/lsl3RH
+// Club colours cycle: red-orange (#ff3300) → blue-purple (#7755cc) → white-pink (#ffccdd)
+const FRAG_SHADER = `
+  precision mediump float;
+  uniform vec2  iResolution;
+  uniform float iTime;
+
+  float random(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+  }
+
+  float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+    vec2  u = f * f * (3.0 - 2.0 * f);
+    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+  }
+
+  float fbm(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    vec2  shift = vec2(20.0);
+    mat2  rot   = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
+    for (int i = 0; i < 8; i++) {
+      v  += a * noise(p);
+      p   = rot * p * 2.0 + shift;
+      a  *= 0.5;
+    }
+    return v;
+  }
+
+  void main(void) {
+    vec2 uv = (gl_FragCoord.xy - 0.5 * iResolution.xy) / iResolution.y;
+    uv *= 0.5;
+
+    vec2 q = vec2(
+      fbm(uv + 0.20 * iTime),
+      fbm(uv + vec2(5.0, 1.0))
+    );
+    vec2 r = vec2(
+      fbm(uv + 3.0 * q + vec2(1.2, 3.2) + 0.2 * iTime),
+      fbm(uv + 3.0 * q + vec2(8.8, 2.8) + 0.2 * iTime)
+    );
+
+    float f = fbm(uv + r);
+
+    // Club colour palette
+    vec3 red    = vec3(1.00, 0.20, 0.00);  // #ff3300
+    vec3 purple = vec3(0.47, 0.33, 0.80);  // #7755cc
+    vec3 pink   = vec3(1.00, 0.80, 0.87);  // #ffccdd
+
+    // Smooth cycle through all 3 colours (~42 s per full rotation)
+    float cy = iTime * 0.15;
+    vec3 col1 = mix(red,    purple, 0.5 + 0.5 * sin(cy));
+    vec3 col2 = mix(purple, pink,   0.5 + 0.5 * sin(cy + 2.094));
+    vec3 col3 = mix(pink,   red,    0.5 + 0.5 * sin(cy + 4.189));
+
+    vec3 color = mix(vec3(0.0), col1, clamp(f * f * 4.0,          0.0, 1.0));
+    color = mix(color, col2,          clamp(length(q) * length(q), 0.0, 1.0));
+    color = mix(color, col3,          clamp(length(r.x),           0.0, 0.15));
+
+    // Dark base matching header background (#1a0005)
+    color = vec3(0.102, 0.0, 0.02) + (f * f * f + 0.6 * f * f + 0.5 * f) * color;
+
+    gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function HeaderClient({
   logoUrl,
   clubName,
@@ -107,21 +141,76 @@ export default function HeaderClient({
   const [openDropdown, setOpenDropdown] = useState<"teams" | "verein" | null>(null);
   const [isDark, setIsDark] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cloudsRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Initialise isDark from the class already applied by the anti-flash script.
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
-  // Randomise each cloud's animation-delay and vertical position on every load
-  // for organic, non-repeating variation.
+  // WebGL FBM smoke animation
   useEffect(() => {
-    const clouds = cloudsRef.current?.querySelectorAll<HTMLElement>("[data-cloud]");
-    clouds?.forEach((cloud) => {
-      cloud.style.animationDelay = `-${(Math.random() * 12).toFixed(2)}s`;
-      cloud.style.top = `${(Math.random() * 75 + 5).toFixed(1)}%`;
-    });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const gl = canvas.getContext("webgl");
+    if (!gl) return;
+
+    function compileShader(type: number, src: string): WebGLShader {
+      const s = gl!.createShader(type)!;
+      gl!.shaderSource(s, src);
+      gl!.compileShader(s);
+      return s;
+    }
+
+    const vs = compileShader(gl.VERTEX_SHADER, VERT_SHADER);
+    const fs = compileShader(gl.FRAGMENT_SHADER, FRAG_SHADER);
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    // Full-screen quad
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const posLoc = gl.getAttribLocation(program, "a_position");
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+    const resLoc  = gl.getUniformLocation(program, "iResolution");
+    const timeLoc = gl.getUniformLocation(program, "iTime");
+
+    let raf = 0;
+    const t0 = performance.now();
+
+    function resize() {
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width  = canvas.offsetWidth  * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      gl!.viewport(0, 0, canvas.width, canvas.height);
+    }
+
+    function render() {
+      if (!canvas) return;
+      gl!.uniform2f(resLoc, canvas.width, canvas.height);
+      gl!.uniform1f(timeLoc, (performance.now() - t0) / 1000);
+      gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+      raf = requestAnimationFrame(render);
+    }
+
+    resize();
+    render();
+    window.addEventListener("resize", resize);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+      gl.deleteProgram(program);
+    };
   }, []);
 
   useEffect(() => {
@@ -172,32 +261,14 @@ export default function HeaderClient({
         scrolled ? "shadow-[0_4px_32px_rgba(0,0,0,0.35)]" : ""
       }`}
     >
-      {/* Smoke wisp layer */}
-      <div ref={cloudsRef} className="absolute inset-0 overflow-hidden pointer-events-none">
-        {SMOKE_WISPS.map((wisp, i) => (
-          <svg
-            key={i}
-            data-cloud
-            className={`hcloud-${i + 1}`}
-            viewBox="0 0 820 76"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-          >
-            {wisp.strands.map(([d, stroke, strokeWidth, opacity], j) => (
-              <path
-                key={j}
-                d={d}
-                stroke={stroke}
-                strokeWidth={strokeWidth}
-                strokeLinecap="round"
-                opacity={opacity}
-                fill="none"
-              />
-            ))}
-          </svg>
-        ))}
-        <div className="header-overlay" />
-      </div>
+      {/* WebGL smoke canvas */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        style={{ display: "block" }}
+      />
+      {/* Semi-transparent overlay to unify canvas with nav text readability */}
+      <div className="header-overlay" />
 
       {/* Inner nav bar */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] lg:h-[76px] flex items-center justify-between">
