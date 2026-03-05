@@ -81,6 +81,9 @@ export default function PageHeroSlider({
         }}
       />
 
+      {/* ── Dark-mode dimming overlay ─────────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none opacity-0 dark:opacity-100 bg-black/40 transition-opacity duration-300" />
+
       {/* ── Subtle diagonal stripe texture (design continuity) ─────────── */}
       <div
         className="absolute inset-0 opacity-[0.06] pointer-events-none"

@@ -269,6 +269,15 @@ export const premiumPartnersQuery = groq`
   }
 `;
 
+export const standardPartnersQuery = groq`
+  *[_type == "partner" && active == true && tier == "standard"] | order(name asc) {
+    _id,
+    name,
+    logo,
+    websiteUrl,
+  }
+`;
+
 // ─── Settings (singleton) ────────────────────────────────────────────────────
 
 /** Fetches only the page-header slider images — used by pages that don't need full settings. */

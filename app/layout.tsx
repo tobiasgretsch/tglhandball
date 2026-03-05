@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import { client, urlFor } from "@/lib/sanity";
 import { settingsQuery } from "@/lib/queries";
@@ -47,14 +48,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
-      <body className={inter.className}>
-        {children}
-        <SpeedInsights />
-      </body>
-    </html>
+    <ClerkProvider
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/onboarding"
+    >
+      <html lang="de" suppressHydrationWarning>
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        </head>
+        <body className={inter.className}>
+          {children}
+          <SpeedInsights />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

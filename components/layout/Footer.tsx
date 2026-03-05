@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Facebook, Youtube, Mail, MapPin } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
-import { settingsQuery, premiumPartnersQuery } from "@/lib/queries";
+import { settingsQuery, premiumPartnersQuery, standardPartnersQuery } from "@/lib/queries";
 import type { Settings, Partner } from "@/types";
 
 const QUICK_LINKS = [
@@ -14,12 +14,15 @@ const QUICK_LINKS = [
 ];
 
 export default async function Footer() {
-  const [settings, partners] = await Promise.all([
+  const [settings, premiumPartners, standardPartners] = await Promise.all([
     client
       .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
       .catch(() => null),
     client
       .fetch<Partner[]>(premiumPartnersQuery, {}, { next: { revalidate: 3600 } })
+      .catch(() => [] as Partner[]),
+    client
+      .fetch<Partner[]>(standardPartnersQuery, {}, { next: { revalidate: 3600 } })
       .catch(() => [] as Partner[]),
   ]);
 
@@ -33,7 +36,7 @@ export default async function Footer() {
     : null;
 
   return (
-    <footer className="relative bg-primary overflow-hidden">
+    <footer className="relative bg-primary dark:bg-gray-900 overflow-hidden">
       {/* Centred logo watermark */}
       {logoWatermarkUrl && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -49,31 +52,49 @@ export default async function Footer() {
       )}
 
       {/* Premium partner strip */}
-      {partners && partners.length > 0 && (
-        <div className="relative border-b border-white/20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45 mb-4">
-              Unsere Premium-Partner
-            </p>
-            <div className="flex flex-wrap gap-3 items-center">
-              {partners.map((partner) => {
-                const inner = (
-                  <>
-                    {partner.logo ? (
-                      <Image
-                        src={urlFor(partner.logo).width(80).height(28).url()}
-                        alt={partner.name}
-                        width={80}
-                        height={28}
-                        className="object-contain brightness-0 invert opacity-85"
-                      />
-                    ) : (
-                      <span className="text-[11px] font-bold text-white/80 uppercase tracking-wider">
-                        {partner.name}
-                      </span>
-                    )}
-                  </>
+      {premiumPartners && premiumPartners.length > 0 && (
+        <div className="relative border-b border-white/10 bg-black/25 dark:bg-black/40">
+          {/* Gold shimmer lines */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Section heading with decorative rule */}
+            <div className="flex items-center gap-4 mb-7">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-400/35" />
+              <div className="flex items-center gap-2.5">
+                <span className="text-amber-400/70 text-[9px] leading-none">★</span>
+                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-amber-400/80">
+                  Premium Partner
+                </p>
+                <span className="text-amber-400/70 text-[9px] leading-none">★</span>
+              </div>
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber-400/35" />
+            </div>
+
+            {/* Partner cards */}
+            <div className="flex flex-wrap gap-4 items-center justify-center">
+              {premiumPartners.map((partner) => {
+                const inner = partner.logo ? (
+                  <Image
+                    src={urlFor(partner.logo).width(160).height(56).url()}
+                    alt={partner.name}
+                    width={160}
+                    height={56}
+                    className="object-contain brightness-0 invert opacity-90"
+                  />
+                ) : (
+                  <span className="text-sm font-bold text-white/85 uppercase tracking-wider">
+                    {partner.name}
+                  </span>
                 );
+
+                const cardClass =
+                  "flex items-center rounded px-6 py-4 transition-all duration-300 " +
+                  "bg-white/10 border border-white/10 " +
+                  "shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] " +
+                  "hover:bg-white/18 hover:border-amber-400/40 " +
+                  "hover:shadow-[0_0_18px_rgba(251,191,36,0.12),inset_0_1px_0_rgba(255,255,255,0.12)]";
 
                 return partner.websiteUrl ? (
                   <a
@@ -81,15 +102,70 @@ export default async function Footer() {
                     href={partner.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center bg-white/15 hover:bg-white/25 rounded-sm px-4 py-2.5 transition-colors"
+                    className={cardClass}
                   >
                     {inner}
                   </a>
                 ) : (
-                  <div
+                  <div key={partner._id} className={cardClass}>
+                    {inner}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Standard partner strip */}
+      {standardPartners && standardPartners.length > 0 && (
+        <div className="relative border-b border-white/10 bg-black/15 dark:bg-black/25">
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {/* Section heading */}
+            <div className="flex items-center gap-4 mb-5">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/15" />
+              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/40">
+                Partner
+              </p>
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/15" />
+            </div>
+
+            {/* Partner cards — smaller, more compact */}
+            <div className="flex flex-wrap gap-2.5 items-center justify-center">
+              {standardPartners.map((partner) => {
+                const inner = partner.logo ? (
+                  <Image
+                    src={urlFor(partner.logo).width(90).height(30).url()}
+                    alt={partner.name}
+                    width={90}
+                    height={30}
+                    className="object-contain brightness-0 invert opacity-70"
+                  />
+                ) : (
+                  <span className="text-[11px] font-semibold text-white/60 uppercase tracking-wider">
+                    {partner.name}
+                  </span>
+                );
+
+                const cardClass =
+                  "flex items-center rounded px-4 py-2.5 transition-all duration-300 " +
+                  "bg-white/6 border border-white/8 " +
+                  "hover:bg-white/12 hover:border-white/20 hover:opacity-100";
+
+                return partner.websiteUrl ? (
+                  <a
                     key={partner._id}
-                    className="flex items-center bg-white/10 rounded-sm px-4 py-2.5"
+                    href={partner.websiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cardClass}
                   >
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={partner._id} className={cardClass}>
                     {inner}
                   </div>
                 );

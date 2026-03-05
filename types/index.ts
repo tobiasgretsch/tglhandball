@@ -107,6 +107,31 @@ export interface Magazine {
   pdfFile?: SanityFile;
 }
 
+// ─── Auth / Dashboard ─────────────────────────────────────────────────────────
+
+export type UserRole = "trainer" | "spieler";
+
+export interface SpielerProfil {
+  _id: string;
+  name: string;
+  email?: string;
+  clerkUserId?: string;
+  trainerClerkUserId?: string;
+  position?: string;
+  number?: number;
+  team?: Pick<Team, "_id" | "name">;
+}
+
+export interface Trainingsplan {
+  _id: string;
+  title: string;
+  description?: string;
+  date?: string;
+  trainerClerkUserId?: string;
+  assignedToTeam?: Pick<Team, "_id" | "name">;
+  assignedToPlayers?: Pick<SpielerProfil, "_id" | "name">[];
+}
+
 // ─── Partner ──────────────────────────────────────────────────────────────────
 
 export type PartnerTier = "premium" | "standard";

@@ -35,6 +35,7 @@ interface NavLink {
 const VEREIN_ITEMS: StaticDropdownItem[] = [
   { label: "Über uns", href: "/ueberuns" },
   { label: "Partner", href: "/partner" },
+  { label: "Mitgliederbereich", href: "/dashboard" },
 ];
 
 const NAV_LINKS: NavLink[] = [
@@ -109,8 +110,8 @@ export default function HeaderClient({
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-primary/80 backdrop-blur-md shadow-[0_2px_24px_rgba(0,0,0,0.2)]"
-          : "bg-primary"
+          ? "bg-primary/80 dark:bg-gray-900/90 backdrop-blur-md shadow-[0_2px_24px_rgba(0,0,0,0.2)]"
+          : "bg-primary dark:bg-gray-900"
       }`}
     >
       {/* Text watermark — only visible at full opacity (top of page) */}
@@ -138,7 +139,8 @@ export default function HeaderClient({
           )}
           <span className="font-black text-white text-lg lg:text-xl tracking-tight uppercase leading-none select-none">
             TG{" "}
-            <span className="text-blue-400 font-bold">MIPA</span>
+            <span className="text-blue-400 font-bold">MIPA</span>{" "}
+            <span className="text-white/70 font-bold">LANDSHUT</span>
           </span>
         </Link>
 

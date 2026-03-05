@@ -5,6 +5,8 @@ import magazine from "./magazine";
 import partner from "./partner";
 import gallery from "./gallery";
 import settings from "./settings";
+import spielerProfil from "./spielerProfil";
+import trainingsplan from "./trainingsplan";
 
 export const schemaTypes = [
   news,
@@ -14,4 +16,6 @@ export const schemaTypes = [
   partner,
   gallery,
   settings,
+  spielerProfil,
+  trainingsplan,
 ];
