@@ -6,9 +6,9 @@ import SpielplanClient from "@/components/sections/SpielplanClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Spielplan & Ergebnisse | TG MIPA Landshut Handball",
+  title: "Spielplan & Ergebnisse | TG MIPA Landshut",
   description:
-    "Alle Spiele und Ergebnisse der TG MIPA Landshut Handball-Mannschaften.",
+    "Alle Spiele und Ergebnisse der TG MIPA Landshut-Mannschaften.",
 };
 
 export const revalidate = 3600;
@@ -42,7 +42,7 @@ export default async function SpielplanPage() {
             Spielplan &amp; Ergebnisse
           </h1>
           <p className="text-white/55 mt-3 text-base max-w-lg">
-            Alle Spiele und Ergebnisse der TG MIPA Landshut Handball-Mannschaften.
+            Alle Spiele und Ergebnisse der TG MIPA Landshut-Mannschaften.
           </p>
         </div>
       </PageHeroSlider>

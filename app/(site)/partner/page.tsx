@@ -7,9 +7,9 @@ import type { Partner, SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Unsere Partner | TG MIPA Landshut Handball",
+  title: "Unsere Partner | TG MIPA Landshut",
   description:
-    "Die Partner des TG MIPA Landshut Handball – Danke für eure Unterstützung.",
+    "Die Partner des TG MIPA Landshut – Danke für eure Unterstützung.",
 };
 
 export const revalidate = 3600;

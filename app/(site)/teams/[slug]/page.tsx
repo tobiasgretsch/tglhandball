@@ -37,11 +37,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     )
     .catch(() => null);
 
-  if (!team) return { title: "Team | TG MIPA Landshut Handball" };
+  if (!team) return { title: "Team | TG MIPA Landshut" };
 
   const title = team.league
     ? `${team.name} – ${team.league} | TG MIPA`
-    : `${team.name} | TG MIPA Landshut Handball`;
+    : `${team.name} | TG MIPA Landshut`;
 
   return { title };
 }

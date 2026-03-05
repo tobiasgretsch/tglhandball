@@ -8,7 +8,7 @@ import type { Team, SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Unsere Teams | TG MIPA Landshut Handball",
+  title: "Unsere Teams | TG MIPA Landshut",
   description: "Alle Mannschaften des TG MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
 };
 

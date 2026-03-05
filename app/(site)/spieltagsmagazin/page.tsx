@@ -6,7 +6,7 @@ import MagazineClient from "@/components/sections/MagazineClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Spieltagsmagazine | TG MIPA Landshut Handball",
+  title: "Spieltagsmagazine | TG MIPA Landshut",
   description:
     "Alle Spieltagsmagazine der TG MIPA Landshut zum Download – sortiert nach Saison.",
 };

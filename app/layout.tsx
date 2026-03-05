@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
     : undefined;
 
   return {
-    title: "TG MIPA Landshut Handball",
+    title: "TG MIPA Landshut",
     description: "Handball in Landshut – TG MIPA",
     ...(icons && { icons }),
   };

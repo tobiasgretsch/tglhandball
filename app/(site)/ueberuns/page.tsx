@@ -10,9 +10,9 @@ import ContactForm from "@/components/sections/ContactForm";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Über uns | TG MIPA Landshut Handball",
+  title: "Über uns | TG MIPA Landshut",
   description:
-    "Geschichte, Vorstand und Kontakt des TG MIPA Landshut Handball.",
+    "Geschichte, Vorstand und Kontakt des TG MIPA Landshut.",
 };
 
 export const revalidate = 3600;
@@ -44,7 +44,7 @@ export default async function UeberUnsPage() {
             Über uns
           </h1>
           <p className="text-white/55 mt-3 text-base max-w-lg">
-            Geschichte, Menschen und Werte des TG MIPA Landshut Handball.
+            Geschichte, Menschen und Werte des TG MIPA Landshut.
           </p>
         </div>
       </PageHeroSlider>

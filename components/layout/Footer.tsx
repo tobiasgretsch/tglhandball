@@ -205,7 +205,7 @@ export default async function Footer() {
       <div className="relative border-t border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-white/35 text-xs">
-            © {year} TG MIPA Landshut Handball
+            © {year} TG MIPA Landshut
           </p>
           <div className="flex gap-5">
             <Link

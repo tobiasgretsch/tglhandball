@@ -32,14 +32,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .fetch<NewsArticle>(newsDetailQuery, { slug })
     .catch(() => null);
 
-  if (!article) return { title: "News | TG MIPA Landshut Handball" };
+  if (!article) return { title: "News | TG MIPA Landshut" };
 
   const ogImage = article.mainImage
     ? urlFor(article.mainImage).width(1200).height(630).url()
     : undefined;
 
   return {
-    title: `${article.title} | TG MIPA Landshut Handball`,
+    title: `${article.title} | TG MIPA Landshut`,
     description: article.teaser,
     openGraph: {
       title: article.title,

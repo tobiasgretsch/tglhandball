@@ -17,11 +17,11 @@ import HeroSection from "@/components/sections/HeroSection";
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
-  title: "TG MIPA Landshut Handball – Leidenschaft seit Jahrzehnten",
+  title: "TG MIPA Landshut – Leidenschaft seit Jahrzehnten",
   description:
-    "Offizielle Website des TG MIPA Landshut Handball. Aktuelle News, Spielplan, Mannschaften und mehr.",
+    "Offizielle Website des TG MIPA Landshut. Aktuelle News, Spielplan, Mannschaften und mehr.",
   openGraph: {
-    title: "TG MIPA Landshut Handball",
+    title: "TG MIPA Landshut",
     description: "Handball in Landshut – Leidenschaft seit Jahrzehnten.",
     type: "website",
   },

@@ -6,7 +6,7 @@ import GalleryClient from "@/components/sections/GalleryClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Impressionen | TG MIPA Landshut Handball",
+  title: "Impressionen | TG MIPA Landshut",
   description:
     "Fotos und Impressionen von Spielen und Events der TG MIPA Landshut.",
 };

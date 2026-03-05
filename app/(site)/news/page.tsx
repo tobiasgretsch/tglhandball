@@ -6,9 +6,9 @@ import NewsClient from "@/components/sections/NewsClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Neuigkeiten | TG MIPA Landshut Handball",
+  title: "Neuigkeiten | TG MIPA Landshut",
   description:
-    "Aktuelle Nachrichten, Spielberichte und Vereinsnews von TG MIPA Landshut Handball.",
+    "Aktuelle Nachrichten, Spielberichte und Vereinsnews von TG MIPA Landshut.",
 };
 
 export const revalidate = 1800;
