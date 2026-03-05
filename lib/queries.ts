@@ -280,6 +280,7 @@ export const settingsQuery = groq`
   *[_type == "settings"][0] {
     clubName,
     logo,
+    favicon,
     heroImage,
     pageHeroSlides,
     aboutText,

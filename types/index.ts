@@ -147,6 +147,7 @@ export interface BoardMember {
 export interface Settings {
   clubName?: string;
   logo?: SanityImage;
+  favicon?: SanityImage;
   heroImage?: SanityImage;
   pageHeroSlides?: SanityImage[];
   aboutText?: PortableTextBlock[];

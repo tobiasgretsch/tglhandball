@@ -20,6 +20,12 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: "favicon",
+      title: "Favicon",
+      type: "image",
+      description: "Wird als Browser-Tab-Icon angezeigt. Empfohlen: quadratisches PNG oder SVG, mind. 512×512 px.",
+    }),
+    defineField({
       name: "heroImage",
       title: "Hero-Bild (Startseite)",
       type: "image",

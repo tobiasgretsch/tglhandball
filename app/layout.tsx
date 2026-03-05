@@ -1,13 +1,31 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { client, urlFor } from "@/lib/sanity";
+import { settingsQuery } from "@/lib/queries";
+import type { Settings } from "@/types";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "TG MIPA Landshut Handball",
-  description: "Handball in Landshut – TG MIPA",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await client
+    .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
+    .catch(() => null);
+
+  const icons: Metadata["icons"] = settings?.favicon
+    ? {
+        icon: urlFor(settings.favicon).width(32).height(32).format("png").url(),
+        shortcut: urlFor(settings.favicon).width(32).height(32).format("png").url(),
+        apple: urlFor(settings.favicon).width(180).height(180).format("png").url(),
+      }
+    : undefined;
+
+  return {
+    title: "TG MIPA Landshut Handball",
+    description: "Handball in Landshut – TG MIPA",
+    ...(icons && { icons }),
+  };
+}
 
 // Inline script runs before React hydrates to apply saved theme class,
 // preventing a flash of the wrong theme on page load.
