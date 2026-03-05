@@ -152,12 +152,12 @@ export default async function TeamDetailPage({ params }: Props) {
                         </div>
                       )}
                     </div>
-                    <div className="p-3">
-                      <p className="font-bold text-text dark:text-gray-100 text-xs leading-tight truncate">
+                    <div className="p-3 md:p-4">
+                      <p className="font-bold text-text dark:text-gray-100 text-xs md:text-sm leading-tight truncate">
                         {coach.name}
                       </p>
                       {coach.role && (
-                        <p className="text-muted dark:text-gray-400 text-[10px] mt-0.5 truncate">
+                        <p className="text-muted dark:text-gray-400 text-[10px] md:text-xs mt-0.5 truncate">
                           {coach.role}
                         </p>
                       )}
@@ -202,17 +202,17 @@ export default async function TeamDetailPage({ params }: Props) {
                       )}
                       {/* Jersey number badge */}
                       {player.number !== undefined && (
-                        <span className="absolute top-2 left-2 bg-primary text-white text-xs font-black w-7 h-7 rounded-full flex items-center justify-center leading-none shadow-sm">
+                        <span className="absolute top-2 left-2 bg-primary text-white text-xs md:text-sm font-black w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center leading-none shadow-sm">
                           {player.number}
                         </span>
                       )}
                     </div>
-                    <div className="p-3">
-                      <p className="font-bold text-text dark:text-gray-100 text-xs leading-tight truncate">
+                    <div className="p-3 md:p-4">
+                      <p className="font-bold text-text dark:text-gray-100 text-xs md:text-sm leading-tight truncate">
                         {player.name}
                       </p>
                       {player.position && (
-                        <p className="text-muted dark:text-gray-400 text-[10px] mt-0.5 truncate">
+                        <p className="text-muted dark:text-gray-400 text-[10px] md:text-xs mt-0.5 truncate">
                           {player.position}
                         </p>
                       )}
@@ -255,12 +255,12 @@ export default async function TeamDetailPage({ params }: Props) {
                         </div>
                       )}
                     </div>
-                    <div className="p-3">
-                      <p className="font-bold text-text dark:text-gray-100 text-xs leading-tight truncate">
+                    <div className="p-3 md:p-4">
+                      <p className="font-bold text-text dark:text-gray-100 text-xs md:text-sm leading-tight truncate">
                         {b.name}
                       </p>
                       {b.role && (
-                        <p className="text-muted dark:text-gray-400 text-[10px] mt-0.5 truncate">
+                        <p className="text-muted dark:text-gray-400 text-[10px] md:text-xs mt-0.5 truncate">
                           {b.role}
                         </p>
                       )}
