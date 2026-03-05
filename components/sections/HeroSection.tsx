@@ -36,20 +36,8 @@ export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps
         <div className="absolute inset-0 bg-gradient-to-br from-[#003a7a] via-accent to-[#001f4d]" />
       )}
 
-      {/* Diagonal stripe texture */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "repeating-linear-gradient(-55deg,transparent,transparent 16px,rgba(0,0,0,0.04) 16px,rgba(0,0,0,0.04) 32px)",
-        }}
-      />
-
       {/* Dark gradient overlay — stronger at bottom */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
-
-      {/* Red accent bar at very bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-[4px] bg-primary" />
 
       {/* Content */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 pt-40 w-full">

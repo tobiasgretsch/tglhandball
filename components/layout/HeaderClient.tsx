@@ -111,12 +111,26 @@ export default function HeaderClient({
         scrolled ? "shadow-[0_4px_32px_rgba(0,0,0,0.35)]" : ""
       }`}
     >
-      {/* Transparent watermark */}
+      {/* Text watermark */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center">
         <span className="whitespace-nowrap font-black text-white/10 text-[72px] lg:text-[96px] uppercase tracking-tight leading-none select-none pl-6">
           TG MIPA LANDSHUT
         </span>
       </div>
+
+      {/* Logo watermark */}
+      {logoUrl && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-end">
+          <Image
+            src={logoUrl}
+            alt=""
+            width={140}
+            height={140}
+            className="object-contain opacity-[0.08] brightness-0 invert"
+            aria-hidden
+          />
+        </div>
+      )}
 
       {/* Inner nav bar */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] lg:h-[76px] flex items-center justify-between">
