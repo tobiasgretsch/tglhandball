@@ -18,6 +18,12 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: "description",
+      title: "Kurzbeschreibung",
+      type: "string",
+      description: "Kurzer Satz über die Partnerschaft (wird auf der Partnerseite angezeigt).",
+    }),
+    defineField({
       name: "websiteUrl",
       title: "Website-URL",
       type: "url",

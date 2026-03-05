@@ -9,17 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@portabletext/react": "^6.0.3",
     "@sanity/client": "^7.16.0",
     "@sanity/image-url": "^2.0.3",
     "@sanity/vision": "^5.13.0",
     "@tailwindcss/postcss": "^4.2.1",
+    "@types/leaflet": "^1.9.21",
     "framer-motion": "^12.35.0",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.577.0",
     "next": "^16.1.6",
     "next-sanity": "^12.1.0",
     "next-sitemap": "^4.2.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-leaflet": "^5.0.0",
     "resend": "^6.9.3",
     "sanity": "^5.13.0",
     "styled-components": "^6.3.11"

@@ -106,6 +106,7 @@ export type PartnerTier = "premium" | "standard";
 export interface Partner {
   _id: string;
   name: string;
+  description?: string;
   logo?: SanityImage;
   websiteUrl?: string;
   tier?: PartnerTier;
@@ -127,13 +128,27 @@ export interface GalleryItem {
 
 // ─── Settings (singleton) ────────────────────────────────────────────────────
 
+export interface BoardMember {
+  _key: string;
+  name: string;
+  role?: string;
+  email?: string;
+  photo?: SanityImage;
+}
+
 export interface Settings {
   clubName?: string;
   logo?: SanityImage;
+  heroImage?: SanityImage;
+  pageHeroSlides?: SanityImage[];
+  aboutText?: PortableTextBlock[];
+  aboutPhoto?: SanityImage;
+  boardMembers?: BoardMember[];
   instagramUrl?: string;
   facebookUrl?: string;
   youtubeUrl?: string;
   contactEmail?: string;
+  venueName?: string;
   venueAddress?: string;
   venueLat?: number;
   venueLng?: number;

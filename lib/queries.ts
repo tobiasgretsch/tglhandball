@@ -117,7 +117,7 @@ export const allMagazinesQuery = groq`
     matchday,
     opponent,
     date,
-    pdfFile,
+    pdfFile { asset->{ url } },
   }
 `;
 
@@ -128,7 +128,7 @@ export const magazinesBySeasonQuery = groq`
     matchday,
     opponent,
     date,
-    pdfFile,
+    pdfFile { asset->{ url } },
   }
 `;
 
@@ -138,6 +138,7 @@ export const activePartnersQuery = groq`
   *[_type == "partner" && active == true] | order(tier asc, name asc) {
     _id,
     name,
+    description,
     logo,
     websiteUrl,
     tier,
@@ -176,16 +177,124 @@ export const galleryByCategoryQuery = groq`
   }
 `;
 
+// ─── Related news (excludes current article) ─────────────────────────────────
+
+export const relatedNewsQuery = groq`
+  *[_type == "news" && slug.current != $currentSlug] | order(publishedAt desc) [0...3] {
+    _id,
+    title,
+    slug,
+    publishedAt,
+    category,
+    mainImage,
+    teaser,
+  }
+`;
+
+// ─── Homepage queries ─────────────────────────────────────────────────────────
+
+export const homeUpcomingMatchesQuery = groq`
+  *[_type == "match" && date > $now && !defined(result)] | order(date asc) [0...2] {
+    _id,
+    date,
+    homeTeam,
+    awayTeam,
+    venue,
+    isHomeGame,
+    team->{ _id, name, slug },
+  }
+`;
+
+export const latestResultQuery = groq`
+  *[_type == "match" && defined(result)] | order(date desc) [0] {
+    _id,
+    date,
+    homeTeam,
+    awayTeam,
+    result,
+    venue,
+    isHomeGame,
+    team->{ _id, name, slug },
+  }
+`;
+
+export const latestNewsQuery = groq`
+  *[_type == "news"] | order(publishedAt desc) [0...3] {
+    _id,
+    title,
+    slug,
+    publishedAt,
+    category,
+    mainImage,
+    teaser,
+    author,
+  }
+`;
+
+// ─── Team-specific match queries ─────────────────────────────────────────────
+
+export const teamUpcomingMatchesQuery = groq`
+  *[_type == "match" && team._ref == $teamId && date > $now && !defined(result)]
+  | order(date asc) [0...5] {
+    _id,
+    date,
+    homeTeam,
+    awayTeam,
+    venue,
+    isHomeGame,
+  }
+`;
+
+export const teamRecentResultsQuery = groq`
+  *[_type == "match" && team._ref == $teamId && defined(result)]
+  | order(date desc) [0...5] {
+    _id,
+    date,
+    homeTeam,
+    awayTeam,
+    result,
+    isHomeGame,
+  }
+`;
+
+// ─── Premium Partners (footer strip) ─────────────────────────────────────────
+
+export const premiumPartnersQuery = groq`
+  *[_type == "partner" && active == true && tier == "premium"] | order(name asc) {
+    _id,
+    name,
+    logo,
+    websiteUrl,
+  }
+`;
+
 // ─── Settings (singleton) ────────────────────────────────────────────────────
+
+/** Fetches only the page-header slider images — used by pages that don't need full settings. */
+export const pageHeroSlidesQuery = groq`
+  *[_type == "settings"][0].pageHeroSlides
+`;
 
 export const settingsQuery = groq`
   *[_type == "settings"][0] {
     clubName,
     logo,
+    heroImage,
+    pageHeroSlides,
+    aboutText,
+    aboutPhoto,
+    boardMembers[] {
+      _key,
+      name,
+      role,
+      email,
+      photo,
+    },
     instagramUrl,
     facebookUrl,
     youtubeUrl,
     contactEmail,
+    venueName,
     venueAddress,
     venueLat,
     venueLng,

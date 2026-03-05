@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Class-based dark mode: apply dark: utilities when html.dark is set */
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary: #da251c;
   --color-primary-light: #e64752;
@@ -14,8 +17,72 @@ body {
   background: #F8F9FA;
 }
 
+.dark body {
+  color: #f3f4f6;
+  background: #111827;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* ─── Header animations ──────────────────────────────────────────────────── */
+
+@keyframes header-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate(-10%, -20%) scale(1); }
+  33%      { transform: translate(5%, 10%) scale(1.1); }
+  66%      { transform: translate(20%, -10%) scale(0.95); }
+}
+
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate(80%, 30%) scale(1); }
+  50%      { transform: translate(60%, -20%) scale(1.15); }
+}
+
+.header-bg {
+  background: linear-gradient(135deg, #da251c 0%, #b51c14 40%, #da251c 100%);
+  background-size: 200% 200%;
+  animation: header-gradient 10s ease infinite;
+  position: relative;
+  /* overflow must stay visible so dropdown menus aren't clipped */
+}
+
+.header-orb-a {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.13) 0%, transparent 70%);
+  animation: orb-drift-a 14s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.header-orb-b {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 200, 200, 0.1) 0%, transparent 70%);
+  animation: orb-drift-b 10s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.header-stripe {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent,
+    transparent 8px,
+    rgba(0, 0, 0, 0.035) 8px,
+    rgba(0, 0, 0, 0.035) 16px
+  );
+  pointer-events: none;
 }
