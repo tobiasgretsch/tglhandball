@@ -28,16 +28,25 @@ export default async function Footer() {
     ? urlFor(settings.logo).width(96).height(96).url()
     : null;
 
+  const logoWatermarkUrl = settings?.logo
+    ? urlFor(settings.logo).width(600).height(600).url()
+    : null;
+
   return (
     <footer className="relative bg-primary overflow-hidden">
-      {/* Diagonal stripe texture */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "repeating-linear-gradient(-55deg,transparent,transparent 8px,rgba(0,0,0,0.04) 8px,rgba(0,0,0,0.04) 16px)",
-        }}
-      />
+      {/* Centred logo watermark */}
+      {logoWatermarkUrl && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <Image
+            src={logoWatermarkUrl}
+            alt=""
+            width={480}
+            height={480}
+            className="object-contain opacity-[0.06] brightness-0 invert select-none"
+            aria-hidden
+          />
+        </div>
+      )}
 
       {/* Premium partner strip */}
       {partners && partners.length > 0 && (

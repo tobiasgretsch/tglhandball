@@ -107,33 +107,23 @@ export default function HeaderClient({
 
   return (
     <header
-      className={`header-bg fixed top-0 left-0 right-0 z-50 transition-shadow duration-300 ${
-        scrolled ? "shadow-[0_4px_32px_rgba(0,0,0,0.35)]" : ""
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-primary/80 backdrop-blur-md shadow-[0_2px_24px_rgba(0,0,0,0.2)]"
+          : "bg-primary"
       }`}
     >
-      {/* Text watermark */}
+      {/* Text watermark — only visible at full opacity (top of page) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center">
         <span className="whitespace-nowrap font-black text-white/10 text-[72px] lg:text-[96px] uppercase tracking-tight leading-none select-none pl-6">
           TG MIPA LANDSHUT
         </span>
       </div>
 
-      {/* Logo watermark */}
-      {logoUrl && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-end">
-          <Image
-            src={logoUrl}
-            alt=""
-            width={140}
-            height={140}
-            className="object-contain opacity-[0.08] brightness-0 invert"
-            aria-hidden
-          />
-        </div>
-      )}
-
-      {/* Inner nav bar */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] lg:h-[76px] flex items-center justify-between">
+      {/* Inner nav bar — shrinks slightly when scrolled */}
+      <div className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-300 ${
+        scrolled ? "h-[54px] lg:h-[60px]" : "h-[68px] lg:h-[76px]"
+      }`}>
         {/* Logo + club name */}
         <Link href="/" className="flex items-center gap-3 group">
           {logoUrl && (

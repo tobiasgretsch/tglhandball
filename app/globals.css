@@ -30,9 +30,5 @@ body {
 
 /* ─── Header smoke cloud animation ──────────────────────────────────────── */
 
-.header-bg {
-  background: #da251c;
-  /* No position: relative here — Tailwind's `fixed` class must not be overridden */
-}
 
 
