@@ -46,107 +46,6 @@ const NAV_LINKS: NavLink[] = [
   { label: "Verein", href: "/ueberuns", dropdown: "verein", staticItems: VEREIN_ITEMS },
 ];
 
-// ─── WebGL smoke shaders ───────────────────────────────────────────────────────
-
-const VERT_SHADER = `
-  attribute vec2 a_position;
-  void main() {
-    gl_Position = vec4(a_position, 0.0, 1.0);
-  }
-`;
-
-// FBM (fractional Brownian motion) smoke, adapted from:
-// https://www.shadertoy.com/view/lsl3RH
-// Background stays fixed at #1a0005; smoke batches through 3 club colours
-// with a quick 0.5 s swap instead of a continuous blend.
-const FRAG_SHADER = `
-  precision mediump float;
-  uniform vec2  iResolution;
-  uniform float iTime;
-
-  float random(vec2 p) {
-    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
-  }
-
-  float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    float a = random(i);
-    float b = random(i + vec2(1.0, 0.0));
-    float c = random(i + vec2(0.0, 1.0));
-    float d = random(i + vec2(1.0, 1.0));
-    vec2  u = f * f * (3.0 - 2.0 * f);
-    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-  }
-
-  float fbm(vec2 p) {
-    float v = 0.0;
-    float a = 0.5;
-    vec2  shift = vec2(20.0);
-    mat2  rot   = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
-    for (int i = 0; i < 8; i++) {
-      v  += a * noise(p);
-      p   = rot * p * 2.0 + shift;
-      a  *= 0.5;
-    }
-    return v;
-  }
-
-  void main(void) {
-    vec2 uv = (gl_FragCoord.xy - 0.5 * iResolution.xy) / iResolution.y;
-    uv *= 0.5;
-
-    vec2 q = vec2(
-      fbm(uv + 0.20 * iTime),
-      fbm(uv + vec2(5.0, 1.0))
-    );
-    vec2 r = vec2(
-      fbm(uv + 3.0 * q + vec2(1.2, 3.2) + 0.2 * iTime),
-      fbm(uv + 3.0 * q + vec2(8.8, 2.8) + 0.2 * iTime)
-    );
-
-    float f = fbm(uv + r);
-
-    // ── Fixed background — never changes ───────────────────────────────────
-    vec3 bg = vec3(0.102, 0.0, 0.02);   // #1a0005
-
-    // ── Club colour palette ────────────────────────────────────────────────
-    vec3 red    = vec3(1.00, 0.20, 0.00);   // #ff3300
-    vec3 purple = vec3(0.47, 0.33, 0.80);   // #7755cc
-    vec3 pink   = vec3(1.00, 0.80, 0.87);   // #ffccdd
-
-    // ── Discrete colour batches ────────────────────────────────────────────
-    // Each colour holds for 9 s; swap takes 0.5 s (≈ 5 % of the period).
-    float PERIOD = 9.0;
-    float totalT = mod(iTime, PERIOD * 3.0);
-    float subT   = fract(totalT / PERIOD);      // 0→1 within current batch
-    float tBlend = 0.5 / PERIOD;                // fraction used for transition
-
-    float inFade  = smoothstep(0.0,          tBlend, subT);
-    float outFade = smoothstep(1.0 - tBlend, 1.0,    subT);
-
-    vec3 prevC, currC, nextC;
-    if (totalT < PERIOD) {
-      prevC = pink;   currC = red;    nextC = purple;
-    } else if (totalT < PERIOD * 2.0) {
-      prevC = red;    currC = purple; nextC = pink;
-    } else {
-      prevC = purple; currC = pink;   nextC = red;
-    }
-
-    // Holds solid currC for most of the batch; blends briefly at each edge.
-    vec3 smokeColor = mix(mix(prevC, currC, inFade), nextC, outFade);
-
-    // ── Smoke density (unchanged fbm shape) ───────────────────────────────
-    float smoke = f * f * f + 0.6 * f * f + 0.5 * f;
-
-    // ── Composite: fixed bg + single-colour smoke ──────────────────────────
-    gl_FragColor = vec4(bg + smoke * smokeColor, 1.0);
-  }
-`;
-
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function HeaderClient({
   logoUrl,
   clubName,
@@ -158,76 +57,10 @@ export default function HeaderClient({
   const [openDropdown, setOpenDropdown] = useState<"teams" | "verein" | null>(null);
   const [isDark, setIsDark] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Initialise isDark from the class already applied by the anti-flash script.
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
-
-  // WebGL FBM smoke animation
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const gl = canvas.getContext("webgl");
-    if (!gl) return;
-
-    function compileShader(type: number, src: string): WebGLShader {
-      const s = gl!.createShader(type)!;
-      gl!.shaderSource(s, src);
-      gl!.compileShader(s);
-      return s;
-    }
-
-    const vs = compileShader(gl.VERTEX_SHADER, VERT_SHADER);
-    const fs = compileShader(gl.FRAGMENT_SHADER, FRAG_SHADER);
-
-    const program = gl.createProgram()!;
-    gl.attachShader(program, vs);
-    gl.attachShader(program, fs);
-    gl.linkProgram(program);
-    gl.useProgram(program);
-
-    // Full-screen quad
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-    const posLoc = gl.getAttribLocation(program, "a_position");
-    gl.enableVertexAttribArray(posLoc);
-    gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
-
-    const resLoc  = gl.getUniformLocation(program, "iResolution");
-    const timeLoc = gl.getUniformLocation(program, "iTime");
-
-    let raf = 0;
-    const t0 = performance.now();
-
-    function resize() {
-      if (!canvas) return;
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width  = canvas.offsetWidth  * dpr;
-      canvas.height = canvas.offsetHeight * dpr;
-      gl!.viewport(0, 0, canvas.width, canvas.height);
-    }
-
-    function render() {
-      if (!canvas) return;
-      gl!.uniform2f(resLoc, canvas.width, canvas.height);
-      gl!.uniform1f(timeLoc, (performance.now() - t0) / 1000);
-      gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
-      raf = requestAnimationFrame(render);
-    }
-
-    resize();
-    render();
-    window.addEventListener("resize", resize);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      gl.deleteProgram(program);
-    };
   }, []);
 
   useEffect(() => {
@@ -278,14 +111,12 @@ export default function HeaderClient({
         scrolled ? "shadow-[0_4px_32px_rgba(0,0,0,0.35)]" : ""
       }`}
     >
-      {/* WebGL smoke canvas */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ display: "block" }}
-      />
-      {/* Semi-transparent overlay to unify canvas with nav text readability */}
-      <div className="header-overlay" />
+      {/* Transparent watermark */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center">
+        <span className="whitespace-nowrap font-black text-white/10 text-[72px] lg:text-[96px] uppercase tracking-tight leading-none select-none pl-6">
+          TG MIPA LANDSHUT
+        </span>
+      </div>
 
       {/* Inner nav bar */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[68px] lg:h-[76px] flex items-center justify-between">
