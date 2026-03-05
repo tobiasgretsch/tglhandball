@@ -127,37 +127,39 @@ export default async function TeamDetailPage({ params }: Props) {
         <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Trainerteam" />
-            <div className="mt-8 flex flex-wrap gap-5">
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
               {team.coaches.map((coach) => {
                 const coachImageUrl = coach.image
-                  ? urlFor(coach.image).width(200).height(200).url()
+                  ? urlFor(coach.image).width(240).height(300).url()
                   : null;
                 return (
                   <div
                     key={coach._key}
-                    className="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-700 min-w-[220px]"
+                    className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
                   >
-                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 shrink-0">
+                    <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
                       {coachImageUrl ? (
                         <Image
                           src={coachImageUrl}
                           alt={coach.name}
                           fill
-                          sizes="56px"
-                          className="object-cover"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover object-top"
                         />
                       ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center">
-                          <User size={20} className="text-muted dark:text-gray-400" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <User size={32} className="text-muted/30 dark:text-gray-400/30" />
                         </div>
                       )}
                     </div>
-                    <div>
-                      <p className="font-bold text-text dark:text-gray-100 text-sm leading-tight">
+                    <div className="p-3">
+                      <p className="font-bold text-text dark:text-gray-100 text-xs leading-tight truncate">
                         {coach.name}
                       </p>
                       {coach.role && (
-                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5">{coach.role}</p>
+                        <p className="text-muted dark:text-gray-400 text-[10px] mt-0.5 truncate">
+                          {coach.role}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -173,37 +175,39 @@ export default async function TeamDetailPage({ params }: Props) {
         <section className="bg-white dark:bg-gray-800 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Betreuer" />
-            <div className="mt-8 flex flex-wrap gap-5">
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
               {team.betreuer.map((b: Betreuer) => {
                 const imageUrl = b.image
-                  ? urlFor(b.image).width(200).height(200).url()
+                  ? urlFor(b.image).width(240).height(300).url()
                   : null;
                 return (
                   <div
                     key={b._key}
-                    className="flex items-center gap-4 bg-background dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-600 min-w-[220px]"
+                    className="group bg-background dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-600 hover:shadow-md transition-shadow"
                   >
-                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600 shrink-0">
+                    <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
                       {imageUrl ? (
                         <Image
                           src={imageUrl}
                           alt={b.name}
                           fill
-                          sizes="56px"
-                          className="object-cover"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover object-top"
                         />
                       ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                          <User size={20} className="text-muted dark:text-gray-400" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <User size={32} className="text-muted/30 dark:text-gray-400/30" />
                         </div>
                       )}
                     </div>
-                    <div>
-                      <p className="font-bold text-text dark:text-gray-100 text-sm leading-tight">
+                    <div className="p-3">
+                      <p className="font-bold text-text dark:text-gray-100 text-xs leading-tight truncate">
                         {b.name}
                       </p>
                       {b.role && (
-                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5">{b.role}</p>
+                        <p className="text-muted dark:text-gray-400 text-[10px] mt-0.5 truncate">
+                          {b.role}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -216,10 +220,10 @@ export default async function TeamDetailPage({ params }: Props) {
 
       {/* ── 5. Squad ──────────────────────────────────────────────────── */}
       {team.squad && team.squad.length > 0 && (
-        <section className="bg-white dark:bg-gray-800 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Kader" />
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {team.squad.map((player) => {
                 const playerImageUrl = player.image
                   ? urlFor(player.image).width(240).height(300).url()
@@ -227,7 +231,7 @@ export default async function TeamDetailPage({ params }: Props) {
                 return (
                   <div
                     key={player._key}
-                    className="group bg-background dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-600 hover:shadow-md transition-shadow"
+                    className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
                   >
                     {/* Player image */}
                     <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
@@ -236,7 +240,7 @@ export default async function TeamDetailPage({ params }: Props) {
                           src={playerImageUrl}
                           alt={player.name}
                           fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                           className="object-cover object-top"
                         />
                       ) : (
