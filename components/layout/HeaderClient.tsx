@@ -57,6 +57,16 @@ export default function HeaderClient({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<"teams" | "verein" | null>(null);
   const [isDark, setIsDark] = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState<Set<string>>(new Set());
+
+  const toggleMobileSection = (key: string) => {
+    setMobileExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialise isDark from the class already applied by the anti-flash script.
@@ -107,6 +117,7 @@ export default function HeaderClient({
   };
 
   return (
+    <>
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
@@ -131,13 +142,13 @@ export default function HeaderClient({
             <Image
               src={logoUrl}
               alt={clubName}
-              width={44}
-              height={44}
-              className="object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200"
+              width={60}
+              height={60}
+              className="object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-200 brightness-0 invert dark:brightness-100 dark:invert-0"
               priority
             />
           )}
-          <span className="font-black text-white text-lg lg:text-xl tracking-tight uppercase leading-none select-none">
+          <span className="font-black text-white text-xl lg:text-2xl tracking-tight uppercase leading-none select-none">
             TG{" "}
             <span className="text-blue-400 font-bold">MIPA</span>{" "}
             <span className="text-white/70 font-bold">LANDSHUT</span>
@@ -155,7 +166,7 @@ export default function HeaderClient({
                 onMouseLeave={scheduleClose}
               >
                 <button
-                  className={`relative flex items-center gap-1.5 px-4 py-2 text-[12px] font-bold uppercase tracking-[0.12em] rounded-sm transition-colors ${
+                  className={`relative flex items-center gap-1.5 px-4 py-2 text-[15px] font-bold uppercase tracking-[0.12em] rounded-sm transition-colors ${
                     isActive(link)
                       ? "text-white"
                       : "text-white/75 hover:text-white"
@@ -186,7 +197,7 @@ export default function HeaderClient({
                       transition={{ duration: 0.16, ease: "easeOut" }}
                       onMouseEnter={() => openMenu(link.dropdown!)}
                       onMouseLeave={scheduleClose}
-                      className="absolute top-full left-0 mt-1 w-56 bg-accent rounded-sm shadow-2xl overflow-hidden"
+                      className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-[#8B0000] rounded-sm shadow-2xl overflow-hidden"
                     >
                       {link.dropdown === "teams" && (
                         <>
@@ -194,11 +205,11 @@ export default function HeaderClient({
                             <Link
                               key={team._id}
                               href={`/teams/${team.slug.current}`}
-                              className="block px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white/85 hover:bg-white/10 hover:text-white transition-colors border-b border-white/10 last:border-0"
+                              className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-200 dark:border-white/10 last:border-0"
                             >
                               {team.name}
                               {team.league && (
-                                <span className="block text-[10px] text-white/45 font-normal normal-case tracking-normal mt-0.5">
+                                <span className="block text-[12px] text-gray-500 dark:text-white/45 font-normal normal-case tracking-normal mt-0.5">
                                   {team.league}
                                 </span>
                               )}
@@ -206,7 +217,7 @@ export default function HeaderClient({
                           ))}
                           <Link
                             href="/teams"
-                            className="block px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                            className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-400 hover:text-gray-900 hover:bg-red-50 dark:text-white/50 dark:hover:text-white dark:hover:bg-white/10 transition-colors"
                           >
                             Alle Teams →
                           </Link>
@@ -217,7 +228,7 @@ export default function HeaderClient({
                           <Link
                             key={item.href}
                             href={item.href}
-                            className="block px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-white/85 hover:bg-white/10 hover:text-white transition-colors border-b border-white/10 last:border-0"
+                            className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-200 dark:border-white/10 last:border-0"
                           >
                             {item.label}
                           </Link>
@@ -230,7 +241,7 @@ export default function HeaderClient({
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative px-4 py-2 text-[12px] font-bold uppercase tracking-[0.12em] rounded-sm transition-colors ${
+                className={`relative px-4 py-2 text-[15px] font-bold uppercase tracking-[0.12em] rounded-sm transition-colors ${
                   isActive(link)
                     ? "text-white"
                     : "text-white/75 hover:text-white"
@@ -276,7 +287,9 @@ export default function HeaderClient({
         </div>
       </div>
 
-      {/* ── Mobile drawer ───────────────────────────────────────────────── */}
+    </header>
+
+      {/* ── Mobile drawer ── rendered outside <header> to avoid fixed-position clipping */}
       <AnimatePresence>
         {mobileOpen && (
           <>
@@ -296,16 +309,16 @@ export default function HeaderClient({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 340, damping: 32 }}
-              className="fixed top-0 right-0 h-full w-80 bg-accent z-50 flex flex-col shadow-2xl"
+              className="fixed top-0 right-0 h-full w-80 bg-white dark:bg-[#8B0000] z-50 flex flex-col shadow-2xl"
             >
               {/* Drawer header */}
-              <div className="flex items-center justify-between px-6 h-[68px] border-b border-white/10">
-                <span className="font-black text-white text-sm uppercase tracking-widest">
+              <div className="flex items-center justify-between px-6 h-[68px] border-b border-gray-200 dark:border-white/10">
+                <span className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-widest">
                   Navigation
                 </span>
                 <button
                   onClick={() => setMobileOpen(false)}
-                  className="text-white/70 hover:text-white p-1 transition-colors"
+                  className="text-gray-500 hover:text-gray-900 dark:text-white/70 dark:hover:text-white p-1 transition-colors"
                   aria-label="Menü schließen"
                 >
                   <X size={22} />
@@ -321,49 +334,93 @@ export default function HeaderClient({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.055, duration: 0.22 }}
                   >
-                    <Link
-                      href={link.href}
-                      onClick={() => setMobileOpen(false)}
-                      className={`flex items-center px-6 py-4 text-[12px] font-bold uppercase tracking-widest border-b border-white/10 transition-colors ${
-                        isActive(link)
-                          ? "text-white bg-white/10"
-                          : "text-white/75 hover:text-white hover:bg-white/5"
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-
-                    {/* Inline team list under Teams */}
-                    {link.dropdown === "teams" && teams.length > 0 && (
-                      <div className="bg-black/20">
-                        {teams.map((team) => (
-                          <Link
-                            key={team._id}
-                            href={`/teams/${team.slug.current}`}
-                            onClick={() => setMobileOpen(false)}
-                            className="flex items-center pl-10 pr-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-white/55 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5"
-                          >
-                            {team.name}
-                          </Link>
-                        ))}
-                      </div>
+                    {link.dropdown ? (
+                      /* Collapsible section header */
+                      <button
+                        onClick={() => toggleMobileSection(link.dropdown!)}
+                        className={`w-full flex items-center justify-between px-6 py-4 text-[12px] font-bold uppercase tracking-widest border-b border-gray-200 dark:border-white/10 transition-colors ${
+                          isActive(link)
+                            ? "text-gray-900 bg-red-50 dark:text-white dark:bg-white/10"
+                            : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
+                        }`}
+                      >
+                        {link.label}
+                        <motion.span
+                          animate={{ rotate: mobileExpanded.has(link.dropdown) ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="inline-flex"
+                        >
+                          <ChevronDown size={14} />
+                        </motion.span>
+                      </button>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center px-6 py-4 text-[12px] font-bold uppercase tracking-widest border-b border-gray-200 dark:border-white/10 transition-colors ${
+                          isActive(link)
+                            ? "text-gray-900 bg-red-50 dark:text-white dark:bg-white/10"
+                            : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
                     )}
 
-                    {/* Inline Verein sub-links */}
-                    {link.dropdown === "verein" && link.staticItems && (
-                      <div className="bg-black/20">
-                        {link.staticItems.map((item) => (
+                    {/* Collapsible team list under Teams */}
+                    <AnimatePresence initial={false}>
+                      {link.dropdown === "teams" && mobileExpanded.has("teams") && teams.length > 0 && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: "easeInOut" }}
+                          className="overflow-hidden bg-gray-50 dark:bg-black/20"
+                        >
+                          {teams.map((team) => (
+                            <Link
+                              key={team._id}
+                              href={`/teams/${team.slug.current}`}
+                              onClick={() => setMobileOpen(false)}
+                              className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-600 hover:text-gray-900 hover:bg-red-50 dark:text-white/55 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                            >
+                              {team.name}
+                            </Link>
+                          ))}
                           <Link
-                            key={item.href}
-                            href={item.href}
+                            href="/teams"
                             onClick={() => setMobileOpen(false)}
-                            className="flex items-center pl-10 pr-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-white/55 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5"
+                            className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-400 hover:text-gray-900 hover:bg-red-50 dark:text-white/40 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                           >
-                            {item.label}
+                            Alle Teams →
                           </Link>
-                        ))}
-                      </div>
-                    )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Collapsible Verein sub-links */}
+                    <AnimatePresence initial={false}>
+                      {link.dropdown === "verein" && mobileExpanded.has("verein") && link.staticItems && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: "easeInOut" }}
+                          className="overflow-hidden bg-gray-50 dark:bg-black/20"
+                        >
+                          {link.staticItems.map((item) => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              onClick={() => setMobileOpen(false)}
+                              className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-600 hover:text-gray-900 hover:bg-red-50 dark:text-white/55 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
                 ))}
               </nav>
@@ -371,6 +428,6 @@ export default function HeaderClient({
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
