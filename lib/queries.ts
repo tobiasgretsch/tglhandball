@@ -64,6 +64,7 @@ export const teamDetailQuery = groq`
     headerImage,
     description,
     coaches,
+    betreuer,
     squad,
   }
 `;

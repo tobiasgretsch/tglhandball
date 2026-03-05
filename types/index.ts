@@ -55,6 +55,13 @@ export interface Coach {
   image?: SanityImage;
 }
 
+export interface Betreuer {
+  _key: string;
+  name: string;
+  role?: string;
+  image?: SanityImage;
+}
+
 export interface Player {
   _key: string;
   number?: number;
@@ -71,6 +78,7 @@ export interface Team {
   headerImage?: SanityImage;
   description?: PortableTextBlock[];
   coaches?: Coach[];
+  betreuer?: Betreuer[];
   squad?: Player[];
   order?: number;
 }

@@ -58,6 +58,29 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "betreuer",
+      title: "Betreuer",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({ name: "name", title: "Name", type: "string" }),
+            defineField({ name: "role", title: "Rolle", type: "string" }),
+            defineField({
+              name: "image",
+              title: "Bild",
+              type: "image",
+              options: { hotspot: true },
+            }),
+          ],
+          preview: {
+            select: { title: "name", subtitle: "role", media: "image" },
+          },
+        }),
+      ],
+    }),
+    defineField({
       name: "squad",
       title: "Kader",
       type: "array",

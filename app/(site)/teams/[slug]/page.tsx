@@ -9,7 +9,7 @@ import {
   teamUpcomingMatchesQuery,
   teamRecentResultsQuery,
 } from "@/lib/queries";
-import type { Team, Match } from "@/types";
+import type { Team, Match, Betreuer } from "@/types";
 import PortableText from "@/components/ui/PortableText";
 
 // ─── Static params + metadata ─────────────────────────────────────────────────
@@ -168,7 +168,53 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 4. Squad ──────────────────────────────────────────────────── */}
+      {/* ── 4. Betreuer ───────────────────────────────────────────────── */}
+      {team.betreuer && team.betreuer.length > 0 && (
+        <section className="bg-white dark:bg-gray-800 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Betreuer" />
+            <div className="mt-8 flex flex-wrap gap-5">
+              {team.betreuer.map((b: Betreuer) => {
+                const imageUrl = b.image
+                  ? urlFor(b.image).width(200).height(200).url()
+                  : null;
+                return (
+                  <div
+                    key={b._key}
+                    className="flex items-center gap-4 bg-background dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-100 dark:border-gray-600 min-w-[220px]"
+                  >
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600 shrink-0">
+                      {imageUrl ? (
+                        <Image
+                          src={imageUrl}
+                          alt={b.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                          <User size={20} className="text-muted dark:text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-text dark:text-gray-100 text-sm leading-tight">
+                        {b.name}
+                      </p>
+                      {b.role && (
+                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5">{b.role}</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 5. Squad ──────────────────────────────────────────────────── */}
       {team.squad && team.squad.length > 0 && (
         <section className="bg-white dark:bg-gray-800 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -223,7 +269,7 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 5 & 6: Schedule + Results (side by side on desktop) ───────── */}
+      {/* ── 6 & 7: Schedule + Results (side by side on desktop) ───────── */}
       {(upcoming.length > 0 || results.length > 0) && (
         <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
