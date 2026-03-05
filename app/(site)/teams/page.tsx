@@ -26,10 +26,7 @@ export default async function TeamsPage() {
 
   return (
     <>
-      <PageHeroSlider
-        slides={slides ?? []}
-        className="min-h-[348px] md:min-h-[408px] lg:min-h-[416px] flex items-end"
-      >
+      <PageHeroSlider slides={slides ?? []}>
         <span className="absolute right-8 bottom-0 text-[180px] md:text-[260px] font-black text-white/5 leading-none select-none pointer-events-none">
           TEAMS
         </span>

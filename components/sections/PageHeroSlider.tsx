@@ -23,6 +23,14 @@ export default function PageHeroSlider({
   const [current, setCurrent] = useState(0);
   const hasSlides = slides.length > 0;
 
+  // Randomise the starting slide after hydration to avoid SSR mismatch.
+  useEffect(() => {
+    if (slides.length > 1) {
+      setCurrent(Math.floor(Math.random() * slides.length));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (slides.length <= 1) return;
     const timer = setInterval(
@@ -34,7 +42,7 @@ export default function PageHeroSlider({
 
   return (
     <section
-      className={`relative overflow-hidden -mt-[68px] lg:-mt-[76px] ${className}`}
+      className={`relative overflow-hidden -mt-[68px] lg:-mt-[76px] min-h-[340px] md:min-h-[400px] lg:min-h-[500px] flex items-end ${className}`}
     >
       {/* ── Background layer ─────────────────────────────────────────── */}
       {hasSlides ? (
