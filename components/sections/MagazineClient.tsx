@@ -70,6 +70,7 @@ export default function MagazineClient({ magazines }: { magazines: Magazine[] })
   }
 
   return (
+    <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 space-y-3">
       {seasons.map((group) => (
         <SeasonAccordion
@@ -83,6 +84,7 @@ export default function MagazineClient({ magazines }: { magazines: Magazine[] })
           }
         />
       ))}
+    </div>
     </div>
   );
 }
@@ -116,7 +118,7 @@ function SeasonAccordion({
             }`}
           />
           <div className="text-left">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted dark:text-gray-400 mb-0.5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-0.5">
               Saison
             </p>
             <p className="text-lg font-black text-text dark:text-gray-100 leading-tight">
@@ -208,16 +210,16 @@ function MagazineTableRow({
           : "bg-white dark:bg-gray-800"
       }`}
     >
-      <td className="px-5 py-3.5 font-bold text-[13px] text-text dark:text-gray-100">
+      <td className="px-5 py-4 font-bold text-[13px] text-text dark:text-gray-100">
         {magazine.matchday != null ? `${magazine.matchday}. Heimspieltag` : "–"}
       </td>
-      <td className="px-3 py-3.5 text-[13px] text-text dark:text-gray-100">
+      <td className="px-3 py-4 text-[13px] text-text dark:text-gray-100">
         {magazine.opponent ?? "–"}
       </td>
-      <td className="px-3 py-3.5 text-[13px] text-muted dark:text-gray-400 tabular-nums">
+      <td className="px-3 py-4 text-[13px] text-muted dark:text-gray-400 tabular-nums">
         {magazine.date ? formatDate(magazine.date) : "–"}
       </td>
-      <td className="px-5 py-3.5 text-right">
+      <td className="px-5 py-4 text-right">
         {pdfUrl ? (
           <a
             href={pdfUrl}
@@ -245,7 +247,7 @@ function MagazineMobileRow({ magazine }: { magazine: Magazine }) {
   const pdfUrl = getPdfUrl(magazine);
 
   return (
-    <div className="flex items-center justify-between gap-3 px-4 py-3.5">
+    <div className="flex items-center justify-between gap-3 px-4 py-4">
       <div className="min-w-0">
         <p className="font-bold text-[13px] text-text dark:text-gray-100 truncate">
           {magazine.opponent ?? "Spieltagsheft"}
