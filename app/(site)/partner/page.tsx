@@ -76,7 +76,7 @@ export default async function PartnerPage() {
           {standard.length > 0 && (
             <section>
               <SectionHeading accent="bg-accent" label="Partner" />
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+              <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5">
                 {standard.map((partner) => (
                   <StandardTile key={partner._id} partner={partner} />
                 ))}
@@ -122,14 +122,14 @@ function PremiumCard({ partner }: { partner: Partner }) {
       <div className="h-[3px] bg-primary" />
 
       {/* Logo area */}
-      <div className="flex items-center justify-center px-8 py-10 bg-gray-50/60 dark:bg-gray-700/60 min-h-[160px]">
+      <div className="flex items-center justify-center px-8 py-10 bg-white dark:bg-gray-800 min-h-[160px]">
         {logoUrl ? (
           <Image
             src={logoUrl}
             alt={partner.name}
-            width={200}
-            height={100}
-            className="object-contain max-h-[100px] w-auto transition-transform duration-300 group-hover:scale-105"
+            width={240}
+            height={120}
+            className="object-contain max-h-[110px] w-auto transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <span className="text-2xl font-black text-text/20 uppercase tracking-tight text-center">
@@ -177,36 +177,32 @@ function PremiumCard({ partner }: { partner: Partner }) {
 
 function StandardTile({ partner }: { partner: Partner }) {
   const logoUrl = partner.logo
-    ? urlFor(partner.logo).width(240).height(120).url()
+    ? urlFor(partner.logo).width(320).height(160).url()
     : null;
 
   const inner = (
-    // `group` on this div drives the tooltip visibility
-    <div className="relative group flex items-center justify-center bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200 aspect-[3/2] overflow-visible px-5 py-4 cursor-pointer">
-      {/* Tooltip */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-text px-2.5 py-1 text-[11px] font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10 shadow-md"
-      >
-        {partner.name}
-        {/* Downward arrow */}
-        <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-text" />
-      </span>
+    <div className="group flex flex-col items-center bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200 p-5 cursor-pointer">
+      {/* Logo */}
+      <div className="flex items-center justify-center h-[72px] w-full">
+        {logoUrl ? (
+          <Image
+            src={logoUrl}
+            alt={partner.name}
+            width={160}
+            height={72}
+            className="object-contain max-h-[72px] w-auto transition-transform duration-200 group-hover:scale-105"
+          />
+        ) : (
+          <span className="text-sm font-black text-text/30 dark:text-gray-400 text-center leading-tight uppercase tracking-tight">
+            {partner.name}
+          </span>
+        )}
+      </div>
 
-      {/* Logo or name fallback */}
-      {logoUrl ? (
-        <Image
-          src={logoUrl}
-          alt={partner.name}
-          width={120}
-          height={60}
-          className="object-contain max-h-[60px] w-auto grayscale hover:grayscale-0 opacity-70 group-hover:opacity-100 transition-all duration-200"
-        />
-      ) : (
-        <span className="text-[12px] font-bold text-muted text-center leading-tight group-hover:text-text transition-colors">
-          {partner.name}
-        </span>
-      )}
+      {/* Name */}
+      <p className="mt-3 text-[11px] font-bold text-muted dark:text-gray-400 text-center leading-tight group-hover:text-text dark:group-hover:text-gray-200 transition-colors truncate w-full">
+        {partner.name}
+      </p>
     </div>
   );
 

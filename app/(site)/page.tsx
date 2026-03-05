@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Calendar, MapPin, Trophy } from "lucide-react";
+import { ArrowRight, Calendar, ExternalLink, MapPin, Trophy } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
 import {
   settingsQuery,
@@ -141,24 +141,24 @@ export default async function HomePage() {
 
       {/* ── Section 4: Premium-Partner-Leiste ───────────────────────── */}
       {premiumPartners.length > 0 && (
-        <section className="bg-white dark:bg-gray-800 py-14 border-t border-gray-100 dark:border-gray-700">
+        <section className="bg-white dark:bg-gray-800 py-10 border-t border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-8 text-center">
               Unsere Partner
             </p>
-            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-14">
               {premiumPartners.map((partner) => {
                 const logoUrl = partner.logo
-                  ? urlFor(partner.logo).width(160).height(60).url()
+                  ? urlFor(partner.logo).width(240).height(80).url()
                   : null;
 
                 const inner = logoUrl ? (
                   <Image
                     src={logoUrl}
                     alt={partner.name}
-                    width={120}
-                    height={44}
-                    className="object-contain grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
+                    width={160}
+                    height={56}
+                    className="object-contain max-h-[56px] w-auto opacity-80 hover:opacity-100 transition-opacity duration-200"
                   />
                 ) : (
                   <span className="text-sm font-bold text-muted hover:text-text transition-colors">
@@ -172,7 +172,7 @@ export default async function HomePage() {
                     href={partner.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center h-12"
+                    className="flex items-center justify-center h-14"
                     aria-label={partner.name}
                   >
                     {inner}
@@ -180,7 +180,7 @@ export default async function HomePage() {
                 ) : (
                   <div
                     key={partner._id}
-                    className="flex items-center justify-center h-12"
+                    className="flex items-center justify-center h-14"
                   >
                     {inner}
                   </div>
@@ -193,53 +193,84 @@ export default async function HomePage() {
 
       {/* ── Section 5: Partner des Tages ────────────────────────────── */}
       {partnerOfDay && (
-        <section className="bg-accent py-14">
-          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <span className="inline-block text-[10px] font-bold uppercase tracking-[0.25em] text-white/50 mb-6">
-              Partner des Tages
-            </span>
-            {(() => {
-              const logoUrl = partnerOfDay.logo
-                ? urlFor(partnerOfDay.logo).width(320).height(120).url()
-                : null;
-
-              const inner = (
-                <div className="flex flex-col items-center gap-4">
-                  {logoUrl ? (
-                    <Image
-                      src={logoUrl}
-                      alt={partnerOfDay.name}
-                      width={200}
-                      height={75}
-                      className="object-contain brightness-0 invert opacity-90"
-                    />
-                  ) : (
-                    <p className="text-2xl font-black text-white">{partnerOfDay.name}</p>
-                  )}
-                  {!logoUrl && (
-                    <span className="text-white/50 text-sm">{partnerOfDay.name}</span>
-                  )}
-                </div>
-              );
-
-              return partnerOfDay.websiteUrl ? (
-                <a
-                  href={partnerOfDay.websiteUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block hover:opacity-80 transition-opacity"
-                  aria-label={`Partner des Tages: ${partnerOfDay.name}`}
-                >
-                  {inner}
-                </a>
-              ) : (
-                inner
-              );
-            })()}
-          </div>
-        </section>
+        <PartnerOfDaySection partner={partnerOfDay} />
       )}
     </>
+  );
+}
+
+// ─── Partner des Tages ────────────────────────────────────────────────────────
+
+function PartnerOfDaySection({ partner }: { partner: Partner }) {
+  const logoUrl = partner.logo
+    ? urlFor(partner.logo).width(400).height(160).url()
+    : null;
+
+  const card = (
+    <div className="group flex flex-col sm:flex-row items-center gap-6 sm:gap-10 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+      {/* Left accent stripe */}
+      <div className="hidden sm:block w-1 self-stretch bg-primary shrink-0" />
+
+      {/* Logo */}
+      <div className="flex items-center justify-center shrink-0 pt-8 sm:pt-0 sm:pl-6 sm:py-8">
+        {logoUrl ? (
+          <Image
+            src={logoUrl}
+            alt={partner.name}
+            width={200}
+            height={80}
+            className="object-contain max-h-[80px] w-auto"
+          />
+        ) : (
+          <span className="text-xl font-black text-text dark:text-gray-100 uppercase tracking-tight">
+            {partner.name}
+          </span>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="hidden sm:block w-px self-stretch bg-gray-100 dark:bg-gray-700" />
+
+      {/* Text */}
+      <div className="flex flex-col pb-8 sm:py-8 px-6 sm:pl-0 sm:pr-8 flex-1 text-center sm:text-left">
+        <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-1">
+          Partner des Tages
+        </span>
+        <p className="font-black text-text dark:text-gray-100 text-lg leading-tight">
+          {partner.name}
+        </p>
+        {partner.description && (
+          <p className="text-muted dark:text-gray-400 text-sm mt-1.5 leading-relaxed">
+            {partner.description}
+          </p>
+        )}
+        {partner.websiteUrl && (
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-primary group-hover:text-primary-light transition-colors mt-4">
+            <ExternalLink size={11} />
+            Website besuchen
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <section className="bg-background dark:bg-gray-900 py-10 border-t border-gray-100 dark:border-gray-800">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        {partner.websiteUrl ? (
+          <a
+            href={partner.websiteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Partner des Tages: ${partner.name}`}
+          >
+            {card}
+          </a>
+        ) : (
+          card
+        )}
+      </div>
+    </section>
   );
 }
 
