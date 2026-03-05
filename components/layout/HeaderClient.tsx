@@ -57,7 +57,8 @@ const VERT_SHADER = `
 
 // FBM (fractional Brownian motion) smoke, adapted from:
 // https://www.shadertoy.com/view/lsl3RH
-// Club colours cycle: red-orange (#ff3300) → blue-purple (#7755cc) → white-pink (#ffccdd)
+// Background stays fixed at #1a0005; smoke batches through 3 club colours
+// with a quick 0.5 s swap instead of a continuous blend.
 const FRAG_SHADER = `
   precision mediump float;
   uniform vec2  iResolution;
@@ -106,25 +107,41 @@ const FRAG_SHADER = `
 
     float f = fbm(uv + r);
 
-    // Club colour palette
-    vec3 red    = vec3(1.00, 0.20, 0.00);  // #ff3300
-    vec3 purple = vec3(0.47, 0.33, 0.80);  // #7755cc
-    vec3 pink   = vec3(1.00, 0.80, 0.87);  // #ffccdd
+    // ── Fixed background — never changes ───────────────────────────────────
+    vec3 bg = vec3(0.102, 0.0, 0.02);   // #1a0005
 
-    // Smooth cycle through all 3 colours (~42 s per full rotation)
-    float cy = iTime * 0.15;
-    vec3 col1 = mix(red,    purple, 0.5 + 0.5 * sin(cy));
-    vec3 col2 = mix(purple, pink,   0.5 + 0.5 * sin(cy + 2.094));
-    vec3 col3 = mix(pink,   red,    0.5 + 0.5 * sin(cy + 4.189));
+    // ── Club colour palette ────────────────────────────────────────────────
+    vec3 red    = vec3(1.00, 0.20, 0.00);   // #ff3300
+    vec3 purple = vec3(0.47, 0.33, 0.80);   // #7755cc
+    vec3 pink   = vec3(1.00, 0.80, 0.87);   // #ffccdd
 
-    vec3 color = mix(vec3(0.0), col1, clamp(f * f * 4.0,          0.0, 1.0));
-    color = mix(color, col2,          clamp(length(q) * length(q), 0.0, 1.0));
-    color = mix(color, col3,          clamp(length(r.x),           0.0, 0.15));
+    // ── Discrete colour batches ────────────────────────────────────────────
+    // Each colour holds for 9 s; swap takes 0.5 s (≈ 5 % of the period).
+    float PERIOD = 9.0;
+    float totalT = mod(iTime, PERIOD * 3.0);
+    float subT   = fract(totalT / PERIOD);      // 0→1 within current batch
+    float tBlend = 0.5 / PERIOD;                // fraction used for transition
 
-    // Dark base matching header background (#1a0005)
-    color = vec3(0.102, 0.0, 0.02) + (f * f * f + 0.6 * f * f + 0.5 * f) * color;
+    float inFade  = smoothstep(0.0,          tBlend, subT);
+    float outFade = smoothstep(1.0 - tBlend, 1.0,    subT);
 
-    gl_FragColor = vec4(color, 1.0);
+    vec3 prevC, currC, nextC;
+    if (totalT < PERIOD) {
+      prevC = pink;   currC = red;    nextC = purple;
+    } else if (totalT < PERIOD * 2.0) {
+      prevC = red;    currC = purple; nextC = pink;
+    } else {
+      prevC = purple; currC = pink;   nextC = red;
+    }
+
+    // Holds solid currC for most of the batch; blends briefly at each edge.
+    vec3 smokeColor = mix(mix(prevC, currC, inFade), nextC, outFade);
+
+    // ── Smoke density (unchanged fbm shape) ───────────────────────────────
+    float smoke = f * f * f + 0.6 * f * f + 0.5 * f;
+
+    // ── Composite: fixed bg + single-colour smoke ──────────────────────────
+    gl_FragColor = vec4(bg + smoke * smokeColor, 1.0);
   }
 `;
 
