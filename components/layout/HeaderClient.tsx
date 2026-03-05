@@ -57,10 +57,21 @@ export default function HeaderClient({
   const [openDropdown, setOpenDropdown] = useState<"teams" | "verein" | null>(null);
   const [isDark, setIsDark] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cloudsRef = useRef<HTMLDivElement>(null);
 
   // Initialise isDark from the class already applied by the anti-flash script.
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  // Randomise each cloud's animation-delay and vertical position on every load
+  // for organic, non-repeating variation.
+  useEffect(() => {
+    const clouds = cloudsRef.current?.querySelectorAll<HTMLElement>("[data-cloud]");
+    clouds?.forEach((cloud) => {
+      cloud.style.animationDelay = `-${(Math.random() * 12).toFixed(2)}s`;
+      cloud.style.top = `${(Math.random() * 75 + 5).toFixed(1)}%`;
+    });
   }, []);
 
   useEffect(() => {
@@ -111,11 +122,12 @@ export default function HeaderClient({
         scrolled ? "shadow-[0_4px_32px_rgba(0,0,0,0.35)]" : ""
       }`}
     >
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="header-orb-a" style={{ top: "-80px", left: "-60px" }} />
-        <div className="header-orb-b" style={{ top: "-50px", right: "12%" }} />
-        <div className="header-stripe" />
+      {/* Smoke cloud layer */}
+      <div ref={cloudsRef} className="absolute inset-0 overflow-hidden pointer-events-none">
+        {Array.from({ length: 10 }, (_, i) => (
+          <div key={i} data-cloud className={`hcloud-${i + 1}`} />
+        ))}
+        <div className="header-overlay" />
       </div>
 
       {/* Inner nav bar */}
