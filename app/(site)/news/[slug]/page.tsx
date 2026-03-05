@@ -8,7 +8,7 @@ import { client, urlFor } from "@/lib/sanity";
 import { newsDetailQuery, relatedNewsQuery } from "@/lib/queries";
 import type { NewsArticle } from "@/types";
 import PortableText from "@/components/ui/PortableText";
-import { NewsCard, CATEGORY_STYLES, formatPublishedDate } from "@/components/sections/NewsClient";
+import { NewsCard, CATEGORY_STYLES, formatPublishedDate } from "@/components/sections/NewsCard";
 
 // ─── Static params + metadata ─────────────────────────────────────────────────
 

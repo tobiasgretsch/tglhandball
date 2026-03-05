@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -40,7 +40,7 @@ export default async function HomePage() {
         .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
         .catch(() => null),
       client
-        .fetch<NewsArticle[]>(latestNewsQuery, {}, { next: { revalidate: 3600 } })
+        .fetch<NewsArticle[]>(latestNewsQuery, {}, { next: { revalidate: 300 } })
         .catch(() => [] as NewsArticle[]),
       client
         .fetch<Match[]>(
