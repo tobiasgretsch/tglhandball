@@ -24,8 +24,10 @@ export default async function UeberUnsPage() {
     .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
     .catch(() => null);
 
+  // GROQ returns null for unset fields, not undefined.
+  // Use != null to correctly guard against both null and undefined.
   const hasMap =
-    settings?.venueLat !== undefined && settings?.venueLng !== undefined;
+    settings?.venueLat != null && settings?.venueLng != null;
 
   return (
     <>
