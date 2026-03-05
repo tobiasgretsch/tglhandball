@@ -50,8 +50,7 @@ body {
   background: linear-gradient(135deg, #da251c 0%, #b51c14 40%, #da251c 100%);
   background-size: 200% 200%;
   animation: header-gradient 10s ease infinite;
-  position: relative;
-  /* overflow must stay visible so dropdown menus aren't clipped */
+  /* No position: relative here — Tailwind's `fixed` class must not be overridden */
 }
 
 .header-orb-a {
