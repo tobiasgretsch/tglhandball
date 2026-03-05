@@ -41,6 +41,9 @@ export default async function SpielplanPage() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight">
             Spielplan &amp; Ergebnisse
           </h1>
+          <p className="text-white/55 mt-3 text-base max-w-lg">
+            Alle Spiele und Ergebnisse der TG MIPA Landshut Handball-Mannschaften.
+          </p>
         </div>
       </PageHeroSlider>
 
