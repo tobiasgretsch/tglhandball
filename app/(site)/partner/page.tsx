@@ -39,7 +39,7 @@ export default async function PartnerPage() {
     <>
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <PageHeroSlider slides={slides ?? []}>
-        <span className="absolute right-6 bottom-0 text-[110px] md:text-[180px] font-black text-white/5 leading-none select-none pointer-events-none">
+        <span className="absolute right-6 bottom-0 text-[120px] md:text-[200px] font-black text-white/5 leading-none select-none pointer-events-none">
           PARTNER
         </span>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-[132px] lg:pt-[140px]">
@@ -49,7 +49,7 @@ export default async function PartnerPage() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight">
             Unsere Partner
           </h1>
-          <p className="text-white/60 mt-4 text-base max-w-xl leading-relaxed">
+          <p className="text-white/55 mt-3 text-base max-w-lg">
             Ein herzliches Dankeschön an alle Partner, die den Handball in
             Landshut möglich machen.
           </p>

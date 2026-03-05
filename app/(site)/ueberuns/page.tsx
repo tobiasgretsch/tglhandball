@@ -33,7 +33,7 @@ export default async function UeberUnsPage() {
     <>
       {/* ── Hero ────────────────────────────────────────────────────────── */}
       <PageHeroSlider slides={settings?.pageHeroSlides ?? []}>
-        <span className="absolute right-6 bottom-0 text-[110px] md:text-[180px] font-black text-white/5 leading-none select-none pointer-events-none">
+        <span className="absolute right-6 bottom-0 text-[120px] md:text-[200px] font-black text-white/5 leading-none select-none pointer-events-none">
           VEREIN
         </span>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-[132px] lg:pt-[140px]">

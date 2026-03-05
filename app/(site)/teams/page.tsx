@@ -27,10 +27,10 @@ export default async function TeamsPage() {
   return (
     <>
       <PageHeroSlider slides={slides ?? []}>
-        <span className="absolute right-8 bottom-0 text-[180px] md:text-[260px] font-black text-white/5 leading-none select-none pointer-events-none">
+        <span className="absolute right-6 bottom-0 text-[120px] md:text-[200px] font-black text-white/5 leading-none select-none pointer-events-none">
           TEAMS
         </span>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-16 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-[132px] lg:pt-[140px]">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-3">
             TG MIPA Landshut
           </p>
