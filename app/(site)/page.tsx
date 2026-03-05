@@ -17,11 +17,11 @@ import HeroSection from "@/components/sections/HeroSection";
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
-  title: "TGL MIPA Landshut Handball – Leidenschaft seit Jahrzehnten",
+  title: "TG MIPA Landshut Handball – Leidenschaft seit Jahrzehnten",
   description:
-    "Offizielle Website des TGL MIPA Landshut Handball. Aktuelle News, Spielplan, Mannschaften und mehr.",
+    "Offizielle Website des TG MIPA Landshut Handball. Aktuelle News, Spielplan, Mannschaften und mehr.",
   openGraph: {
-    title: "TGL MIPA Landshut Handball",
+    title: "TG MIPA Landshut Handball",
     description: "Handball in Landshut – Leidenschaft seit Jahrzehnten.",
     type: "website",
   },
@@ -78,7 +78,7 @@ export default async function HomePage() {
       {/* ── Section 1: Hero ─────────────────────────────────────────── */}
       <HeroSection
         heroImageUrl={heroImageUrl}
-        clubName={settings?.clubName ?? "TGL MIPA Landshut"}
+        clubName={settings?.clubName ?? "TG MIPA Landshut"}
       />
 
       {/* ── Section 2: Aktuell (matches) ────────────────────────────── */}

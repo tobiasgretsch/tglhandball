@@ -6,7 +6,7 @@ import GalleryClient from "@/components/sections/GalleryClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Impressionen | TGL MIPA Landshut Handball",
+  title: "Impressionen | TG MIPA Landshut Handball",
   description:
     "Fotos und Impressionen von Spielen und Events der TG MIPA Landshut.",
 };
@@ -31,7 +31,7 @@ export default async function ImpressionsPage() {
         </span>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-[132px] lg:pt-[140px]">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-3">
-            TGL MIPA Landshut
+            TG MIPA Landshut
           </p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight">
             Impressionen

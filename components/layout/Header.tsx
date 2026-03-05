@@ -27,7 +27,7 @@ export default async function Header() {
   return (
     <HeaderClient
       logoUrl={logoUrl}
-      clubName={settings?.clubName ?? "TGL MIPA"}
+      clubName={settings?.clubName ?? "TG MIPA"}
       teams={teamItems}
     />
   );

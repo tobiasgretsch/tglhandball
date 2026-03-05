@@ -8,8 +8,8 @@ import type { Team, SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Unsere Teams | TGL MIPA Landshut Handball",
-  description: "Alle Mannschaften des TGL MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
+  title: "Unsere Teams | TG MIPA Landshut Handball",
+  description: "Alle Mannschaften des TG MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
 };
 
 export const revalidate = 3600;
@@ -35,7 +35,7 @@ export default async function TeamsPage() {
         </span>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-16 w-full">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-3">
-            TGL MIPA Landshut
+            TG MIPA Landshut
           </p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight">
             Unsere Teams
@@ -86,7 +86,7 @@ function TeamCard({ team }: { team: Team }) {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/15 flex items-center justify-center">
             <span className="text-5xl font-black text-accent/20 select-none">
-              TGL
+              TG
             </span>
           </div>
         )}

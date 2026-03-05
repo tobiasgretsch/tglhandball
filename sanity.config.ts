@@ -8,7 +8,7 @@ const SINGLETON_TYPES = new Set(["settings"]);
 
 export default defineConfig({
   name: "tgl-handball",
-  title: "TGL MIPA Handball",
+  title: "TG MIPA Handball",
 
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production",

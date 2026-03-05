@@ -99,14 +99,14 @@ export default async function Footer() {
               {logoUrl && (
                 <Image
                   src={logoUrl}
-                  alt={settings?.clubName ?? "TGL MIPA"}
+                  alt={settings?.clubName ?? "TG MIPA"}
                   width={48}
                   height={48}
                   className="object-contain brightness-0 invert"
                 />
               )}
               <span className="font-black text-white text-xl uppercase tracking-tight leading-none">
-                TGL{" "}
+                TG{" "}
                 <span className="text-white/55 font-bold">MIPA</span>
               </span>
             </div>
@@ -205,7 +205,7 @@ export default async function Footer() {
       <div className="relative border-t border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-white/35 text-xs">
-            © {year} TGL MIPA Landshut Handball
+            © {year} TG MIPA Landshut Handball
           </p>
           <div className="flex gap-5">
             <Link

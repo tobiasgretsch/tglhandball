@@ -60,7 +60,7 @@ export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps
           animate="show"
           className="text-[11px] font-bold uppercase tracking-[0.3em] text-white/55 mb-5"
         >
-          TGL MIPA Landshut
+          TG MIPA Landshut
         </motion.p>
 
         <motion.h1
@@ -82,7 +82,7 @@ export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps
           animate="show"
           className="text-white/65 text-lg md:text-xl font-light max-w-xl mb-10 leading-relaxed"
         >
-          TGL MIPA Landshut — Leidenschaft seit Jahrzehnten.
+          TG MIPA Landshut — Leidenschaft seit Jahrzehnten.
         </motion.p>
 
         <motion.div

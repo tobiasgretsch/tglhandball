@@ -10,9 +10,9 @@ import ContactForm from "@/components/sections/ContactForm";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Über uns | TGL MIPA Landshut Handball",
+  title: "Über uns | TG MIPA Landshut Handball",
   description:
-    "Geschichte, Vorstand und Kontakt des TGL MIPA Landshut Handball.",
+    "Geschichte, Vorstand und Kontakt des TG MIPA Landshut Handball.",
 };
 
 export const revalidate = 3600;
@@ -36,13 +36,13 @@ export default async function UeberUnsPage() {
         </span>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-[132px] lg:pt-[140px]">
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-3">
-            TGL MIPA Landshut
+            TG MIPA Landshut
           </p>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight">
             Über uns
           </h1>
           <p className="text-white/55 mt-3 text-base max-w-lg">
-            Geschichte, Menschen und Werte des TGL MIPA Landshut Handball.
+            Geschichte, Menschen und Werte des TG MIPA Landshut Handball.
           </p>
         </div>
       </PageHeroSlider>
@@ -72,7 +72,7 @@ export default async function UeberUnsPage() {
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
                   <Image
                     src={urlFor(settings.aboutPhoto).width(900).height(675).url()}
-                    alt="TGL MIPA Landshut"
+                    alt="TG MIPA Landshut"
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover"

@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TGL MIPA Landshut Handball",
-  description: "Handball in Landshut – TGL MIPA",
+  title: "TG MIPA Landshut Handball",
+  description: "Handball in Landshut – TG MIPA",
 };
 
 // Inline script runs before React hydrates to apply saved theme class,

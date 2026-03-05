@@ -31,7 +31,7 @@ export default defineType({
     }),
     defineField({
       name: "team",
-      title: "TGL-Mannschaft",
+      title: "TG-Mannschaft",
       type: "reference",
       to: [{ type: "team" }],
     }),

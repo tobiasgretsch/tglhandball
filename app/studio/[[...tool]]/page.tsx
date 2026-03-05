@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import StudioClient from "./_studio-client";
 
 export const metadata: Metadata = {
-  title: "Sanity Studio – TGL MIPA",
+  title: "Sanity Studio – TG MIPA",
   robots: { index: false },
 };
 

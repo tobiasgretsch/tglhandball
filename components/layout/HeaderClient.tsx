@@ -133,7 +133,7 @@ export default function HeaderClient({
             />
           )}
           <span className="font-black text-white text-lg lg:text-xl tracking-tight uppercase leading-none select-none">
-            TGL{" "}
+            TG{" "}
             <span className="text-white/60 font-bold">MIPA</span>
           </span>
         </Link>
