@@ -52,7 +52,7 @@ export default function PageHeroSlider({
               alt={(slides[current] as SanityImage & { alt?: string }).alt ?? ""}
               fill
               sizes="100vw"
-              className="object-cover object-center"
+              className="object-cover object-top"
               priority
             />
           </motion.div>
