@@ -4,7 +4,10 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, BookOpen, FileX } from "lucide-react";
 import type { Magazine } from "@/types";
-import PdfViewer from "@/components/sections/PdfViewer";
+import dynamic from "next/dynamic";
+
+// pdfjs-dist uses browser-only APIs (DOMMatrix) — never run on the server
+const PdfViewer = dynamic(() => import("@/components/sections/PdfViewer"), { ssr: false });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
