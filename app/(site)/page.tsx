@@ -16,15 +16,18 @@ import HeroSection from "@/components/sections/HeroSection";
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
+// Metadata is enhanced at runtime by the root layout's metadataBase.
+// The hero image is fetched in the page body; here we set static defaults.
 export const metadata: Metadata = {
-  title: "TG MIPA Landshut – Leidenschaft seit Jahrzehnten",
+  title: "TG MIPA Landshut Handball – Leidenschaft seit Jahrzehnten",
   description:
     "Offizielle Website des TG MIPA Landshut. Aktuelle News, Spielplan, Mannschaften und mehr.",
   openGraph: {
-    title: "TG MIPA Landshut",
+    title: "TG MIPA Landshut Handball",
     description: "Handball in Landshut – Leidenschaft seit Jahrzehnten.",
     type: "website",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export const revalidate = 300;

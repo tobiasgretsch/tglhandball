@@ -1,7 +1,6 @@
+import { redirect } from "next/navigation";
+
+// Vereins-Informationen sind auf der Über-uns-Seite. Redirect für Abwärtskompatibilität.
 export default function VereinsPage() {
-  return (
-    <main>
-      <h1>Der Verein</h1>
-    </main>
-  );
+  redirect("/ueberuns");
 }

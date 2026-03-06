@@ -23,7 +23,9 @@ export async function generateStaticParams() {
     )
     .catch(() => []);
 
-  return teams.map((t) => ({ slug: t.slug.current }));
+  return teams
+    .filter((t) => t.slug?.current)
+    .map((t) => ({ slug: t.slug.current }));
 }
 
 type Props = { params: Promise<{ slug: string }> };
@@ -31,19 +33,38 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const team = await client
-    .fetch<Pick<Team, "name" | "league">>(
-      groq`*[_type == "team" && slug.current == $slug][0] { name, league }`,
+    .fetch<Pick<Team, "name" | "league" | "headerImage">>(
+      groq`*[_type == "team" && slug.current == $slug][0] { name, league, headerImage }`,
       { slug }
     )
     .catch(() => null);
 
-  if (!team) return { title: "Team | TG MIPA Landshut" };
+  if (!team) return { title: "Mannschaft" };
 
-  const title = team.league
-    ? `${team.name} – ${team.league} | TG MIPA`
-    : `${team.name} | TG MIPA Landshut`;
+  const description = team.league
+    ? `${team.name} – ${team.league}. Kader, Spielplan und Ergebnisse bei TG MIPA Landshut.`
+    : `${team.name} – Kader, Spielplan und Ergebnisse bei TG MIPA Landshut.`;
 
-  return { title };
+  const ogImage = team.headerImage
+    ? urlFor(team.headerImage).width(1200).height(630).url()
+    : undefined;
+
+  return {
+    title: team.league ? `${team.name} – ${team.league}` : team.name,
+    description,
+    openGraph: {
+      title: team.name,
+      description,
+      type: "website",
+      ...(ogImage && { images: [{ url: ogImage, width: 1200, height: 630, alt: team.name }] }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: team.name,
+      description,
+      ...(ogImage && { images: [ogImage] }),
+    },
+  };
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────

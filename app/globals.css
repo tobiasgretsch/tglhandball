@@ -28,6 +28,33 @@ body {
   }
 }
 
+/* ─── Accessibility: visible focus ring for keyboard navigation ─────────────── */
+:focus-visible {
+  outline: 3px solid #da251c;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Skip-to-content helper — visually hidden until focused ───────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  background: #da251c;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 6px 6px;
+  transition: top 0.1s;
+}
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid #fff;
+  outline-offset: -3px;
+}
+
 /* ─── Header smoke cloud animation ──────────────────────────────────────── */
 
 

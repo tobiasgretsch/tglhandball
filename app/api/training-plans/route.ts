@@ -12,7 +12,7 @@ export async function GET() {
   }
 
   const plans = await writeClient.fetch(
-    `*[_type == "trainingsplan" && trainerClerkUserId == $id] | order(date desc) {
+    `*[_type == "trainingsplan" && trainerClerkUserId == $id && !(_id in path("drafts.**"))] | order(date desc) {
       _id, title, description, date,
       assignedToTeam->{ _id, name },
       assignedToPlayers[]->{ _id, name },

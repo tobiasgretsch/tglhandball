@@ -9,28 +9,53 @@ import type { Settings } from "@/types";
 
 const inter = Inter({ subsets: ["latin"] });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://tglhandball.de";
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await client
     .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
     .catch(() => null);
 
-  const icons: Metadata["icons"] = settings?.favicon
-    ? {
-        icon: urlFor(settings.favicon).width(32).height(32).format("png").url(),
-        shortcut: urlFor(settings.favicon).width(32).height(32).format("png").url(),
-        apple: urlFor(settings.favicon).width(180).height(180).format("png").url(),
-      }
-    : undefined;
+  const logoUrl = settings?.logo
+    ? urlFor(settings.logo).width(512).height(512).format("png").url()
+    : null;
+
+  const faviconUrl = settings?.favicon
+    ? urlFor(settings.favicon).width(32).height(32).format("png").url()
+    : null;
+  const appleTouchUrl = settings?.favicon
+    ? urlFor(settings.favicon).width(180).height(180).format("png").url()
+    : null;
 
   return {
-    title: "TG MIPA Landshut",
-    description: "Handball in Landshut – TG MIPA",
-    ...(icons && { icons }),
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: "TG MIPA Landshut Handball",
+      template: "%s | TG MIPA Landshut",
+    },
+    description:
+      "Offizieller Internetauftritt des TG MIPA Landshut – Handball mit Leidenschaft seit Jahrzehnten. Aktuelle News, Spielplan, Mannschaften und mehr.",
+    openGraph: {
+      type: "website",
+      locale: "de_DE",
+      siteName: "TG MIPA Landshut Handball",
+      ...(logoUrl && { images: [{ url: logoUrl, width: 512, height: 512, alt: "TG MIPA Landshut Logo" }] }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@tgmipa",
+    },
+    ...(faviconUrl && {
+      icons: {
+        icon: faviconUrl,
+        shortcut: faviconUrl,
+        apple: appleTouchUrl ?? faviconUrl,
+      },
+    }),
   };
 }
 
-// Inline script runs before React hydrates to apply saved theme class,
-// preventing a flash of the wrong theme on page load.
+// Inline script — applies saved dark/light theme before React hydrates.
 const themeScript = `
 (function() {
   try {
@@ -42,11 +67,41 @@ const themeScript = `
 })();
 `;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await client
+    .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
+    .catch(() => null);
+
+  const logoUrl = settings?.logo
+    ? urlFor(settings.logo).width(256).height(256).format("png").url()
+    : null;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsOrganization",
+    name: settings?.clubName ?? "TG MIPA Landshut",
+    url: SITE_URL,
+    sport: "Handball",
+    ...(logoUrl && { logo: logoUrl }),
+    sameAs: [
+      settings?.instagramUrl,
+      settings?.facebookUrl,
+      settings?.youtubeUrl,
+    ].filter(Boolean),
+    ...(settings?.contactEmail && { email: settings.contactEmail }),
+    ...(settings?.venueName && settings?.venueAddress && {
+      location: {
+        "@type": "Place",
+        name: settings.venueName,
+        address: settings.venueAddress,
+      },
+    }),
+  };
+
   return (
     <ClerkProvider
       signInUrl="/sign-in"
@@ -57,6 +112,10 @@ export default function RootLayout({
       <html lang="de" suppressHydrationWarning>
         <head>
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          />
         </head>
         <body className={inter.className}>
           {children}

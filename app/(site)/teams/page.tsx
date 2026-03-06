@@ -8,8 +8,15 @@ import type { Team, SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Unsere Teams | TG MIPA Landshut",
-  description: "Alle Mannschaften des TG MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
+  title: "Unsere Teams",
+  description:
+    "Alle Mannschaften des TG MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
+  openGraph: {
+    title: "Unsere Teams | TG MIPA Landshut",
+    description: "Alle Mannschaften des TG MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const revalidate = 3600;

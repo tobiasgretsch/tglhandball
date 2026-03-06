@@ -48,7 +48,7 @@ export default function NewsClient({ articles }: NewsClientProps) {
   return (
     <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
       {/* ── Filter bar ─────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-[68px] lg:top-[76px] z-40">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
             {FILTERS.map(({ value, label }) => (

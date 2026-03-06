@@ -9,8 +9,14 @@ export default function SiteLayout({
 }) {
   return (
     <>
+      {/* Skip-to-content link — invisible until focused by keyboard */}
+      <a href="#main-content" className="skip-link">
+        Zum Inhalt springen
+      </a>
       <Header />
-      <main className="pt-[68px] lg:pt-[76px]">{children}</main>
+      <main id="main-content" className="pt-[68px] lg:pt-[76px]">
+        {children}
+      </main>
       <Footer />
       <ScrollToTop />
     </>

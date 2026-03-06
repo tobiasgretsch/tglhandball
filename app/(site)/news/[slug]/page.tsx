@@ -21,7 +21,9 @@ export async function generateStaticParams() {
     )
     .catch(() => []);
 
-  return articles.map((a) => ({ slug: a.slug.current }));
+  return articles
+    .filter((a) => a.slug?.current)
+    .map((a) => ({ slug: a.slug.current }));
 }
 
 type Props = { params: Promise<{ slug: string }> };
@@ -39,14 +41,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : undefined;
 
   return {
-    title: `${article.title} | TG MIPA Landshut`,
+    title: article.title,
     description: article.teaser,
     openGraph: {
       title: article.title,
       description: article.teaser,
       type: "article",
       publishedTime: article.publishedAt,
-      ...(ogImage && { images: [{ url: ogImage, width: 1200, height: 630 }] }),
+      ...(ogImage && { images: [{ url: ogImage, width: 1200, height: 630, alt: article.title }] }),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: article.title,
+      description: article.teaser ?? undefined,
+      ...(ogImage && { images: [ogImage] }),
     },
   };
 }

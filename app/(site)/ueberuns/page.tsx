@@ -10,9 +10,15 @@ import ContactForm from "@/components/sections/ContactForm";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Über uns | TG MIPA Landshut",
+  title: "Über uns",
   description:
-    "Geschichte, Vorstand und Kontakt des TG MIPA Landshut.",
+    "Geschichte, Vorstand, Ansprechpartner und Kontakt des TG MIPA Landshut.",
+  openGraph: {
+    title: "Über uns | TG MIPA Landshut",
+    description: "Geschichte, Vorstand, Ansprechpartner und Kontakt des TG MIPA Landshut.",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const revalidate = 3600;

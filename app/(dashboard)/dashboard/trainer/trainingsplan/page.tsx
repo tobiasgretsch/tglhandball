@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Plus, Pencil, Trash2, X, Users, User, FileText, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Users, User, FileText, Upload, ExternalLink } from "lucide-react";
 
 interface Player {
   _id: string;
@@ -63,6 +63,8 @@ export default function TrainingsplanPage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [existingPdf, setExistingPdf] = useState<PdfAsset | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [pdfViewer, setPdfViewer] = useState<{ url: string; title: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchPlans = useCallback(async () => {
@@ -75,12 +77,8 @@ export default function TrainingsplanPage() {
   useEffect(() => {
     if (!isLoaded) return;
     fetchPlans();
-    fetch("/api/players")
-      .then((r) => r.json())
-      .then(setPlayers);
-    fetch("/api/teams")
-      .then((r) => r.json())
-      .then(setTeams);
+    fetch("/api/players").then((r) => r.json()).then(setPlayers);
+    fetch("/api/teams").then((r) => r.json()).then(setTeams);
   }, [isLoaded, fetchPlans]);
 
   function openCreate() {
@@ -95,11 +93,7 @@ export default function TrainingsplanPage() {
       title: p.title,
       description: p.description ?? "",
       date: p.date ? p.date.slice(0, 16) : EMPTY_FORM.date,
-      assignType: p.assignedToTeam
-        ? "team"
-        : p.assignedToPlayers?.length
-        ? "players"
-        : "none",
+      assignType: p.assignedToTeam ? "team" : p.assignedToPlayers?.length ? "players" : "none",
       teamId: p.assignedToTeam?._id ?? "",
       playerIds: p.assignedToPlayers?.map((pl) => pl._id) ?? [],
     });
@@ -112,6 +106,7 @@ export default function TrainingsplanPage() {
     setModal({ open: false, editing: null });
     setPdfFile(null);
     setExistingPdf(null);
+    setSaveError(null);
   }
 
   function togglePlayer(id: string) {
@@ -125,9 +120,13 @@ export default function TrainingsplanPage() {
 
   async function handleSave() {
     if (!form.title) return;
+    if (form.assignType === "team" && !form.teamId) {
+      setSaveError("Bitte eine Mannschaft auswählen.");
+      return;
+    }
     setSaving(true);
+    setSaveError(null);
 
-    // Upload PDF first if a new file was selected
     let pdfAssetId: string | null = null;
     if (pdfFile) {
       const fd = new FormData();
@@ -148,21 +147,25 @@ export default function TrainingsplanPage() {
       ...(pdfAssetId ? { pdfAssetId } : {}),
     };
 
-    if (modal.editing) {
-      await fetch(`/api/training-plans/${modal.editing._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } else {
-      await fetch("/api/training-plans", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    }
+    const url = modal.editing
+      ? `/api/training-plans/${modal.editing._id}`
+      : "/api/training-plans";
+    const method = modal.editing ? "PATCH" : "POST";
+
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
     setSaving(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setSaveError(data.error ?? "Speichern fehlgeschlagen. Bitte erneut versuchen.");
+      return;
+    }
+
     closeModal();
     fetchPlans();
   }
@@ -174,30 +177,28 @@ export default function TrainingsplanPage() {
   }
 
   return (
-    <div className="p-8 max-w-5xl">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 md:p-8 max-w-5xl">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-6 md:mb-8 gap-4">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white">
-            Trainingspläne
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Erstelle und verwalte Trainingspläne.
-          </p>
+          <h1 className="text-2xl font-black text-text">Trainingspläne</h1>
+          <p className="text-sm text-muted mt-0.5">Erstelle und verwalte Trainingspläne.</p>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-light transition-colors shadow-sm"
+          className="flex items-center gap-2 bg-primary text-white px-3 md:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-light transition-colors shadow-sm shrink-0"
         >
           <Plus size={15} />
-          Neuer Plan
+          <span className="hidden sm:inline">Neuer Plan</span>
+          <span className="sm:hidden">Neu</span>
         </button>
       </div>
 
       {loading ? (
-        <p className="text-gray-400">Laden…</p>
+        <p className="text-muted">Laden…</p>
       ) : plans.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400">Noch keine Trainingspläne.</p>
+        <div className="bg-white rounded-xl border border-dashed border-gray-200 p-10 text-center">
+          <p className="text-muted text-sm">Noch keine Trainingspläne.</p>
           <button
             onClick={openCreate}
             className="mt-4 text-sm text-primary font-semibold hover:underline"
@@ -210,162 +211,189 @@ export default function TrainingsplanPage() {
           {plans.map((plan) => (
             <div
               key={plan._id}
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm px-5 py-4 flex items-start justify-between gap-4"
+              className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-4"
             >
-              <div className="min-w-0">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <h3 className="font-bold text-gray-900 dark:text-white">{plan.title}</h3>
-                  {plan.date && (
-                    <span className="text-xs text-gray-400">
-                      {new Date(plan.date).toLocaleDateString("de-DE", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
-                    </span>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-bold text-text">{plan.title}</h3>
+                    {plan.date && (
+                      <span className="text-xs text-muted">
+                        {new Date(plan.date).toLocaleDateString("de-DE", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </span>
+                    )}
+                  </div>
+                  {plan.description && (
+                    <p className="text-sm text-muted mt-1 line-clamp-2">{plan.description}</p>
                   )}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {plan.assignedToTeam && (
+                      <span className="inline-flex items-center gap-1 text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                        <Users size={10} />
+                        {plan.assignedToTeam.name}
+                      </span>
+                    )}
+                    {plan.assignedToPlayers?.map((pl) => (
+                      <span
+                        key={pl._id}
+                        className="inline-flex items-center gap-1 text-xs bg-gray-100 text-muted px-2 py-0.5 rounded-full"
+                      >
+                        <User size={10} />
+                        {pl.name}
+                      </span>
+                    ))}
+                    {plan.pdfFile?.asset?.url && (
+                      <button
+                        onClick={() =>
+                          setPdfViewer({
+                            url: plan.pdfFile!.asset!.url,
+                            title: plan.title,
+                          })
+                        }
+                        className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors"
+                      >
+                        <FileText size={10} />
+                        {plan.pdfFile.asset.originalFilename ?? "PDF ansehen"}
+                      </button>
+                    )}
+                  </div>
                 </div>
-                {plan.description && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                    {plan.description}
-                  </p>
-                )}
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {plan.assignedToTeam && (
-                    <span className="inline-flex items-center gap-1 text-xs bg-accent/10 text-accent dark:text-blue-400 px-2 py-0.5 rounded-full">
-                      <Users size={10} />
-                      {plan.assignedToTeam.name}
-                    </span>
-                  )}
-                  {plan.assignedToPlayers?.map((pl) => (
-                    <span
-                      key={pl._id}
-                      className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full"
-                    >
-                      <User size={10} />
-                      {pl.name}
-                    </span>
-                  ))}
-                  {plan.pdfFile?.asset?.url && (
-                    <a
-                      href={plan.pdfFile.asset.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs bg-red-50 dark:bg-red-900/20 text-primary px-2 py-0.5 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
-                    >
-                      <FileText size={10} />
-                      {plan.pdfFile.asset.originalFilename ?? "PDF"}
-                    </a>
-                  )}
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => openEdit(plan)}
+                    className="p-2 rounded-lg text-muted hover:text-accent hover:bg-gray-100 transition-colors"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(plan._id)}
+                    className="p-2 rounded-lg text-muted hover:text-primary hover:bg-gray-100 transition-colors"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  onClick={() => openEdit(plan)}
-                  className="p-1.5 rounded text-gray-400 hover:text-accent dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <Pencil size={14} />
-                </button>
-                <button
-                  onClick={() => handleDelete(plan._id)}
-                  className="p-1.5 rounded text-gray-400 hover:text-primary dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <Trash2 size={14} />
-                </button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Create / Edit modal */}
+      {/* PDF Viewer Modal */}
+      {pdfViewer && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#1a1a1a] shrink-0 gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <FileText size={16} className="text-primary shrink-0" />
+              <span className="text-white text-sm font-semibold truncate">{pdfViewer.title}</span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href={pdfViewer.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                title="In neuem Tab öffnen"
+              >
+                <ExternalLink size={16} />
+              </a>
+              <button
+                onClick={() => setPdfViewer(null)}
+                className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+          <iframe
+            src={pdfViewer.url}
+            className="flex-1 w-full border-0"
+            title={pdfViewer.title}
+          />
+        </div>
+      )}
+
+      {/* Create / Edit Modal */}
       {modal.open && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
-              <h2 className="font-bold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+              <h2 className="font-bold text-text">
                 {modal.editing ? "Plan bearbeiten" : "Neuer Trainingsplan"}
               </h2>
-              <button
-                onClick={closeModal}
-                className="text-gray-400 hover:text-gray-700 dark:hover:text-white"
-              >
+              <button onClick={closeModal} className="text-muted hover:text-text p-1">
                 <X size={18} />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 overflow-y-auto">
+            <div className="p-5 space-y-4 overflow-y-auto">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Titel *
-                </label>
+                <label className="block text-sm font-medium text-text mb-1.5">Titel *</label>
                 <input
                   type="text"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
 
               {/* Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  Datum
-                </label>
+                <label className="block text-sm font-medium text-text mb-1.5">Datum</label>
                 <input
                   type="datetime-local"
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-text mb-1.5">
                   Beschreibung / Übungen
                 </label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  rows={4}
-                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                  rows={3}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                 />
               </div>
 
               {/* PDF upload */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                  PDF-Datei
-                </label>
+                <label className="block text-sm font-medium text-text mb-1.5">PDF-Datei</label>
 
-                {/* Show existing PDF when editing */}
                 {existingPdf?.url && !pdfFile && (
-                  <div className="flex items-center gap-2 mb-2 p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                  <div className="flex items-center gap-2 mb-2 p-2.5 bg-gray-50 rounded-lg border border-gray-200">
                     <FileText size={14} className="text-primary shrink-0" />
-                    <a
-                      href={existingPdf.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-primary hover:underline truncate"
+                    <button
+                      onClick={() =>
+                        setPdfViewer({
+                          url: existingPdf.url,
+                          title: existingPdf.originalFilename ?? "PDF",
+                        })
+                      }
+                      className="text-sm text-primary hover:underline truncate text-left"
                     >
-                      {existingPdf.originalFilename ?? "Aktuelles PDF"}
-                    </a>
-                    <span className="text-xs text-gray-400 ml-auto shrink-0">vorhanden</span>
+                      {existingPdf.originalFilename ?? "Aktuelles PDF ansehen"}
+                    </button>
+                    <span className="text-xs text-muted ml-auto shrink-0">vorhanden</span>
                   </div>
                 )}
 
-                {/* New file selected preview */}
                 {pdfFile && (
-                  <div className="flex items-center gap-2 mb-2 p-2.5 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <FileText size={14} className="text-green-600 dark:text-green-400 shrink-0" />
-                    <span className="text-sm text-green-700 dark:text-green-400 truncate">
-                      {pdfFile.name}
-                    </span>
+                  <div className="flex items-center gap-2 mb-2 p-2.5 bg-green-50 rounded-lg border border-green-200">
+                    <FileText size={14} className="text-green-600 shrink-0" />
+                    <span className="text-sm text-green-700 truncate">{pdfFile.name}</span>
                     <button
                       onClick={() => setPdfFile(null)}
-                      className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0"
+                      className="ml-auto text-muted hover:text-text shrink-0"
                     >
                       <X size={14} />
                     </button>
@@ -386,31 +414,28 @@ export default function TrainingsplanPage() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-2 text-sm border border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-400 hover:border-primary hover:text-primary dark:hover:text-primary transition-colors w-full justify-center"
+                  className="flex items-center gap-2 px-3 py-2 text-sm border border-dashed border-gray-300 rounded-lg text-muted hover:border-primary hover:text-primary transition-colors w-full justify-center"
                 >
                   <Upload size={14} />
-                  {pdfFile
-                    ? "Anderes PDF wählen"
-                    : existingPdf
-                    ? "PDF ersetzen"
-                    : "PDF hochladen"}
+                  {pdfFile ? "Anderes PDF wählen" : existingPdf ? "PDF ersetzen" : "PDF hochladen"}
                 </button>
               </div>
 
               {/* Assignment type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Zuweisen an
-                </label>
-                <div className="flex gap-2">
+                <label className="block text-sm font-medium text-text mb-2">Zuweisen an</label>
+                <div className="grid grid-cols-3 gap-2">
                   {(["none", "team", "players"] as AssignType[]).map((t) => (
                     <button
                       key={t}
-                      onClick={() => setForm({ ...form, assignType: t })}
-                      className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg border transition-colors ${
+                      onClick={() => {
+                        setForm({ ...form, assignType: t });
+                        setSaveError(null);
+                      }}
+                      className={`px-3 py-2 text-xs font-semibold rounded-lg border transition-colors ${
                         form.assignType === t
                           ? "bg-primary text-white border-primary"
-                          : "border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-primary/50"
+                          : "border-gray-200 text-muted hover:border-primary/50"
                       }`}
                     >
                       {t === "none" ? "Niemanden" : t === "team" ? "Mannschaft" : "Spieler"}
@@ -422,48 +447,53 @@ export default function TrainingsplanPage() {
               {/* Team selector */}
               {form.assignType === "team" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  <label className="block text-sm font-medium text-text mb-1.5">
                     Mannschaft wählen
                   </label>
-                  <select
-                    value={form.teamId}
-                    onChange={(e) => setForm({ ...form, teamId: e.target.value })}
-                    className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="">— Mannschaft wählen —</option>
-                    {teams.map((t) => (
-                      <option key={t._id} value={t._id}>
-                        {t.name}
-                      </option>
-                    ))}
-                  </select>
+                  {teams.length === 0 ? (
+                    <p className="text-sm text-muted">
+                      Dir ist noch keine Mannschaft zugewiesen. Bitte einen Admin bitten, deine
+                      Clerk ID in Sanity Studio der Mannschaft zu hinterlegen.
+                    </p>
+                  ) : (
+                    <select
+                      value={form.teamId}
+                      onChange={(e) => setForm({ ...form, teamId: e.target.value })}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">— Mannschaft wählen —</option>
+                      {teams.map((t) => (
+                        <option key={t._id} value={t._id}>
+                          {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               )}
 
               {/* Player multi-select */}
               {form.assignType === "players" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-text mb-2">
                     Spieler wählen
                   </label>
                   {players.length === 0 ? (
-                    <p className="text-sm text-gray-400">Keine Spieler vorhanden.</p>
+                    <p className="text-sm text-muted">Keine Spieler vorhanden.</p>
                   ) : (
-                    <div className="space-y-1.5 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg p-2">
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
                       {players.map((p) => (
                         <label
                           key={p._id}
-                          className="flex items-center gap-2.5 px-2 py-1.5 rounded hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
+                          className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 cursor-pointer"
                         >
                           <input
                             type="checkbox"
                             checked={form.playerIds.includes(p._id)}
                             onChange={() => togglePlayer(p._id)}
-                            className="accent-primary w-3.5 h-3.5"
+                            className="accent-primary w-4 h-4"
                           />
-                          <span className="text-sm text-gray-900 dark:text-white">
-                            {p.name}
-                          </span>
+                          <span className="text-sm text-text">{p.name}</span>
                         </label>
                       ))}
                     </div>
@@ -472,20 +502,27 @@ export default function TrainingsplanPage() {
               )}
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 shrink-0">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition-colors"
-              >
-                Abbrechen
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving || !form.title}
-                className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary-light transition-colors disabled:opacity-50"
-              >
-                {saving ? (pdfFile ? "PDF wird hochgeladen…" : "Speichern…") : "Speichern"}
-              </button>
+            <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-3 shrink-0">
+              {saveError ? (
+                <p className="text-sm text-primary">{saveError}</p>
+              ) : (
+                <span />
+              )}
+              <div className="flex gap-3 shrink-0">
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 text-sm font-medium text-muted hover:text-text transition-colors"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !form.title}
+                  className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary-light transition-colors disabled:opacity-50"
+                >
+                  {saving ? (pdfFile ? "Hochladen…" : "Speichern…") : "Speichern"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
