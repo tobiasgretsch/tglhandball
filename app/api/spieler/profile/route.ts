@@ -28,19 +28,26 @@ export async function GET() {
 
   if (!profile) return NextResponse.json({ profile: null, plans: [] });
 
-  // Plans assigned to this player individually OR to their whole team
+  // Today as YYYY-MM-DD for validity window comparison
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Plans assigned to this player individually OR to their whole team,
+  // filtered to the active validity window (validFrom ≤ today ≤ validUntil).
   const plans = await client.fetch(
     `*[_type == "trainingsplan" && (
       $profileId in assignedToPlayers[]._ref
       || assignedToTeam._ref == $teamId
-    )] | order(date desc) {
-      _id, title, description, date,
+    ) && (!defined(validFrom) || validFrom <= $today)
+      && (!defined(validUntil) || validUntil >= $today)
+    ] | order(date desc) {
+      _id, title, description, date, validFrom, validUntil,
       assignedToTeam->{ _id, name },
       pdfFile { asset->{ url, originalFilename } }
     }`,
     {
       profileId: profile._id,
       teamId: profile.team?._id ?? "",
+      today,
     }
   );
 

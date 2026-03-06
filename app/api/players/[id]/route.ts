@@ -15,14 +15,30 @@ export async function PATCH(
   }
 
   const { id } = await params;
+
+  // Ownership check — trainer may only edit players they created
+  const existing = await writeClient.fetch<{ trainerClerkUserId?: string } | null>(
+    `*[_type == "spielerProfil" && (_id == $id || _id == $draftId)][0]{ trainerClerkUserId }`,
+    { id, draftId: `drafts.${id}` }
+  );
+  if (!existing || existing.trainerClerkUserId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { name, email, position, number, teamId } = await req.json();
 
   let p = writeClient.patch(id).set({
     name,
     email: email ?? "",
     position: position ?? "",
-    ...(number != null ? { number } : {}),
   });
+
+  // Explicitly unset number when cleared so the old value isn't preserved
+  if (number != null) {
+    p = p.set({ number });
+  } else {
+    p = p.unset(["number"]);
+  }
 
   if (teamId) {
     p = p.set({ team: { _type: "reference", _ref: teamId } });

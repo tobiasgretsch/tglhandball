@@ -15,13 +15,34 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const { title, description, date, teamId, playerIds, pdfAssetId } = await req.json();
+
+  // Ownership check — trainer may only edit their own plans
+  const existing = await writeClient.fetch<{ trainerClerkUserId?: string } | null>(
+    `*[_type == "trainingsplan" && _id == $id][0]{ trainerClerkUserId }`,
+    { id }
+  );
+  if (!existing || existing.trainerClerkUserId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { title, description, date, validFrom, validUntil, teamId, playerIds, pdfAssetId } =
+    await req.json();
 
   try {
-    // Build the full set payload and unset list in one pass to avoid
-    // multiple chained .set() calls potentially overwriting each other.
     const setFields: Record<string, unknown> = { title, description, date };
     const unsetFields: string[] = [];
+
+    // Validity window
+    if (validFrom) {
+      setFields.validFrom = validFrom;
+    } else {
+      unsetFields.push("validFrom");
+    }
+    if (validUntil) {
+      setFields.validUntil = validUntil;
+    } else {
+      unsetFields.push("validUntil");
+    }
 
     if (teamId) {
       setFields.assignedToTeam = { _type: "reference", _ref: teamId };
@@ -74,6 +95,16 @@ export async function DELETE(
   }
 
   const { id } = await params;
+
+  // Ownership check — trainer may only delete their own plans
+  const existing = await writeClient.fetch<{ trainerClerkUserId?: string } | null>(
+    `*[_type == "trainingsplan" && _id == $id][0]{ trainerClerkUserId }`,
+    { id }
+  );
+  if (!existing || existing.trainerClerkUserId !== userId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   await writeClient.delete(id);
   return NextResponse.json({ success: true });
 }

@@ -17,6 +17,18 @@ export default defineType({
       type: "datetime",
     }),
     defineField({
+      name: "validFrom",
+      title: "Gültig ab",
+      type: "date",
+      description: "Spieler sehen den Plan erst ab diesem Tag (leer = sofort sichtbar).",
+    }),
+    defineField({
+      name: "validUntil",
+      title: "Gültig bis",
+      type: "date",
+      description: "Spieler sehen den Plan nicht mehr nach diesem Tag (leer = unbegrenzt sichtbar).",
+    }),
+    defineField({
       name: "description",
       title: "Beschreibung",
       type: "text",

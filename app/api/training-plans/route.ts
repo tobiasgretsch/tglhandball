@@ -13,7 +13,7 @@ export async function GET() {
 
   const plans = await writeClient.fetch(
     `*[_type == "trainingsplan" && trainerClerkUserId == $id && !(_id in path("drafts.**"))] | order(date desc) {
-      _id, title, description, date,
+      _id, title, description, date, validFrom, validUntil,
       assignedToTeam->{ _id, name },
       assignedToPlayers[]->{ _id, name },
       pdfFile { asset->{ _id, url, originalFilename } }
@@ -33,7 +33,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { title, description, date, teamId, playerIds, pdfAssetId } = await req.json();
+  const { title, description, date, validFrom, validUntil, teamId, playerIds, pdfAssetId } =
+    await req.json();
 
   const doc = {
     _type: "trainingsplan" as const,
@@ -41,6 +42,8 @@ export async function POST(req: Request) {
     description: description ?? "",
     date: date ?? new Date().toISOString(),
     trainerClerkUserId: userId,
+    ...(validFrom ? { validFrom } : {}),
+    ...(validUntil ? { validUntil } : {}),
     ...(teamId ? { assignedToTeam: { _type: "reference" as const, _ref: teamId } } : {}),
     ...(Array.isArray(playerIds) && playerIds.length > 0
       ? {

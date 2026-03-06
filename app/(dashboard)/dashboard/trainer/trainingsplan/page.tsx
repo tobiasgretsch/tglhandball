@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Plus, Pencil, Trash2, X, Users, User, FileText, Upload, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Users, User, FileText, Upload, ExternalLink, Calendar } from "lucide-react";
 
 interface Player {
   _id: string;
@@ -24,6 +24,8 @@ interface Plan {
   title: string;
   description: string;
   date: string;
+  validFrom?: string;
+  validUntil?: string;
   assignedToTeam?: { _id: string; name: string };
   assignedToPlayers?: { _id: string; name: string }[];
   pdfFile?: { asset?: PdfAsset };
@@ -35,15 +37,54 @@ interface PlanForm {
   title: string;
   description: string;
   date: string;
+  validFrom: string;
+  validUntil: string;
   assignType: AssignType;
   teamId: string;
   playerIds: string[];
 }
 
+type PlanStatus = "active" | "expired" | "upcoming" | "no-limit";
+
+function getPlanStatus(plan: Plan): PlanStatus {
+  const today = new Date().toISOString().slice(0, 10);
+  if (!plan.validFrom && !plan.validUntil) return "no-limit";
+  if (plan.validUntil && plan.validUntil < today) return "expired";
+  if (plan.validFrom && plan.validFrom > today) return "upcoming";
+  return "active";
+}
+
+const STATUS_LABEL: Record<PlanStatus, string> = {
+  active: "Aktiv",
+  expired: "Abgelaufen",
+  upcoming: "Geplant",
+  "no-limit": "Unbegrenzt",
+};
+
+const STATUS_CLASS: Record<PlanStatus, string> = {
+  active: "bg-green-100 text-green-700",
+  expired: "bg-gray-100 text-gray-400",
+  upcoming: "bg-amber-100 text-amber-700",
+  "no-limit": "bg-blue-50 text-blue-600",
+};
+
+/** Format a YYYY-MM-DD or ISO datetime string as DD.MM.YYYY (day only). */
+function formatDay(d: string): string {
+  // Append noon UTC to avoid date shifting in any timezone
+  const base = d.length === 10 ? `${d}T12:00:00Z` : d;
+  return new Date(base).toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
 const EMPTY_FORM: PlanForm = {
   title: "",
   description: "",
-  date: new Date().toISOString().slice(0, 16),
+  date: new Date().toISOString().slice(0, 10),
+  validFrom: "",
+  validUntil: "",
   assignType: "none",
   teamId: "",
   playerIds: [],
@@ -65,7 +106,15 @@ export default function TrainingsplanPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [pdfViewer, setPdfViewer] = useState<{ url: string; title: string } | null>(null);
+  const [isDraggingPdf, setIsDraggingPdf] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handlePdfDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setIsDraggingPdf(false);
+    const file = e.dataTransfer.files[0];
+    if (file?.type === "application/pdf") setPdfFile(file);
+  }
 
   const fetchPlans = useCallback(async () => {
     setLoading(true);
@@ -92,7 +141,9 @@ export default function TrainingsplanPage() {
     setForm({
       title: p.title,
       description: p.description ?? "",
-      date: p.date ? p.date.slice(0, 16) : EMPTY_FORM.date,
+      date: p.date ? p.date.slice(0, 10) : EMPTY_FORM.date,
+      validFrom: p.validFrom ?? "",
+      validUntil: p.validUntil ?? "",
       assignType: p.assignedToTeam ? "team" : p.assignedToPlayers?.length ? "players" : "none",
       teamId: p.assignedToTeam?._id ?? "",
       playerIds: p.assignedToPlayers?.map((pl) => pl._id) ?? [],
@@ -141,7 +192,9 @@ export default function TrainingsplanPage() {
     const body = {
       title: form.title,
       description: form.description,
-      date: new Date(form.date).toISOString(),
+      date: new Date(form.date + "T12:00:00Z").toISOString(),
+      validFrom: form.validFrom || null,
+      validUntil: form.validUntil || null,
       teamId: form.assignType === "team" ? form.teamId : null,
       playerIds: form.assignType === "players" ? form.playerIds : [],
       ...(pdfAssetId ? { pdfAssetId } : {}),
@@ -208,77 +261,100 @@ export default function TrainingsplanPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {plans.map((plan) => (
-            <div
-              key={plan._id}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-4"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-text">{plan.title}</h3>
-                    {plan.date && (
-                      <span className="text-xs text-muted">
-                        {new Date(plan.date).toLocaleDateString("de-DE", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })}
-                      </span>
-                    )}
-                  </div>
-                  {plan.description && (
-                    <p className="text-sm text-muted mt-1 line-clamp-2">{plan.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {plan.assignedToTeam && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
-                        <Users size={10} />
-                        {plan.assignedToTeam.name}
-                      </span>
-                    )}
-                    {plan.assignedToPlayers?.map((pl) => (
+          {plans.map((plan) => {
+            const status = getPlanStatus(plan);
+            return (
+              <div
+                key={plan._id}
+                onClick={() => openEdit(plan)}
+                className={`bg-white rounded-xl border shadow-sm px-4 py-4 cursor-pointer transition-colors hover:border-primary/40 ${
+                  status === "expired" ? "border-gray-100 opacity-70" : "border-gray-200"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-text">{plan.title}</h3>
+                      {/* Status badge */}
                       <span
-                        key={pl._id}
-                        className="inline-flex items-center gap-1 text-xs bg-gray-100 text-muted px-2 py-0.5 rounded-full"
+                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_CLASS[status]}`}
                       >
-                        <User size={10} />
-                        {pl.name}
+                        {STATUS_LABEL[status]}
                       </span>
-                    ))}
-                    {plan.pdfFile?.asset?.url && (
-                      <button
-                        onClick={() =>
-                          setPdfViewer({
-                            url: plan.pdfFile!.asset!.url,
-                            title: plan.title,
-                          })
-                        }
-                        className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors"
-                      >
-                        <FileText size={10} />
-                        {plan.pdfFile.asset.originalFilename ?? "PDF ansehen"}
-                      </button>
+                    </div>
+
+                    {/* Date + validity range */}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
+                      {plan.date && (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted">
+                          <Calendar size={11} />
+                          {formatDay(plan.date)}
+                        </span>
+                      )}
+                      {(plan.validFrom || plan.validUntil) && (
+                        <span className="text-xs text-muted">
+                          Gültig:{" "}
+                          {plan.validFrom ? formatDay(plan.validFrom) : "–"}{" "}
+                          bis{" "}
+                          {plan.validUntil ? formatDay(plan.validUntil) : "unbegrenzt"}
+                        </span>
+                      )}
+                    </div>
+
+                    {plan.description && (
+                      <p className="text-sm text-muted mt-1 line-clamp-2">{plan.description}</p>
                     )}
+
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {plan.assignedToTeam && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                          <Users size={10} />
+                          {plan.assignedToTeam.name}
+                        </span>
+                      )}
+                      {plan.assignedToPlayers?.map((pl) => (
+                        <span
+                          key={pl._id}
+                          className="inline-flex items-center gap-1 text-xs bg-gray-100 text-muted px-2 py-0.5 rounded-full"
+                        >
+                          <User size={10} />
+                          {pl.name}
+                        </span>
+                      ))}
+                      {plan.pdfFile?.asset?.url && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPdfViewer({ url: plan.pdfFile!.asset!.url, title: plan.title });
+                          }}
+                          className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full hover:bg-primary/20 transition-colors"
+                        >
+                          <FileText size={10} />
+                          {plan.pdfFile.asset.originalFilename ?? "PDF ansehen"}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    onClick={() => openEdit(plan)}
-                    className="p-2 rounded-lg text-muted hover:text-accent hover:bg-gray-100 transition-colors"
-                  >
-                    <Pencil size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(plan._id)}
-                    className="p-2 rounded-lg text-muted hover:text-primary hover:bg-gray-100 transition-colors"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); openEdit(plan); }}
+                      className="p-2 rounded-lg text-muted hover:text-accent hover:bg-gray-100 transition-colors"
+                      title="Bearbeiten"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(plan._id); }}
+                      className="p-2 rounded-lg text-muted hover:text-primary hover:bg-gray-100 transition-colors"
+                      title="Löschen"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -345,11 +421,42 @@ export default function TrainingsplanPage() {
               <div>
                 <label className="block text-sm font-medium text-text mb-1.5">Datum</label>
                 <input
-                  type="datetime-local"
+                  type="date"
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
+              </div>
+
+              {/* Validity window */}
+              <div>
+                <label className="block text-sm font-medium text-text mb-1.5">
+                  Gültigkeitszeitraum
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-muted mb-1">Gültig ab</label>
+                    <input
+                      type="date"
+                      value={form.validFrom}
+                      onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-muted mb-1">Gültig bis</label>
+                    <input
+                      type="date"
+                      value={form.validUntil}
+                      onChange={(e) => setForm({ ...form, validUntil: e.target.value })}
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                </div>
+                <p className="mt-1.5 text-xs text-muted">
+                  Leer lassen = Plan ist zeitlich unbegrenzt für Spieler sichtbar. Nach „Gültig bis"
+                  wird der Plan automatisch ausgeblendet.
+                </p>
               </div>
 
               {/* Description */}
@@ -411,14 +518,31 @@ export default function TrainingsplanPage() {
                     e.target.value = "";
                   }}
                 />
-                <button
-                  type="button"
+                <div
+                  onDrop={handlePdfDrop}
+                  onDragOver={(e) => { e.preventDefault(); setIsDraggingPdf(true); }}
+                  onDragLeave={() => setIsDraggingPdf(false)}
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-2 text-sm border border-dashed border-gray-300 rounded-lg text-muted hover:border-primary hover:text-primary transition-colors w-full justify-center"
+                  className={`flex flex-col items-center gap-1.5 px-4 py-5 border-2 border-dashed rounded-lg cursor-pointer transition-colors select-none ${
+                    isDraggingPdf
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-gray-300 text-muted hover:border-primary hover:text-primary"
+                  }`}
                 >
-                  <Upload size={14} />
-                  {pdfFile ? "Anderes PDF wählen" : existingPdf ? "PDF ersetzen" : "PDF hochladen"}
-                </button>
+                  <Upload size={20} />
+                  <span className="text-sm font-medium text-center">
+                    {isDraggingPdf
+                      ? "Datei hier loslassen"
+                      : pdfFile
+                        ? "Anderes PDF wählen oder hierher ziehen"
+                        : existingPdf
+                          ? "PDF ersetzen — klicken oder ziehen"
+                          : "PDF hierher ziehen oder klicken zum Auswählen"}
+                  </span>
+                  {!isDraggingPdf && (
+                    <span className="text-xs opacity-60">nur PDF-Dateien</span>
+                  )}
+                </div>
               </div>
 
               {/* Assignment type */}
