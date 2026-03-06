@@ -105,10 +105,12 @@ export default defineType({
       ],
     }),
     defineField({
-      name: "trainerClerkUserId",
-      title: "Trainer Clerk ID",
-      type: "string",
-      description: "Clerk User ID des zuständigen Trainers. Wird im Dashboard für die Zugriffskontrolle verwendet.",
+      name: "trainer",
+      title: "Trainer",
+      type: "reference",
+      to: [{ type: "trainerProfil" }],
+      description:
+        "Verknüpft den zuständigen Trainer mit dieser Mannschaft. Die Clerk User ID im Trainerprofil steuert den Dashboard-Zugang.",
     }),
     defineField({
       name: "order",
