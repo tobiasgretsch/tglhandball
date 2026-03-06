@@ -21,7 +21,7 @@ const fadeUp = {
 
 export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps) {
   return (
-    <section className="relative min-h-screen flex items-end overflow-hidden bg-accent md:-mt-[68px] lg:-mt-[76px]">
+    <section className="relative min-h-screen flex items-end overflow-hidden bg-accent">
       {/* Background */}
       {heroImageUrl ? (
         <Image

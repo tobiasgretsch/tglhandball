@@ -42,7 +42,7 @@ export default function PageHeroSlider({
 
   return (
     <section
-      className={`relative overflow-hidden md:-mt-[68px] lg:-mt-[76px] min-h-[340px] md:min-h-[400px] lg:min-h-[500px] flex items-end ${className}`}
+      className={`relative overflow-hidden min-h-[340px] md:min-h-[400px] lg:min-h-[500px] flex items-end ${className}`}
     >
       {/* ── Background layer ─────────────────────────────────────────── */}
       {hasSlides ? (
