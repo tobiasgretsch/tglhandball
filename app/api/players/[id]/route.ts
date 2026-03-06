@@ -36,7 +36,7 @@ export async function PATCH(
 
   // Fetch all teams this trainer manages so we only touch their own assignments.
   const trainerTeamIds = await writeClient.fetch<string[]>(
-    `*[_type == "team" && trainer->clerkUserId == $id]._id`,
+    `*[_type == "trainerProfil" && clerkUserId == $id][0].teams[]._ref`,
     { id: userId }
   );
 

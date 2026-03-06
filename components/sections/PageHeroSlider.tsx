@@ -53,7 +53,7 @@ export default function PageHeroSlider({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.9, ease: "easeInOut" }}
-            className="absolute inset-x-0 bottom-0 top-[68px] lg:top-[76px]"
+            className="absolute inset-0"
           >
             <Image
               src={urlFor(slides[current]).width(1920).height(640).url()}
@@ -82,7 +82,7 @@ export default function PageHeroSlider({
       />
 
       {/* ── Dark-mode dimming overlay ─────────────────────────────────── */}
-      <div className="absolute inset-0 pointer-events-none opacity-0 dark:opacity-100 bg-black/40 transition-opacity duration-300" />
+      <div className="absolute inset-0 pointer-events-none opacity-0 dark:opacity-100 bg-black/25 transition-opacity duration-300" />
 
       {/* ── Subtle diagonal stripe texture (design continuity) ─────────── */}
       <div

@@ -17,7 +17,7 @@ export async function GET() {
   const players = await writeClient.fetch(
     `*[_type == "spielerProfil"
         && (
-          count(teams[@->trainer->clerkUserId == $id]) > 0
+          count(teams[_ref in *[_type == "trainerProfil" && clerkUserId == $id][0].teams[]._ref]) > 0
           || (trainerClerkUserId == $id && count(teams) == 0)
         )
         && !(_id in path("drafts.**"))

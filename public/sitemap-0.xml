@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://tglhandball.de/impressionen</loc><lastmod>2026-03-06T07:55:44.212Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/kontakt</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/news/first-test</loc><lastmod>2026-03-06T07:55:44.728Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/news/otto-hezner-kinderhandballturnier-2025</loc><lastmod>2026-03-06T07:55:44.728Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/news/second-test</loc><lastmod>2026-03-06T07:55:44.728Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/news</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/partner</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/spielplan</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/spieltagsmagazin</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/teams/damen</loc><lastmod>2026-03-06T07:55:44.728Z</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-<url><loc>https://tglhandball.de/teams/herren-1</loc><lastmod>2026-03-06T07:55:44.728Z</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-<url><loc>https://tglhandball.de/teams/weibl-a-jugend</loc><lastmod>2026-03-06T07:55:44.728Z</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
-<url><loc>https://tglhandball.de/teams</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/ueberuns</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
-<url><loc>https://tglhandball.de/verein</loc><lastmod>2026-03-06T07:55:44.214Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/impressionen</loc><lastmod>2026-03-06T12:16:58.217Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/kontakt</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/news/first-test</loc><lastmod>2026-03-06T12:16:58.694Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/news/otto-hezner-kinderhandballturnier-2025</loc><lastmod>2026-03-06T12:16:58.694Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/news/second-test</loc><lastmod>2026-03-06T12:16:58.694Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/news</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/partner</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/spielplan</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/spieltagsmagazin</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/teams/damen</loc><lastmod>2026-03-06T12:16:58.694Z</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+<url><loc>https://tglhandball.de/teams/herren-1</loc><lastmod>2026-03-06T12:16:58.694Z</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+<url><loc>https://tglhandball.de/teams/weibl-a-jugend</loc><lastmod>2026-03-06T12:16:58.694Z</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+<url><loc>https://tglhandball.de/teams</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/ueberuns</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/verein</loc><lastmod>2026-03-06T12:16:58.219Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://tglhandball.de/teams/m-a-jugend</loc><lastmod>2026-03-06T12:16:58.694Z</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
 </urlset>

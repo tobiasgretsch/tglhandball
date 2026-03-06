@@ -12,7 +12,10 @@ export default async function TrainerOverview() {
   const [playerCount, planCount, teamCount] = await Promise.all([
     client
       .fetch<number>(
-        `count(*[_type == "spielerProfil" && (trainerClerkUserId == $id || team->trainerClerkUserId == $id)])`,
+        `count(*[_type == "spielerProfil" && !(_id in path("drafts.**")) && (
+          count(teams[_ref in *[_type == "trainerProfil" && clerkUserId == $id][0].teams[]._ref]) > 0
+          || (trainerClerkUserId == $id && count(teams) == 0)
+        )])`,
         { id: userId }
       )
       .catch(() => 0),
@@ -24,7 +27,7 @@ export default async function TrainerOverview() {
       .catch(() => 0),
     client
       .fetch<number>(
-        `count(*[_type == "team" && trainerClerkUserId == $id])`,
+        `count(*[_type == "team" && _id in *[_type == "trainerProfil" && clerkUserId == $id][0].teams[]._ref])`,
         { id: userId }
       )
       .catch(() => 0),

@@ -105,14 +105,6 @@ export default defineType({
       ],
     }),
     defineField({
-      name: "trainer",
-      title: "Trainer",
-      type: "reference",
-      to: [{ type: "trainerProfil" }],
-      description:
-        "Verknüpft den zuständigen Trainer mit dieser Mannschaft. Die Clerk User ID im Trainerprofil steuert den Dashboard-Zugang.",
-    }),
-    defineField({
       name: "order",
       title: "Reihenfolge",
       type: "number",
