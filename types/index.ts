@@ -181,6 +181,7 @@ export interface Settings {
   instagramUrl?: string;
   facebookUrl?: string;
   youtubeUrl?: string;
+  tiktokUrl?: string;
   contactEmail?: string;
   venueName?: string;
   venueAddress?: string;

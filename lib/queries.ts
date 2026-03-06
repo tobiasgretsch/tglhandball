@@ -316,6 +316,7 @@ export const settingsQuery = groq`
     instagramUrl,
     facebookUrl,
     youtubeUrl,
+    tiktokUrl,
     contactEmail,
     venueName,
     venueAddress,

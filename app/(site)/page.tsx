@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Calendar, ExternalLink, FileText, MapPin, Trophy } from "lucide-react";
+import PdfOpenButton from "@/components/sections/PdfOpenButton";
 import { client, urlFor } from "@/lib/sanity";
 import {
   settingsQuery,
@@ -289,15 +290,7 @@ function MagazineTeaser({ magazine }: { magazine: Magazine }) {
 
             {/* Actions */}
             <div className="px-5 pb-5 sm:py-5 sm:pl-5 sm:pr-5 flex flex-col gap-2.5 shrink-0 sm:justify-center sm:border-l border-gray-100 dark:border-gray-700">
-              <a
-                href={pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-light text-white font-bold uppercase tracking-widest text-[12px] px-5 py-3 rounded-sm transition-colors shadow-sm shadow-primary/20 w-full sm:w-auto sm:whitespace-nowrap"
-              >
-                <ExternalLink size={13} />
-                PDF öffnen
-              </a>
+              <PdfOpenButton url={pdfUrl} label="Lesen" />
               <Link
                 href="/spieltagsmagazin"
                 className="inline-flex items-center justify-center gap-1.5 text-[12px] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors"

@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Download, FileX } from "lucide-react";
+import { ChevronDown, BookOpen, FileX } from "lucide-react";
 import type { Magazine } from "@/types";
+import PdfViewer from "@/components/sections/PdfViewer";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -58,6 +59,7 @@ export default function MagazineClient({ magazines }: { magazines: Magazine[] })
   const [openSeason, setOpenSeason] = useState<string | null>(
     seasons[0]?.season ?? null
   );
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null);
 
   if (seasons.length === 0) {
     return (
@@ -70,22 +72,28 @@ export default function MagazineClient({ magazines }: { magazines: Magazine[] })
   }
 
   return (
-    <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 space-y-3">
-      {seasons.map((group) => (
-        <SeasonAccordion
-          key={group.season}
-          group={group}
-          isOpen={openSeason === group.season}
-          onToggle={() =>
-            setOpenSeason((prev) =>
-              prev === group.season ? null : group.season
-            )
-          }
-        />
-      ))}
-    </div>
-    </div>
+    <>
+      {viewerUrl && (
+        <PdfViewer url={viewerUrl} onClose={() => setViewerUrl(null)} />
+      )}
+      <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 space-y-3">
+          {seasons.map((group) => (
+            <SeasonAccordion
+              key={group.season}
+              group={group}
+              isOpen={openSeason === group.season}
+              onToggle={() =>
+                setOpenSeason((prev) =>
+                  prev === group.season ? null : group.season
+                )
+              }
+              onOpenPdf={setViewerUrl}
+            />
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -95,10 +103,12 @@ function SeasonAccordion({
   group,
   isOpen,
   onToggle,
+  onOpenPdf,
 }: {
   group: SeasonGroup;
   isOpen: boolean;
   onToggle: () => void;
+  onOpenPdf: (url: string) => void;
 }) {
   const availableCount = group.entries.filter(
     (m) => getPdfUrl(m) !== null
@@ -152,7 +162,7 @@ function SeasonAccordion({
             style={{ overflow: "hidden" }}
           >
             <div className="border-t border-gray-100 dark:border-gray-700">
-              <MagazineTable entries={group.entries} />
+              <MagazineTable entries={group.entries} onOpenPdf={onOpenPdf} />
             </div>
           </motion.div>
         )}
@@ -163,7 +173,7 @@ function SeasonAccordion({
 
 // ─── Magazine table ───────────────────────────────────────────────────────────
 
-function MagazineTable({ entries }: { entries: Magazine[] }) {
+function MagazineTable({ entries, onOpenPdf }: { entries: Magazine[]; onOpenPdf: (url: string) => void }) {
   return (
     <>
       <table className="hidden sm:table w-full text-sm border-collapse">
@@ -172,19 +182,19 @@ function MagazineTable({ entries }: { entries: Magazine[] }) {
             <th className="text-left px-5 py-3 w-[160px]">Spieltag</th>
             <th className="text-left px-3 py-3">Gegner</th>
             <th className="text-left px-3 py-3 w-[130px]">Datum</th>
-            <th className="text-right px-5 py-3 w-[180px]">Download</th>
+            <th className="text-right px-5 py-3 w-[160px]">Lesen</th>
           </tr>
         </thead>
         <tbody>
           {entries.map((mag, i) => (
-            <MagazineTableRow key={mag._id} magazine={mag} striped={i % 2 === 1} />
+            <MagazineTableRow key={mag._id} magazine={mag} striped={i % 2 === 1} onOpenPdf={onOpenPdf} />
           ))}
         </tbody>
       </table>
 
       <div className="sm:hidden divide-y divide-gray-100 dark:divide-gray-700">
         {entries.map((mag) => (
-          <MagazineMobileRow key={mag._id} magazine={mag} />
+          <MagazineMobileRow key={mag._id} magazine={mag} onOpenPdf={onOpenPdf} />
         ))}
       </div>
     </>
@@ -196,9 +206,11 @@ function MagazineTable({ entries }: { entries: Magazine[] }) {
 function MagazineTableRow({
   magazine,
   striped,
+  onOpenPdf,
 }: {
   magazine: Magazine;
   striped: boolean;
+  onOpenPdf: (url: string) => void;
 }) {
   const pdfUrl = getPdfUrl(magazine);
 
@@ -221,15 +233,13 @@ function MagazineTableRow({
       </td>
       <td className="px-5 py-4 text-right">
         {pdfUrl ? (
-          <a
-            href={pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => onOpenPdf(pdfUrl)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-white text-[11px] font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
           >
-            <Download size={11} />
-            Herunterladen
-          </a>
+            <BookOpen size={11} />
+            Lesen
+          </button>
         ) : (
           <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted/60 dark:text-gray-500 cursor-default select-none">
             <FileX size={11} />
@@ -243,7 +253,7 @@ function MagazineTableRow({
 
 // ─── Mobile row ───────────────────────────────────────────────────────────────
 
-function MagazineMobileRow({ magazine }: { magazine: Magazine }) {
+function MagazineMobileRow({ magazine, onOpenPdf }: { magazine: Magazine; onOpenPdf: (url: string) => void }) {
   const pdfUrl = getPdfUrl(magazine);
 
   return (
@@ -260,15 +270,13 @@ function MagazineMobileRow({ magazine }: { magazine: Magazine }) {
       </div>
 
       {pdfUrl ? (
-        <a
-          href={pdfUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-white text-[11px] font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
+        <button
+          onClick={() => onOpenPdf(pdfUrl)}
+          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-white text-[11px] font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
         >
-          <Download size={11} />
-          PDF
-        </a>
+          <BookOpen size={13} />
+          Lesen
+        </button>
       ) : (
         <span className="shrink-0 text-[11px] text-muted/60 dark:text-gray-500 font-medium">
           Demnächst

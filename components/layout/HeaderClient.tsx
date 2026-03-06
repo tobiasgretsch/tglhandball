@@ -43,7 +43,7 @@ const NAV_LINKS: NavLink[] = [
   { label: "Teams", href: "/teams", dropdown: "teams" },
   { label: "Spielplan", href: "/spielplan" },
   { label: "Magazine", href: "/spieltagsmagazin" },
-  { label: "Impressionen", href: "/impressionen" },
+  { label: "Fanshop", href: "/fanshop" },
   { label: "Verein", href: "/ueberuns", dropdown: "verein", staticItems: VEREIN_ITEMS },
 ];
 
