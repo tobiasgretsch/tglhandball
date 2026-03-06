@@ -29,7 +29,7 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-background dark:bg-gray-900">
       <DashboardSidebar
         role={role}
         navItems={role === "trainer" ? trainerNav : spielerNav}

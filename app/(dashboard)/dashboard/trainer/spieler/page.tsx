@@ -155,8 +155,8 @@ export default function SpielerPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl font-black text-text">Spieler</h1>
-          <p className="text-sm text-muted mt-0.5">Verwalte deine Spielerprofile.</p>
+          <h1 className="text-2xl font-black text-text dark:text-gray-100">Spieler</h1>
+          <p className="text-sm text-muted dark:text-gray-400 mt-0.5">Verwalte deine Spielerprofile.</p>
         </div>
         <button
           onClick={openCreate}
@@ -181,8 +181,8 @@ export default function SpielerPage() {
       {loading ? (
         <p className="text-muted">Laden…</p>
       ) : players.length === 0 ? (
-        <div className="bg-white rounded-xl border border-dashed border-gray-200 p-10 text-center">
-          <p className="text-muted text-sm">Noch keine Spieler.</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-10 text-center">
+          <p className="text-muted dark:text-gray-400 text-sm">Noch keine Spieler.</p>
           <button
             onClick={openCreate}
             className="mt-4 text-sm text-primary font-semibold hover:underline"
@@ -197,17 +197,17 @@ export default function SpielerPage() {
             {players.map((p) => (
               <div
                 key={p._id}
-                className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-3"
+                className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm px-4 py-3"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       {p.number != null && (
-                        <span className="text-xs font-bold text-muted bg-gray-100 px-1.5 py-0.5 rounded">
+                        <span className="text-xs font-bold text-muted dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded">
                           #{p.number}
                         </span>
                       )}
-                      <p className="font-semibold text-text">{p.name}</p>
+                      <p className="font-semibold text-text dark:text-gray-100">{p.name}</p>
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                           p.clerkUserId
@@ -220,7 +220,7 @@ export default function SpielerPage() {
                     </div>
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                       {p.position && (
-                        <span className="text-xs text-muted">{p.position}</span>
+                        <span className="text-xs text-muted dark:text-gray-400">{p.position}</span>
                       )}
                       {p.teams && p.teams.length > 0 && (
                         <span className="text-xs text-accent font-medium">
@@ -228,20 +228,20 @@ export default function SpielerPage() {
                         </span>
                       )}
                       {p.email && (
-                        <span className="text-xs text-muted">{p.email}</span>
+                        <span className="text-xs text-muted dark:text-gray-400">{p.email}</span>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => openEdit(p)}
-                      className="p-2 rounded-lg text-muted hover:text-accent hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-lg text-muted hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
                       <Pencil size={15} />
                     </button>
                     <button
                       onClick={() => handleDelete(p._id)}
-                      className="p-2 rounded-lg text-muted hover:text-primary hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-lg text-muted hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
                       <Trash2 size={15} />
                     </button>
@@ -252,15 +252,15 @@ export default function SpielerPage() {
           </div>
 
           {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">#</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Name</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Position</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Mannschaft(en)</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Konto</th>
+                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted dark:text-gray-400">#</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted dark:text-gray-400">Name</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted dark:text-gray-400">Position</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted dark:text-gray-400">Mannschaft(en)</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted dark:text-gray-400">Konto</th>
                   <th className="px-4 py-3" />
                 </tr>
               </thead>
@@ -268,17 +268,17 @@ export default function SpielerPage() {
                 {players.map((p) => (
                   <tr
                     key={p._id}
-                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                    className="border-b border-gray-50 dark:border-gray-700 last:border-0 hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors"
                   >
-                    <td className="px-4 py-3 text-muted">{p.number ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted dark:text-gray-400">{p.number ?? "—"}</td>
                     <td className="px-4 py-3">
-                      <p className="font-medium text-text">{p.name}</p>
+                      <p className="font-medium text-text dark:text-gray-100">{p.name}</p>
                       {p.email && (
-                        <p className="text-xs text-muted mt-0.5">{p.email}</p>
+                        <p className="text-xs text-muted dark:text-gray-400 mt-0.5">{p.email}</p>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-text">{p.position || "—"}</td>
-                    <td className="px-4 py-3 text-text">{teamLabel(p)}</td>
+                    <td className="px-4 py-3 text-text dark:text-gray-100">{p.position || "—"}</td>
+                    <td className="px-4 py-3 text-text dark:text-gray-100">{teamLabel(p)}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -294,13 +294,13 @@ export default function SpielerPage() {
                       <div className="flex items-center gap-1 justify-end">
                         <button
                           onClick={() => openEdit(p)}
-                          className="p-1.5 rounded text-muted hover:text-accent hover:bg-gray-100 transition-colors"
+                          className="p-1.5 rounded text-muted hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                         >
                           <Pencil size={14} />
                         </button>
                         <button
                           onClick={() => handleDelete(p._id)}
-                          className="p-1.5 rounded text-muted hover:text-primary hover:bg-gray-100 transition-colors"
+                          className="p-1.5 rounded text-muted hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -317,17 +317,17 @@ export default function SpielerPage() {
       {/* Create / Edit modal */}
       {modal.open && (
         <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-md max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-md max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
               <div className="flex items-center gap-2">
                 <User size={16} className="text-primary" />
-                <h2 className="font-bold text-text">
+                <h2 className="font-bold text-text dark:text-gray-100">
                   {modal.editing ? "Spieler bearbeiten" : "Neuer Spieler"}
                 </h2>
               </div>
               <button
                 onClick={closeModal}
-                className="text-muted hover:text-text transition-colors p-1"
+                className="text-muted hover:text-text dark:hover:text-gray-100 transition-colors p-1"
               >
                 <X size={18} />
               </button>
@@ -366,17 +366,17 @@ export default function SpielerPage() {
 
               {/* Team multi-checkbox */}
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">
+                <label className="block text-sm font-medium text-text dark:text-gray-100 mb-1.5">
                   Mannschaft(en)
                 </label>
                 {teams.length === 0 ? (
                   <p className="text-sm text-muted">Keine Mannschaften verfügbar.</p>
                 ) : (
-                  <div className="space-y-1 border border-gray-200 rounded-lg p-2">
+                  <div className="space-y-1 border border-gray-200 dark:border-gray-600 rounded-lg p-2">
                     {teams.map((t) => (
                       <label
                         key={t._id}
-                        className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                        className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
                       >
                         <input
                           type="checkbox"
@@ -384,7 +384,7 @@ export default function SpielerPage() {
                           onChange={() => toggleTeam(t._id)}
                           className="accent-primary w-4 h-4"
                         />
-                        <span className="text-sm text-text">{t.name}</span>
+                        <span className="text-sm text-text dark:text-gray-100">{t.name}</span>
                       </label>
                     ))}
                   </div>
@@ -392,7 +392,7 @@ export default function SpielerPage() {
               </div>
             </div>
 
-            <div className="px-5 py-4 border-t border-gray-100 flex justify-end gap-3 shrink-0">
+            <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 shrink-0">
               <button
                 onClick={closeModal}
                 className="px-4 py-2 text-sm font-medium text-muted hover:text-text transition-colors"
@@ -429,14 +429,14 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-text mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-text dark:text-gray-100 mb-1.5">{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+        className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-text dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-muted dark:text-gray-400">{hint}</p>}
     </div>
   );
 }

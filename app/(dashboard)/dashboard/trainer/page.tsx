@@ -35,10 +35,10 @@ export default async function TrainerOverview() {
 
   return (
     <div className="p-4 md:p-8 max-w-4xl">
-      <h1 className="text-2xl font-black text-text mb-1">
+      <h1 className="text-2xl font-black text-text dark:text-gray-100 mb-1">
         Hallo, {user.firstName ?? "Trainer"}!
       </h1>
-      <p className="text-muted mb-6 text-sm">Hier ist deine Übersicht.</p>
+      <p className="text-muted dark:text-gray-400 mb-6 text-sm">Hier ist deine Übersicht.</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 mb-8">
         <StatCard value={teamCount} label="Mannschaften" color="red" />
@@ -72,7 +72,7 @@ function StatCard({
   color: "red" | "blue";
 }) {
   return (
-    <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-200 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
       <p
         className={`text-3xl md:text-4xl font-black ${
           color === "red" ? "text-primary" : "text-accent"
@@ -80,7 +80,7 @@ function StatCard({
       >
         {value}
       </p>
-      <p className="text-muted text-sm mt-1">{label}</p>
+      <p className="text-muted dark:text-gray-400 text-sm mt-1">{label}</p>
     </div>
   );
 }
@@ -97,10 +97,10 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="block bg-white rounded-xl p-4 md:p-5 border border-gray-200 shadow-sm hover:border-primary hover:shadow-md transition-all"
+      className="block bg-white dark:bg-gray-800 rounded-xl p-4 md:p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:border-primary hover:shadow-md transition-all"
     >
-      <h3 className="font-bold text-text mb-1">{title}</h3>
-      <p className="text-sm text-muted">{description}</p>
+      <h3 className="font-bold text-text dark:text-gray-100 mb-1">{title}</h3>
+      <p className="text-sm text-muted dark:text-gray-400">{description}</p>
       <span className="inline-block mt-3 text-xs font-semibold text-primary">
         Öffnen →
       </span>
