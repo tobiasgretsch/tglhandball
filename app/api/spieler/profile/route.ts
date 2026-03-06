@@ -17,26 +17,26 @@ export async function GET() {
     email: string;
     position: string;
     number: number | null;
-    team?: { _id: string; name: string };
+    teams?: { _id: string; name: string }[];
   } | null>(
     `*[_type == "spielerProfil" && clerkUserId == $id][0] {
       _id, name, email, position, number,
-      team->{ _id, name }
+      teams[]->{ _id, name }
     }`,
     { id: userId }
   );
 
   if (!profile) return NextResponse.json({ profile: null, plans: [] });
 
-  // Today as YYYY-MM-DD for validity window comparison
+  const teamIds = profile.teams?.map((t) => t._id) ?? [];
   const today = new Date().toISOString().slice(0, 10);
 
-  // Plans assigned to this player individually OR to their whole team,
-  // filtered to the active validity window (validFrom ≤ today ≤ validUntil).
+  // Plans assigned to this player individually OR to any of their teams,
+  // filtered to the active validity window.
   const plans = await client.fetch(
     `*[_type == "trainingsplan" && (
       $profileId in assignedToPlayers[]._ref
-      || assignedToTeam._ref == $teamId
+      || assignedToTeam._ref in $teamIds
     ) && (!defined(validFrom) || validFrom <= $today)
       && (!defined(validUntil) || validUntil >= $today)
     ] | order(date desc) {
@@ -44,11 +44,7 @@ export async function GET() {
       assignedToTeam->{ _id, name },
       pdfFile { asset->{ url, originalFilename } }
     }`,
-    {
-      profileId: profile._id,
-      teamId: profile.team?._id ?? "",
-      today,
-    }
+    { profileId: profile._id, teamIds, today }
   );
 
   return NextResponse.json({ profile, plans });

@@ -41,10 +41,11 @@ export default defineType({
       type: "number",
     }),
     defineField({
-      name: "team",
-      title: "Mannschaft",
-      type: "reference",
-      to: [{ type: "team" }],
+      name: "teams",
+      title: "Mannschaften",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "team" }] }],
+      description: "Spieler kann mehreren Mannschaften angehören.",
     }),
   ],
   preview: {

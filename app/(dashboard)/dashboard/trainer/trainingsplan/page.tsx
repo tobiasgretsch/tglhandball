@@ -7,6 +7,7 @@ import { Plus, Pencil, Trash2, X, Users, User, FileText, Upload, ExternalLink, C
 interface Player {
   _id: string;
   name: string;
+  teams?: { _id: string; name: string }[];
 }
 
 interface Team {

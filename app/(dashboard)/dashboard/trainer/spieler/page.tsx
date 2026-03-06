@@ -11,7 +11,7 @@ interface Player {
   position: string;
   number: number | null;
   clerkUserId: string | null;
-  team?: { _id: string; name: string };
+  teams?: { _id: string; name: string }[];
 }
 
 interface Team {
@@ -19,7 +19,21 @@ interface Team {
   name: string;
 }
 
-const EMPTY_FORM = { name: "", email: "", position: "", number: "", teamId: "" };
+type FormState = {
+  name: string;
+  email: string;
+  position: string;
+  number: string;
+  teamIds: string[];
+};
+
+const EMPTY_FORM: FormState = {
+  name: "",
+  email: "",
+  position: "",
+  number: "",
+  teamIds: [],
+};
 
 export default function SpielerPage() {
   const { isLoaded } = useUser();
@@ -30,8 +44,9 @@ export default function SpielerPage() {
     open: false,
     editing: null,
   });
-  const [form, setForm] = useState(EMPTY_FORM);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [mergeNotice, setMergeNotice] = useState<string | null>(null);
 
   const fetchPlayers = useCallback(async () => {
     setLoading(true);
@@ -43,9 +58,7 @@ export default function SpielerPage() {
   useEffect(() => {
     if (!isLoaded) return;
     fetchPlayers();
-    fetch("/api/teams")
-      .then((r) => r.json())
-      .then(setTeams);
+    fetch("/api/teams").then((r) => r.json()).then(setTeams);
   }, [isLoaded, fetchPlayers]);
 
   function openCreate() {
@@ -59,7 +72,8 @@ export default function SpielerPage() {
       email: p.email ?? "",
       position: p.position ?? "",
       number: p.number?.toString() ?? "",
-      teamId: p.team?._id ?? "",
+      // Only pre-check teams this trainer manages (intersection with trainer's teams)
+      teamIds: (p.teams ?? []).map((t) => t._id).filter((id) => teams.some((t) => t._id === id)),
     });
     setModal({ open: true, editing: p });
   }
@@ -68,10 +82,26 @@ export default function SpielerPage() {
     setModal({ open: false, editing: null });
   }
 
+  function toggleTeam(id: string) {
+    setForm((prev) => ({
+      ...prev,
+      teamIds: prev.teamIds.includes(id)
+        ? prev.teamIds.filter((tid) => tid !== id)
+        : [...prev.teamIds, id],
+    }));
+  }
+
   async function handleSave() {
     if (!form.name) return;
     setSaving(true);
-    const body = { ...form, number: form.number ? parseInt(form.number) : null };
+    const body = {
+      name: form.name,
+      email: form.email,
+      position: form.position,
+      number: form.number ? parseInt(form.number) : null,
+      teamIds: form.teamIds,
+    };
+
     const res = modal.editing
       ? await fetch(`/api/players/${modal.editing._id}`, {
           method: "PATCH",
@@ -83,14 +113,25 @@ export default function SpielerPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
+
     setSaving(false);
+
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       alert(data.error ?? "Speichern fehlgeschlagen. Bitte erneut versuchen.");
       return;
     }
+
+    const data = await res.json();
     closeModal();
     fetchPlayers();
+
+    if (data._merged) {
+      setMergeNotice(
+        `${form.name} war bereits im System und wurde zur Mannschaft hinzugefügt.`
+      );
+      setTimeout(() => setMergeNotice(null), 5000);
+    }
   }
 
   async function handleDelete(id: string) {
@@ -102,6 +143,11 @@ export default function SpielerPage() {
       alert(data.error ?? "Löschen fehlgeschlagen.");
       fetchPlayers();
     }
+  }
+
+  function teamLabel(p: Player) {
+    if (!p.teams || p.teams.length === 0) return "—";
+    return p.teams.map((t) => t.name).join(", ");
   }
 
   return (
@@ -121,6 +167,16 @@ export default function SpielerPage() {
           <span className="sm:hidden">Neu</span>
         </button>
       </div>
+
+      {/* Merge notice */}
+      {mergeNotice && (
+        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-800">
+          {mergeNotice}
+          <button onClick={() => setMergeNotice(null)} className="shrink-0 text-green-600 hover:text-green-800">
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <p className="text-muted">Laden…</p>
@@ -166,8 +222,10 @@ export default function SpielerPage() {
                       {p.position && (
                         <span className="text-xs text-muted">{p.position}</span>
                       )}
-                      {p.team && (
-                        <span className="text-xs text-accent font-medium">{p.team.name}</span>
+                      {p.teams && p.teams.length > 0 && (
+                        <span className="text-xs text-accent font-medium">
+                          {p.teams.map((t) => t.name).join(", ")}
+                        </span>
                       )}
                       {p.email && (
                         <span className="text-xs text-muted">{p.email}</span>
@@ -201,7 +259,7 @@ export default function SpielerPage() {
                   <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">#</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Name</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Position</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Mannschaft</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Mannschaft(en)</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Konto</th>
                   <th className="px-4 py-3" />
                 </tr>
@@ -220,7 +278,7 @@ export default function SpielerPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-text">{p.position || "—"}</td>
-                    <td className="px-4 py-3 text-text">{p.team?.name || "—"}</td>
+                    <td className="px-4 py-3 text-text">{teamLabel(p)}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -286,7 +344,11 @@ export default function SpielerPage() {
                 value={form.email}
                 onChange={(v) => setForm({ ...form, email: v })}
                 type="email"
-                hint="Spieler erhält eine Einladungs-E-Mail und kann sein Profil verknüpfen."
+                hint={
+                  modal.editing
+                    ? undefined
+                    : "Existiert bereits ein Spieler mit dieser E-Mail, wird er zur Mannschaft hinzugefügt statt neu angelegt."
+                }
               />
               <div className="grid grid-cols-2 gap-3">
                 <Field
@@ -301,22 +363,32 @@ export default function SpielerPage() {
                   type="number"
                 />
               </div>
+
+              {/* Team multi-checkbox */}
               <div>
                 <label className="block text-sm font-medium text-text mb-1.5">
-                  Mannschaft
+                  Mannschaft(en)
                 </label>
-                <select
-                  value={form.teamId}
-                  onChange={(e) => setForm({ ...form, teamId: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
-                >
-                  <option value="">— Keine Mannschaft —</option>
-                  {teams.map((t) => (
-                    <option key={t._id} value={t._id}>
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
+                {teams.length === 0 ? (
+                  <p className="text-sm text-muted">Keine Mannschaften verfügbar.</p>
+                ) : (
+                  <div className="space-y-1 border border-gray-200 rounded-lg p-2">
+                    {teams.map((t) => (
+                      <label
+                        key={t._id}
+                        className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={form.teamIds.includes(t._id)}
+                          onChange={() => toggleTeam(t._id)}
+                          className="accent-primary w-4 h-4"
+                        />
+                        <span className="text-sm text-text">{t.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
