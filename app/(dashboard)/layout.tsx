@@ -7,7 +7,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await currentUser();
+  let user;
+  try {
+    user = await currentUser();
+  } catch {
+    redirect("/sign-in");
+  }
   if (!user) redirect("/sign-in");
 
   const role = user.publicMetadata?.role as string | undefined;
