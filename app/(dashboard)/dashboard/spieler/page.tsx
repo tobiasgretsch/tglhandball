@@ -9,8 +9,20 @@ interface Plan {
   title: string;
   description: string;
   date: string;
+  validFrom?: string;
+  validUntil?: string;
   assignedToTeam?: { _id: string; name: string };
   pdfFile?: { asset?: { url: string; originalFilename?: string } };
+}
+
+/** Format a YYYY-MM-DD or ISO datetime string as DD.MM.YYYY (day only). */
+function formatDay(d: string): string {
+  const base = d.length === 10 ? `${d}T12:00:00Z` : d;
+  return new Date(base).toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 interface Profile {
@@ -152,7 +164,16 @@ export default function SpielerDashboard() {
           {plans.map((plan) => (
             <div
               key={plan._id}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
+              onClick={() => {
+                if (plan.pdfFile?.asset?.url) {
+                  setPdfViewer({ url: plan.pdfFile.asset.url, title: plan.title });
+                }
+              }}
+              className={`bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden transition-colors ${
+                plan.pdfFile?.asset?.url
+                  ? "cursor-pointer hover:border-primary/40"
+                  : ""
+              }`}
             >
               {/* Plan info */}
               <div className="px-4 py-4">
@@ -168,11 +189,7 @@ export default function SpielerDashboard() {
                       {plan.date && (
                         <span className="inline-flex items-center gap-1 text-xs text-muted">
                           <Calendar size={11} />
-                          {new Date(plan.date).toLocaleDateString("de-DE", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })}
+                          {formatDay(plan.date)}
                         </span>
                       )}
                       {plan.assignedToTeam && (
@@ -181,28 +198,25 @@ export default function SpielerDashboard() {
                           {plan.assignedToTeam.name}
                         </span>
                       )}
+                      {plan.validUntil && (
+                        <span className="text-xs text-muted">
+                          Gültig bis {formatDay(plan.validUntil)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* PDF action — full-width tap target on mobile */}
+              {/* PDF indicator — card click opens viewer, this is visual only */}
               {plan.pdfFile?.asset?.url && (
-                <button
-                  onClick={() =>
-                    setPdfViewer({
-                      url: plan.pdfFile!.asset!.url,
-                      title: plan.title,
-                    })
-                  }
-                  className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-primary/5 border-t border-primary/10 hover:bg-primary/10 transition-colors text-left"
-                >
+                <div className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-primary/5 border-t border-primary/10">
                   <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
                     <FileText size={15} />
                     {plan.pdfFile.asset.originalFilename ?? "Trainingsplan ansehen"}
                   </span>
                   <ChevronRight size={16} className="text-primary/60 shrink-0" />
-                </button>
+                </div>
               )}
             </div>
           ))}
