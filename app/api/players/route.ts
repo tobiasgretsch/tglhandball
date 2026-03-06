@@ -11,15 +11,19 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Show players created by this trainer OR belonging to a team managed by this trainer.
-  // The OR handles both the legacy ownership model and the new team-based model.
+  // Return players who belong to at least one of this trainer's teams,
+  // OR were created by this trainer and have no team assignment yet.
+  // Removes the legacy broad condition that leaked cross-team visibility.
   const players = await writeClient.fetch(
     `*[_type == "spielerProfil"
-        && (trainerClerkUserId == $id || team->trainer->clerkUserId == $id)
+        && (
+          count(teams[@->trainer->clerkUserId == $id]) > 0
+          || (trainerClerkUserId == $id && count(teams) == 0)
+        )
         && !(_id in path("drafts.**"))
       ] | order(name asc) {
         _id, name, email, position, number, clerkUserId,
-        team->{ _id, name }
+        teams[]->{ _id, name }
       }`,
     { id: userId }
   );
@@ -36,8 +40,47 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { name, email, position, number, teamId } = await req.json();
+  const { name, email, position, number, teamIds } = await req.json();
+  const normalizedTeamIds: string[] = Array.isArray(teamIds) ? teamIds : [];
 
+  // Upsert by email: if a profile with this email already exists, just add the new teams.
+  if (email) {
+    const existing = await writeClient.fetch<{
+      _id: string;
+      teams?: Array<{ _ref: string }>;
+    } | null>(
+      `*[_type == "spielerProfil" && email == $email && !(_id in path("drafts.**"))][0]{
+        _id, teams[]{ _ref }
+      }`,
+      { email }
+    );
+
+    if (existing) {
+      const currentRefs = (existing.teams ?? []).map((t) => t._ref);
+      const newTeams = normalizedTeamIds
+        .filter((tid) => !currentRefs.includes(tid))
+        .map((tid) => ({ _type: "reference" as const, _ref: tid, _key: tid }));
+
+      if (newTeams.length > 0) {
+        await writeClient
+          .patch(existing._id)
+          .setIfMissing({ teams: [] })
+          .append("teams", newTeams)
+          .commit();
+      }
+
+      const updated = await writeClient.fetch(
+        `*[_type == "spielerProfil" && _id == $id][0]{
+          _id, name, email, position, number, clerkUserId,
+          teams[]->{ _id, name }
+        }`,
+        { id: existing._id }
+      );
+      return NextResponse.json({ ...updated, _merged: true });
+    }
+  }
+
+  // No existing profile — create a new one.
   const doc = {
     _type: "spielerProfil" as const,
     name,
@@ -45,7 +88,15 @@ export async function POST(req: Request) {
     position: position ?? "",
     number: number ?? null,
     trainerClerkUserId: userId,
-    ...(teamId ? { team: { _type: "reference" as const, _ref: teamId } } : {}),
+    ...(normalizedTeamIds.length > 0
+      ? {
+          teams: normalizedTeamIds.map((tid) => ({
+            _type: "reference" as const,
+            _ref: tid,
+            _key: tid,
+          })),
+        }
+      : {}),
   };
 
   let result;
@@ -61,14 +112,16 @@ export async function POST(req: Request) {
   if (email) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     const clerk = await clerkClient();
-    await clerk.invitations.createInvitation({
-      emailAddress: email,
-      publicMetadata: { role: "spieler" },
-      redirectUrl: `${appUrl}/sign-up`,
-      ignoreExisting: true,
-    }).catch((err) => {
-      console.error("Clerk invitation failed:", err);
-    });
+    await clerk.invitations
+      .createInvitation({
+        emailAddress: email,
+        publicMetadata: { role: "spieler" },
+        redirectUrl: `${appUrl}/sign-up`,
+        ignoreExisting: true,
+      })
+      .catch((err) => {
+        console.error("Clerk invitation failed:", err);
+      });
   }
 
   return NextResponse.json(result);
