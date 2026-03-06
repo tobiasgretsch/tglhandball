@@ -15,7 +15,7 @@ export async function GET() {
   // The OR handles both the legacy ownership model and the new team-based model.
   const players = await writeClient.fetch(
     `*[_type == "spielerProfil"
-        && (trainerClerkUserId == $id || team->trainerClerkUserId == $id)
+        && (trainerClerkUserId == $id || team->trainer->clerkUserId == $id)
         && !(_id in path("drafts.**"))
       ] | order(name asc) {
         _id, name, email, position, number, clerkUserId,

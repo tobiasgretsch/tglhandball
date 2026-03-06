@@ -6,6 +6,7 @@ import partner from "./partner";
 import gallery from "./gallery";
 import settings from "./settings";
 import spielerProfil from "./spielerProfil";
+import trainerProfil from "./trainerProfil";
 import trainingsplan from "./trainingsplan";
 
 export const schemaTypes = [
@@ -17,5 +18,6 @@ export const schemaTypes = [
   gallery,
   settings,
   spielerProfil,
+  trainerProfil,
   trainingsplan,
 ];
