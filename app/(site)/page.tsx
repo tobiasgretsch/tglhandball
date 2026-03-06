@@ -84,7 +84,12 @@ export default async function HomePage() {
         clubName={settings?.clubName ?? "TG MIPA Landshut"}
       />
 
-      {/* ── Section 2: Aktuell (matches) ────────────────────────────── */}
+      {/* ── Section 2: Partner des Tages ────────────────────────────── */}
+      {partnerOfDay && (
+        <PartnerOfDaySection partner={partnerOfDay} />
+      )}
+
+      {/* ── Section 3: Aktuell (matches) ────────────────────────────── */}
       {matchCards.length > 0 && (
         <section className="bg-white dark:bg-gray-800 py-16 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -194,10 +199,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── Section 5: Partner des Tages ────────────────────────────── */}
-      {partnerOfDay && (
-        <PartnerOfDaySection partner={partnerOfDay} />
-      )}
     </>
   );
 }
