@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Calendar, Users, User, FileText } from "lucide-react";
+import { Calendar, Users, User, FileText, X, ExternalLink, ChevronRight } from "lucide-react";
 
 interface Plan {
   _id: string;
@@ -29,6 +29,7 @@ export default function SpielerDashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [claiming, setClaiming] = useState(false);
+  const [pdfViewer, setPdfViewer] = useState<{ url: string; title: string } | null>(null);
 
   async function loadProfile() {
     setClaimState("loading");
@@ -61,31 +62,43 @@ export default function SpielerDashboard() {
   }
 
   if (claimState === "loading") {
-    return <div className="p-8 text-gray-400">Laden…</div>;
+    return (
+      <div className="p-4 md:p-8 flex items-center gap-2 text-muted text-sm">
+        <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        Laden…
+      </div>
+    );
   }
 
   if (claimState === "unlinked" || claimState === "not-found") {
     return (
-      <div className="p-8 max-w-lg">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
+      <div className="p-4 md:p-8 max-w-lg">
+        <h1 className="text-2xl font-black text-text mb-2">
           Hallo, {user?.firstName ?? "Spieler"}!
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">
-          Dein Spielerprofil ist noch nicht verknüpft. Klicke auf den Button und wir
-          suchen dein Profil automatisch anhand deiner E-Mail-Adresse.
+        <p className="text-muted mb-6 text-sm leading-relaxed">
+          Dein Spielerprofil ist noch nicht verknüpft. Klicke auf den Button – wir suchen dein
+          Profil automatisch anhand deiner E-Mail-Adresse.
         </p>
         <button
           onClick={claimProfile}
           disabled={claiming}
-          className="bg-primary text-white px-5 py-2.5 rounded-lg font-semibold text-sm hover:bg-primary-light transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-lg font-semibold text-sm hover:bg-primary-light transition-colors disabled:opacity-50"
         >
-          {claiming ? "Suche Profil…" : "Profil verknüpfen"}
+          {claiming ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Suche Profil…
+            </>
+          ) : (
+            "Profil verknüpfen"
+          )}
         </button>
         {claimState === "not-found" && (
-          <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-            <p className="text-sm text-amber-800 dark:text-amber-400">
-              Kein Profil für diese E-Mail-Adresse gefunden. Wende dich an deinen
-              Trainer, damit er dein Spielerprofil mit deiner E-Mail anlegt.
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <p className="text-sm text-amber-800 leading-relaxed">
+              Kein Profil für diese E-Mail-Adresse gefunden. Wende dich an deinen Trainer, damit
+              er dein Spielerprofil mit deiner E-Mail anlegt.
             </p>
           </div>
         )}
@@ -94,22 +107,22 @@ export default function SpielerDashboard() {
   }
 
   return (
-    <div className="p-8 max-w-3xl">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-1">
-          Hallo, {profile?.name ?? user?.firstName}!
+    <div className="p-4 md:p-8 max-w-3xl">
+      {/* Profile header */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 md:px-6 py-4 mb-6">
+        <h1 className="text-xl md:text-2xl font-black text-text">
+          {profile?.name ?? user?.firstName}
         </h1>
-        <div className="flex flex-wrap gap-3 mt-3">
+        <div className="flex flex-wrap gap-3 mt-2">
           {profile?.team && (
-            <span className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-              <Users size={14} />
+            <span className="inline-flex items-center gap-1.5 text-sm text-muted">
+              <Users size={14} className="text-accent" />
               {profile.team.name}
             </span>
           )}
           {profile?.position && (
-            <span className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-              <User size={14} />
+            <span className="inline-flex items-center gap-1.5 text-sm text-muted">
+              <User size={14} className="text-primary" />
               {profile.position}
               {profile.number ? ` · #${profile.number}` : ""}
             </span>
@@ -118,13 +131,19 @@ export default function SpielerDashboard() {
       </div>
 
       {/* Plans */}
-      <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">
+      <h2 className="text-base font-bold text-text mb-3">
         Meine Trainingspläne
+        {plans.length > 0 && (
+          <span className="ml-2 text-xs font-medium text-muted bg-gray-100 px-2 py-0.5 rounded-full">
+            {plans.length}
+          </span>
+        )}
       </h2>
 
       {plans.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-10 text-center">
-          <p className="text-gray-400 text-sm">
+        <div className="bg-white rounded-xl border border-dashed border-gray-200 p-10 text-center">
+          <FileText size={32} className="text-gray-200 mx-auto mb-3" />
+          <p className="text-muted text-sm">
             Noch keine Pläne zugewiesen. Dein Trainer erstellt bald welche!
           </p>
         </div>
@@ -133,49 +152,94 @@ export default function SpielerDashboard() {
           {plans.map((plan) => (
             <div
               key={plan._id}
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm px-5 py-4"
+              className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <h3 className="font-bold text-gray-900 dark:text-white">{plan.title}</h3>
-                  {plan.description && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 whitespace-pre-wrap">
-                      {plan.description}
-                    </p>
-                  )}
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    {plan.assignedToTeam && (
-                      <span className="inline-flex items-center gap-1 text-xs bg-accent/10 text-accent dark:text-blue-400 px-2 py-0.5 rounded-full">
-                        <Users size={10} />
-                        {plan.assignedToTeam.name}
-                      </span>
+              {/* Plan info */}
+              <div className="px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-text">{plan.title}</h3>
+                    {plan.description && (
+                      <p className="text-sm text-muted mt-1 leading-relaxed whitespace-pre-wrap">
+                        {plan.description}
+                      </p>
                     )}
-                    {plan.pdfFile?.asset?.url && (
-                      <a
-                        href={plan.pdfFile.asset.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium bg-primary/10 text-primary px-2.5 py-1 rounded-full hover:bg-primary/20 transition-colors"
-                      >
-                        <FileText size={11} />
-                        {plan.pdfFile.asset.originalFilename ?? "PDF öffnen"}
-                      </a>
-                    )}
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      {plan.date && (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted">
+                          <Calendar size={11} />
+                          {new Date(plan.date).toLocaleDateString("de-DE", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })}
+                        </span>
+                      )}
+                      {plan.assignedToTeam && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                          <Users size={10} />
+                          {plan.assignedToTeam.name}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-                {plan.date && (
-                  <div className="shrink-0 flex items-center gap-1.5 text-xs text-gray-400">
-                    <Calendar size={12} />
-                    {new Date(plan.date).toLocaleDateString("de-DE", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </div>
-                )}
               </div>
+
+              {/* PDF action — full-width tap target on mobile */}
+              {plan.pdfFile?.asset?.url && (
+                <button
+                  onClick={() =>
+                    setPdfViewer({
+                      url: plan.pdfFile!.asset!.url,
+                      title: plan.title,
+                    })
+                  }
+                  className="w-full flex items-center justify-between gap-3 px-4 py-3 bg-primary/5 border-t border-primary/10 hover:bg-primary/10 transition-colors text-left"
+                >
+                  <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                    <FileText size={15} />
+                    {plan.pdfFile.asset.originalFilename ?? "Trainingsplan ansehen"}
+                  </span>
+                  <ChevronRight size={16} className="text-primary/60 shrink-0" />
+                </button>
+              )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* PDF Viewer Modal — fullscreen */}
+      {pdfViewer && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#1a1a1a] shrink-0 gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <FileText size={16} className="text-primary shrink-0" />
+              <span className="text-white text-sm font-semibold truncate">{pdfViewer.title}</span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href={pdfViewer.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                title="In neuem Tab öffnen"
+              >
+                <ExternalLink size={16} />
+              </a>
+              <button
+                onClick={() => setPdfViewer(null)}
+                className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+          <iframe
+            src={pdfViewer.url}
+            className="flex-1 w-full border-0"
+            title={pdfViewer.title}
+          />
         </div>
       )}
     </div>

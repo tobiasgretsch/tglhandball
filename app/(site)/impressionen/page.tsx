@@ -6,9 +6,15 @@ import GalleryClient from "@/components/sections/GalleryClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Impressionen | TG MIPA Landshut",
+  title: "Impressionen",
   description:
-    "Fotos und Impressionen von Spielen und Events der TG MIPA Landshut.",
+    "Fotos und Eindrücke von Spielen, Training und Events des TG MIPA Landshut.",
+  openGraph: {
+    title: "Impressionen | TG MIPA Landshut",
+    description: "Fotos und Eindrücke von Spielen, Training und Events des TG MIPA Landshut.",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const revalidate = 3600;

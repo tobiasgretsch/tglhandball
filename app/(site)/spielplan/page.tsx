@@ -6,9 +6,15 @@ import SpielplanClient from "@/components/sections/SpielplanClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Spielplan & Ergebnisse | TG MIPA Landshut",
+  title: "Spielplan & Ergebnisse",
   description:
-    "Alle Spiele und Ergebnisse der TG MIPA Landshut-Mannschaften.",
+    "Alle Spiele, Termine und Ergebnisse der TG MIPA Landshut-Mannschaften auf einen Blick.",
+  openGraph: {
+    title: "Spielplan & Ergebnisse | TG MIPA Landshut",
+    description: "Alle Spiele, Termine und Ergebnisse der TG MIPA Landshut-Mannschaften auf einen Blick.",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const revalidate = 3600;

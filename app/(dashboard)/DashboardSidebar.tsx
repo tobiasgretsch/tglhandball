@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
+import { Menu, X } from "lucide-react";
 
 interface NavItem {
   href: string;
@@ -16,15 +18,35 @@ interface Props {
   userEmail: string;
 }
 
-export default function DashboardSidebar({ role, navItems, userName, userEmail }: Props) {
+function isActive(pathname: string, item: NavItem, navItems: NavItem[]) {
+  return (
+    pathname === item.href ||
+    (pathname.startsWith(item.href + "/") &&
+      !navItems.some(
+        (other) => other.href !== item.href && pathname.startsWith(other.href)
+      ))
+  );
+}
+
+function SidebarContent({
+  role,
+  navItems,
+  userName,
+  userEmail,
+  onNavigate,
+}: Props & { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 bg-gray-900 flex flex-col shrink-0 border-r border-white/5">
+    <div className="flex flex-col h-full bg-[#1a1a1a]">
       {/* Brand */}
       <div className="px-5 py-5 border-b border-white/10">
-        <Link href="/" className="font-black text-white text-base uppercase tracking-tight">
-          TG <span className="text-blue-400">MIPA</span>{" "}
+        <Link
+          href="/"
+          className="font-black text-white text-base uppercase tracking-tight"
+          onClick={onNavigate}
+        >
+          TG <span className="text-primary">MIPA</span>{" "}
           <span className="text-white/40 font-medium">Landshut</span>
         </Link>
         <span
@@ -40,29 +62,20 @@ export default function DashboardSidebar({ role, navItems, userName, userEmail }
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {navItems.map((item) => {
-          // Exact match, OR starts-with only when no other nav item is a more specific match.
-          // This prevents "/dashboard/trainer" from staying active on "/dashboard/trainer/spieler".
-          const isActive =
-            pathname === item.href ||
-            (pathname.startsWith(item.href + "/") &&
-              !navItems.some(
-                (other) => other.href !== item.href && pathname.startsWith(other.href)
-              ));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-white/10 text-white"
-                  : "text-white/55 hover:text-white hover:bg-white/6"
-              }`}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
+        {navItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onNavigate}
+            className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
+              isActive(pathname, item, navItems)
+                ? "bg-primary text-white"
+                : "text-white/55 hover:text-white hover:bg-white/8"
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
       </nav>
 
       {/* User */}
@@ -73,6 +86,60 @@ export default function DashboardSidebar({ role, navItems, userName, userEmail }
           <p className="text-white/35 text-[11px] truncate">{userEmail}</p>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+export default function DashboardSidebar(props: Props) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  return (
+    <>
+      {/* ── Mobile: top bar + slide-out drawer ── */}
+      <div className="md:hidden">
+        {/* Fixed top bar */}
+        <div className="fixed top-0 left-0 right-0 z-40 h-14 bg-[#1a1a1a] flex items-center px-4 gap-3 border-b border-white/10">
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="text-white p-1.5 -ml-1.5 rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Menü öffnen"
+          >
+            <Menu size={22} />
+          </button>
+          <Link href="/" className="font-black text-white text-sm uppercase tracking-tight">
+            TG <span className="text-primary">MIPA</span>{" "}
+            <span className="text-white/40 font-medium text-xs">Landshut</span>
+          </Link>
+          <div className="ml-auto">
+            <UserButton />
+          </div>
+        </div>
+
+        {/* Drawer overlay */}
+        {drawerOpen && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/60 z-50"
+              onClick={() => setDrawerOpen(false)}
+            />
+            <div className="fixed top-0 left-0 bottom-0 w-72 z-50 shadow-2xl">
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="absolute top-3 right-3 text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 z-10 transition-colors"
+                aria-label="Menü schließen"
+              >
+                <X size={20} />
+              </button>
+              <SidebarContent {...props} onNavigate={() => setDrawerOpen(false)} />
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ── Desktop: fixed sidebar ── */}
+      <aside className="hidden md:flex md:w-60 flex-col shrink-0 min-h-screen">
+        <SidebarContent {...props} />
+      </aside>
+    </>
   );
 }

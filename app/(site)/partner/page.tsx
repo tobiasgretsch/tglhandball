@@ -7,9 +7,15 @@ import type { Partner, SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Unsere Partner | TG MIPA Landshut",
+  title: "Unsere Partner",
   description:
-    "Die Partner des TG MIPA Landshut – Danke für eure Unterstützung.",
+    "Die Partner und Sponsoren des TG MIPA Landshut – ein herzliches Dankeschön für eure Unterstützung.",
+  openGraph: {
+    title: "Unsere Partner | TG MIPA Landshut",
+    description: "Die Partner und Sponsoren des TG MIPA Landshut – ein herzliches Dankeschön für eure Unterstützung.",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const revalidate = 3600;

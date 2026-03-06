@@ -6,9 +6,15 @@ import NewsClient from "@/components/sections/NewsClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Neuigkeiten | TG MIPA Landshut",
+  title: "Neuigkeiten",
   description:
     "Aktuelle Nachrichten, Spielberichte und Vereinsnews von TG MIPA Landshut.",
+  openGraph: {
+    title: "Neuigkeiten | TG MIPA Landshut",
+    description: "Aktuelle Nachrichten, Spielberichte und Vereinsnews von TG MIPA Landshut.",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const revalidate = 1800;

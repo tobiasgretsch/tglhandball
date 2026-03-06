@@ -11,11 +11,16 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // Show players created by this trainer OR belonging to a team managed by this trainer.
+  // The OR handles both the legacy ownership model and the new team-based model.
   const players = await writeClient.fetch(
-    `*[_type == "spielerProfil" && trainerClerkUserId == $id] | order(name asc) {
-      _id, name, email, position, number, clerkUserId,
-      team->{ _id, name }
-    }`,
+    `*[_type == "spielerProfil"
+        && (trainerClerkUserId == $id || team->trainerClerkUserId == $id)
+        && !(_id in path("drafts.**"))
+      ] | order(name asc) {
+        _id, name, email, position, number, clerkUserId,
+        team->{ _id, name }
+      }`,
     { id: userId }
   );
 
@@ -53,8 +58,6 @@ export async function POST(req: Request) {
   }
 
   // Send Clerk invitation if the player has an email address.
-  // Clerk handles the email delivery and pre-sets the spieler role,
-  // so no separate email service or domain verification is required.
   if (email) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     const clerk = await clerkClient();
@@ -64,7 +67,6 @@ export async function POST(req: Request) {
       redirectUrl: `${appUrl}/sign-up`,
       ignoreExisting: true,
     }).catch((err) => {
-      // Log but don't fail — the player profile is already saved
       console.error("Clerk invitation failed:", err);
     });
   }

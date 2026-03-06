@@ -156,7 +156,7 @@ export default function HeaderClient({
         </Link>
 
         {/* Desktop navigation */}
-        <nav className="hidden lg:flex items-center gap-0.5">
+        <nav className="hidden lg:flex items-center gap-0.5" aria-label="Hauptnavigation">
           {NAV_LINKS.map((link) =>
             link.dropdown ? (
               <div
@@ -166,6 +166,9 @@ export default function HeaderClient({
                 onMouseLeave={scheduleClose}
               >
                 <button
+                  aria-haspopup="true"
+                  aria-expanded={openDropdown === link.dropdown}
+                  aria-label={`${link.label} – Untermenü`}
                   className={`relative flex items-center gap-1.5 px-4 py-2 text-[15px] font-bold uppercase tracking-[0.12em] rounded-sm transition-colors ${
                     isActive(link)
                       ? "text-white"
@@ -326,7 +329,7 @@ export default function HeaderClient({
               </div>
 
               {/* Drawer links */}
-              <nav className="flex-1 overflow-y-auto py-4">
+              <nav className="flex-1 overflow-y-auto py-4" aria-label="Mobile Navigation">
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
                     key={link.href}

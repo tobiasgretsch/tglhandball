@@ -17,36 +17,48 @@ export async function PATCH(
   const { id } = await params;
   const { title, description, date, teamId, playerIds, pdfAssetId } = await req.json();
 
-  let p = writeClient.patch(id).set({ title, description, date });
+  try {
+    // Build the full set payload and unset list in one pass to avoid
+    // multiple chained .set() calls potentially overwriting each other.
+    const setFields: Record<string, unknown> = { title, description, date };
+    const unsetFields: string[] = [];
 
-  if (teamId) {
-    p = p.set({ assignedToTeam: { _type: "reference", _ref: teamId } });
-  } else {
-    p = p.unset(["assignedToTeam"]);
+    if (teamId) {
+      setFields.assignedToTeam = { _type: "reference", _ref: teamId };
+      unsetFields.push("assignedToPlayers");
+    } else {
+      unsetFields.push("assignedToTeam");
+      if (Array.isArray(playerIds) && playerIds.length > 0) {
+        setFields.assignedToPlayers = playerIds.map((pid: string) => ({
+          _type: "reference",
+          _ref: pid,
+          _key: pid,
+        }));
+      } else {
+        unsetFields.push("assignedToPlayers");
+      }
+    }
+
+    if (pdfAssetId) {
+      // Note: pdfFile is only updated when a new asset is uploaded.
+      // The existing PDF is preserved otherwise (never unset here).
+      setFields.pdfFile = { _type: "file", asset: { _type: "reference", _ref: pdfAssetId } };
+    }
+
+    let p = writeClient.patch(id).set(setFields);
+    if (unsetFields.length > 0) {
+      p = p.unset(unsetFields);
+    }
+
+    const result = await p.commit();
+    return NextResponse.json(result);
+  } catch (err) {
+    console.error("[PATCH /api/training-plans]", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Speichern fehlgeschlagen" },
+      { status: 500 }
+    );
   }
-
-  if (Array.isArray(playerIds) && playerIds.length > 0) {
-    p = p.set({
-      assignedToPlayers: playerIds.map((pid: string) => ({
-        _type: "reference",
-        _ref: pid,
-        _key: pid,
-      })),
-    });
-  } else {
-    p = p.unset(["assignedToPlayers"]);
-  }
-
-  if (pdfAssetId) {
-    p = p.set({
-      pdfFile: { _type: "file", asset: { _type: "reference", _ref: pdfAssetId } },
-    });
-  }
-  // Note: we intentionally never unset pdfFile on edit so existing PDFs are preserved
-  // unless a new one is uploaded (pdfAssetId will replace it above).
-
-  const result = await p.commit();
-  return NextResponse.json(result);
 }
 
 export async function DELETE(

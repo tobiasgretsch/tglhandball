@@ -102,6 +102,7 @@ export default async function Footer() {
                     href={partner.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`${partner.name} – Website besuchen`}
                     className={cardClass}
                   >
                     {inner}
@@ -160,6 +161,7 @@ export default async function Footer() {
                     href={partner.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`${partner.name} – Website besuchen`}
                     className={cardClass}
                   >
                     {inner}

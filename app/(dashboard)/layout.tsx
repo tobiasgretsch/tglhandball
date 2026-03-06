@@ -24,14 +24,15 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="flex min-h-screen bg-background">
       <DashboardSidebar
         role={role}
         navItems={role === "trainer" ? trainerNav : spielerNav}
         userName={[user.firstName, user.lastName].filter(Boolean).join(" ")}
         userEmail={user.emailAddresses[0]?.emailAddress ?? ""}
       />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      {/* pt-14 offsets the fixed mobile top bar; removed on md+ */}
+      <main className="flex-1 overflow-y-auto pt-14 md:pt-0">{children}</main>
     </div>
   );
 }

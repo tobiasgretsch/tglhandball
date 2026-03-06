@@ -6,9 +6,15 @@ import MagazineClient from "@/components/sections/MagazineClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
-  title: "Spieltagsmagazine | TG MIPA Landshut",
+  title: "Spieltagsmagazine",
   description:
     "Alle Spieltagsmagazine der TG MIPA Landshut zum Download – sortiert nach Saison.",
+  openGraph: {
+    title: "Spieltagsmagazine | TG MIPA Landshut",
+    description: "Alle Spieltagsmagazine der TG MIPA Landshut zum Download – sortiert nach Saison.",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const revalidate = 3600;

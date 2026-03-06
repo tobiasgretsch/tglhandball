@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, User } from "lucide-react";
 
 interface Player {
   _id: string;
@@ -72,20 +72,17 @@ export default function SpielerPage() {
     if (!form.name) return;
     setSaving(true);
     const body = { ...form, number: form.number ? parseInt(form.number) : null };
-    let res: Response;
-    if (modal.editing) {
-      res = await fetch(`/api/players/${modal.editing._id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } else {
-      res = await fetch("/api/players", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    }
+    const res = modal.editing
+      ? await fetch(`/api/players/${modal.editing._id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        })
+      : await fetch("/api/players", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
     setSaving(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
@@ -98,42 +95,38 @@ export default function SpielerPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Spieler wirklich löschen?")) return;
-
-    // Optimistically remove from list so the UI feels instant
     setPlayers((prev) => prev.filter((p) => p._id !== id));
-
     const res = await fetch(`/api/players/${id}`, { method: "DELETE" });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      alert(data.error ?? "Löschen fehlgeschlagen. Bitte erneut versuchen.");
-      // Restore list on failure
+      alert(data.error ?? "Löschen fehlgeschlagen.");
       fetchPlayers();
     }
   }
 
   return (
-    <div className="p-8 max-w-5xl">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 md:p-8 max-w-5xl">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white">Spieler</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Verwalte deine Spielerprofile.
-          </p>
+          <h1 className="text-2xl font-black text-text">Spieler</h1>
+          <p className="text-sm text-muted mt-0.5">Verwalte deine Spielerprofile.</p>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-light transition-colors shadow-sm"
+          className="flex items-center gap-2 bg-primary text-white px-3 md:px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-light transition-colors shadow-sm shrink-0"
         >
           <Plus size={15} />
-          Neuer Spieler
+          <span className="hidden sm:inline">Neuer Spieler</span>
+          <span className="sm:hidden">Neu</span>
         </button>
       </div>
 
       {loading ? (
-        <p className="text-gray-400">Laden…</p>
+        <p className="text-muted">Laden…</p>
       ) : players.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400">Noch keine Spieler.</p>
+        <div className="bg-white rounded-xl border border-dashed border-gray-200 p-10 text-center">
+          <p className="text-muted text-sm">Noch keine Spieler.</p>
           <button
             onClick={openCreate}
             className="mt-4 text-sm text-primary font-semibold hover:underline"
@@ -142,88 +135,147 @@ export default function SpielerPage() {
           </button>
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400">#</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Name</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Position</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Mannschaft</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Konto</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {players.map((p) => (
-                <tr
-                  key={p._id}
-                  className="border-b border-gray-50 dark:border-gray-700/40 last:border-0 hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors"
-                >
-                  <td className="px-4 py-3 text-gray-400">{p.number ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-gray-900 dark:text-white">{p.name}</p>
-                    {p.email && (
-                      <p className="text-xs text-gray-400 mt-0.5">{p.email}</p>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
-                    {p.position || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
-                    {p.team?.name || "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        p.clerkUserId
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400"
-                      }`}
-                    >
-                      {p.clerkUserId ? "Verknüpft" : "Ausstehend"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1 justify-end">
-                      <button
-                        onClick={() => openEdit(p)}
-                        className="p-1.5 rounded text-gray-400 hover:text-accent dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        <>
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-3">
+            {players.map((p) => (
+              <div
+                key={p._id}
+                className="bg-white rounded-xl border border-gray-200 shadow-sm px-4 py-3"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {p.number != null && (
+                        <span className="text-xs font-bold text-muted bg-gray-100 px-1.5 py-0.5 rounded">
+                          #{p.number}
+                        </span>
+                      )}
+                      <p className="font-semibold text-text">{p.name}</p>
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          p.clerkUserId
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-500"
+                        }`}
                       >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(p._id)}
-                        className="p-1.5 rounded text-gray-400 hover:text-primary dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                        {p.clerkUserId ? "Verknüpft" : "Ausstehend"}
+                      </span>
                     </div>
-                  </td>
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+                      {p.position && (
+                        <span className="text-xs text-muted">{p.position}</span>
+                      )}
+                      {p.team && (
+                        <span className="text-xs text-accent font-medium">{p.team.name}</span>
+                      )}
+                      {p.email && (
+                        <span className="text-xs text-muted">{p.email}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => openEdit(p)}
+                      className="p-2 rounded-lg text-muted hover:text-accent hover:bg-gray-100 transition-colors"
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p._id)}
+                      className="p-2 rounded-lg text-muted hover:text-primary hover:bg-gray-100 transition-colors"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden md:block bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50">
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">#</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Name</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Position</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Mannschaft</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted">Konto</th>
+                  <th className="px-4 py-3" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {players.map((p) => (
+                  <tr
+                    key={p._id}
+                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors"
+                  >
+                    <td className="px-4 py-3 text-muted">{p.number ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-text">{p.name}</p>
+                      {p.email && (
+                        <p className="text-xs text-muted mt-0.5">{p.email}</p>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-text">{p.position || "—"}</td>
+                    <td className="px-4 py-3 text-text">{p.team?.name || "—"}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          p.clerkUserId
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {p.clerkUserId ? "Verknüpft" : "Ausstehend"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1 justify-end">
+                        <button
+                          onClick={() => openEdit(p)}
+                          className="p-1.5 rounded text-muted hover:text-accent hover:bg-gray-100 transition-colors"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(p._id)}
+                          className="p-1.5 rounded text-muted hover:text-primary hover:bg-gray-100 transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {/* Create / Edit modal */}
       {modal.open && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-              <h2 className="font-bold text-gray-900 dark:text-white">
-                {modal.editing ? "Spieler bearbeiten" : "Neuer Spieler"}
-              </h2>
+        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-md max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+              <div className="flex items-center gap-2">
+                <User size={16} className="text-primary" />
+                <h2 className="font-bold text-text">
+                  {modal.editing ? "Spieler bearbeiten" : "Neuer Spieler"}
+                </h2>
+              </div>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
+                className="text-muted hover:text-text transition-colors p-1"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-5 space-y-4 overflow-y-auto">
               <Field
                 label="Name *"
                 value={form.name}
@@ -234,27 +286,29 @@ export default function SpielerPage() {
                 value={form.email}
                 onChange={(v) => setForm({ ...form, email: v })}
                 type="email"
-                hint="Wird zur automatischen Profil-Verknüpfung verwendet."
+                hint="Spieler erhält eine Einladungs-E-Mail und kann sein Profil verknüpfen."
               />
-              <Field
-                label="Position"
-                value={form.position}
-                onChange={(v) => setForm({ ...form, position: v })}
-              />
-              <Field
-                label="Trikotnummer"
-                value={form.number}
-                onChange={(v) => setForm({ ...form, number: v })}
-                type="number"
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <Field
+                  label="Position"
+                  value={form.position}
+                  onChange={(v) => setForm({ ...form, position: v })}
+                />
+                <Field
+                  label="Trikotnummer"
+                  value={form.number}
+                  onChange={(v) => setForm({ ...form, number: v })}
+                  type="number"
+                />
+              </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                <label className="block text-sm font-medium text-text mb-1.5">
                   Mannschaft
                 </label>
                 <select
                   value={form.teamId}
                   onChange={(e) => setForm({ ...form, teamId: e.target.value })}
-                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   <option value="">— Keine Mannschaft —</option>
                   {teams.map((t) => (
@@ -266,10 +320,10 @@ export default function SpielerPage() {
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+            <div className="px-5 py-4 border-t border-gray-100 flex justify-end gap-3 shrink-0">
               <button
                 onClick={closeModal}
-                className="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white transition-colors"
+                className="px-4 py-2 text-sm font-medium text-muted hover:text-text transition-colors"
               >
                 Abbrechen
               </button>
@@ -303,16 +357,14 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-        {label}
-      </label>
+      <label className="block text-sm font-medium text-text mb-1.5">{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/30"
+        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
       />
-      {hint && <p className="mt-1 text-xs text-gray-400">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </div>
   );
 }
