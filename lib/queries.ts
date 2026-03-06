@@ -232,6 +232,18 @@ export const latestNewsQuery = groq`
   }
 `;
 
+/** Returns the next upcoming magazine (date >= today) that has a PDF attached. */
+export const homeMagazineQuery = groq`
+  *[_type == "magazine" && date >= $today && defined(pdfFile.asset)] | order(date asc) [0] {
+    _id,
+    season,
+    matchday,
+    opponent,
+    date,
+    pdfFile { asset->{ url } },
+  }
+`;
+
 // ─── Team-specific match queries ─────────────────────────────────────────────
 
 export const teamUpcomingMatchesQuery = groq`

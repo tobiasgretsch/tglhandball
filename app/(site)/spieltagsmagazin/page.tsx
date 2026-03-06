@@ -17,12 +17,12 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export default async function SpieltagsmagazinPage() {
   const [magazines, slides] = await Promise.all([
     client
-      .fetch<Magazine[]>(allMagazinesQuery, {}, { next: { revalidate: 3600 } })
+      .fetch<Magazine[]>(allMagazinesQuery, {}, { next: { revalidate: 300 } })
       .catch(() => [] as Magazine[]),
     client
       .fetch<SanityImage[]>(pageHeroSlidesQuery, {}, { next: { revalidate: 3600 } })
