@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import Link from "next/link";
 import { Calendar, Users, User, FileText, X, ExternalLink, ChevronRight, ChevronDown } from "lucide-react";
 
 interface Plan {
@@ -38,7 +39,7 @@ interface Profile {
   name: string;
   position: string;
   number: number | null;
-  teams?: { _id: string; name: string }[];
+  teams?: { _id: string; name: string; league?: string; slug?: { current: string } }[];
 }
 
 type ClaimState = "loading" | "linked" | "unlinked" | "not-found";
@@ -136,22 +137,40 @@ export default function SpielerDashboard() {
         <h1 className="text-xl md:text-2xl font-black text-text dark:text-gray-100">
           {profile?.name ?? user?.firstName}
         </h1>
-        <div className="flex flex-wrap gap-3 mt-2">
-          {profile?.teams && profile.teams.length > 0 && (
-            <span className="inline-flex items-center gap-1.5 text-sm text-muted dark:text-gray-400">
-              <Users size={14} className="text-accent" />
-              {profile.teams.map((t) => t.name).join(", ")}
-            </span>
-          )}
-          {profile?.position && (
-            <span className="inline-flex items-center gap-1.5 text-sm text-muted dark:text-gray-400">
-              <User size={14} className="text-primary" />
-              {profile.position}
-              {profile.number ? ` · #${profile.number}` : ""}
-            </span>
-          )}
-        </div>
+        {profile?.position && (
+          <span className="inline-flex items-center gap-1.5 text-sm text-muted dark:text-gray-400 mt-2">
+            <User size={14} className="text-primary" />
+            {profile.position}
+            {profile.number ? ` · #${profile.number}` : ""}
+          </span>
+        )}
       </div>
+
+      {/* My teams */}
+      {profile?.teams && profile.teams.length > 0 && (
+        <div className="mb-8">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted dark:text-gray-400 mb-3">
+            Meine Mannschaften
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {profile.teams.map((team) => (
+              <Link
+                key={team._id}
+                href={team.slug?.current ? `/teams/${team.slug.current}` : "/teams"}
+                className="inline-flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 hover:border-primary hover:shadow-sm transition-all"
+              >
+                <span className="inline-flex items-center gap-1.5 font-bold text-sm text-text dark:text-gray-100">
+                  <Users size={13} className="text-accent shrink-0" />
+                  {team.name}
+                </span>
+                {team.league && (
+                  <span className="text-xs text-muted dark:text-gray-400 mt-0.5 pl-5">{team.league}</span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Active plans */}
       <h2 className="text-base font-bold text-text dark:text-gray-100 mb-3">

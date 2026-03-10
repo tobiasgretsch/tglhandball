@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight, Newspaper } from "lucide-react";
 
 interface HeroSectionProps {
   heroImageUrl: string | null;
@@ -86,11 +86,11 @@ export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps
           className="flex flex-wrap gap-4"
         >
           <Link
-            href="/spielplan"
+            href="/news"
             className="inline-flex items-center gap-2 bg-primary hover:bg-primary-light text-white font-bold uppercase tracking-widest text-[13px] px-7 py-4 rounded-sm transition-colors shadow-lg shadow-primary/30"
           >
-            <Calendar size={16} />
-            Nächstes Spiel
+            <Newspaper size={16} />
+            Neuigkeiten
           </Link>
           <Link
             href="/teams"

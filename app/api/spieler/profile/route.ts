@@ -21,7 +21,7 @@ export async function GET() {
   } | null>(
     `*[_type == "spielerProfil" && clerkUserId == $id][0] {
       _id, name, email, position, number,
-      teams[]->{ _id, name }
+      teams[]->{ _id, name, slug, league }
     }`,
     { id: userId }
   );

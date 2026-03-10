@@ -66,7 +66,7 @@ export default async function TeamsPage() {
               const groupTeams = teams.filter((t) => t.category === key);
               if (groupTeams.length === 0) return null;
               return (
-                <section key={key} className="py-12 md:py-16 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                <section key={key} id={key} className="py-12 md:py-16 border-b border-gray-100 dark:border-gray-800 last:border-0">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-6">
                       {label}

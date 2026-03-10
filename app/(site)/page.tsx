@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Calendar, ExternalLink, FileText, MapPin, Trophy } from "lucide-react";
+import { ArrowRight, ExternalLink, FileText } from "lucide-react";
 import PdfOpenButton from "@/components/sections/PdfOpenButton";
 import { client, urlFor } from "@/lib/sanity";
 import {
   settingsQuery,
   latestNewsQuery,
-  homeUpcomingMatchesQuery,
-  latestResultQuery,
+  allTeamsQuery,
   partnerOfTheDayQuery,
   homeMagazineQuery,
 } from "@/lib/queries";
-import type { Settings, NewsArticle, Match, Magazine, Partner } from "@/types";
+import type { Settings, NewsArticle, Team, TeamCategory, Magazine, Partner } from "@/types";
 import HeroSection from "@/components/sections/HeroSection";
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -36,10 +35,9 @@ export const revalidate = 300;
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function HomePage() {
-  const now = new Date().toISOString();
-  const today = now.slice(0, 10); // "YYYY-MM-DD" — magazine date filter
+  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD" — magazine date filter
 
-  const [settings, news, upcoming, latestResult, partnerOfDay, upcomingMagazine] =
+  const [settings, news, teams, partnerOfDay, upcomingMagazine] =
     await Promise.all([
       client
         .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
@@ -48,19 +46,8 @@ export default async function HomePage() {
         .fetch<NewsArticle[]>(latestNewsQuery, {}, { next: { revalidate: 300 } })
         .catch(() => [] as NewsArticle[]),
       client
-        .fetch<Match[]>(
-          homeUpcomingMatchesQuery,
-          { now },
-          { next: { revalidate: 3600 } }
-        )
-        .catch(() => [] as Match[]),
-      client
-        .fetch<Match | null>(
-          latestResultQuery,
-          {},
-          { next: { revalidate: 3600 } }
-        )
-        .catch(() => null),
+        .fetch<Team[]>(allTeamsQuery, {}, { next: { revalidate: 3600 } })
+        .catch(() => [] as Team[]),
       client
         .fetch<Partner | null>(partnerOfTheDayQuery, {}, { next: { revalidate: 3600 } })
         .catch(() => null),
@@ -73,11 +60,6 @@ export default async function HomePage() {
     ? urlFor(settings.heroImage).width(1920).height(1080).url()
     : null;
 
-  const matchCards: Array<Match & { isResult: boolean }> = [
-    ...upcoming.map((m) => ({ ...m, isResult: false })),
-    ...(latestResult ? [{ ...latestResult, isResult: true }] : []),
-  ];
-
   return (
     <>
       {/* ── Section 1: Hero ─────────────────────────────────────────── */}
@@ -89,28 +71,6 @@ export default async function HomePage() {
       {/* ── Section 2: Partner des Tages ────────────────────────────── */}
       {partnerOfDay && (
         <PartnerOfDaySection partner={partnerOfDay} />
-      )}
-
-      {/* ── Section 3: Aktuell (matches) ────────────────────────────── */}
-      {matchCards.length > 0 && (
-        <section className="bg-white dark:bg-gray-800 py-16 md:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeader label="Aktuell" title="Spiele & Ergebnisse" />
-            <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {matchCards.map((match) => (
-                <MatchCard key={match._id} match={match} isResult={match.isResult} />
-              ))}
-            </div>
-            <div className="mt-8">
-              <Link
-                href="/spielplan"
-                className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors"
-              >
-                Gesamter Spielplan <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </section>
       )}
 
       {/* ── Section 3: Neuigkeiten ───────────────────────────────────── */}
@@ -149,7 +109,50 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Section 4: Spieltagsmagazin ─────────────────────────────── */}
+      {/* ── Section 4: Mannschaften ─────────────────────────────────── */}
+      {teams.length > 0 && (
+        <section className="bg-white dark:bg-gray-800 py-16 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-end justify-between mb-10">
+              <SectionHeader label="Mannschaften" title="Unsere Teams" />
+              <Link
+                href="/teams"
+                className="hidden sm:inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors shrink-0"
+              >
+                Alle Teams <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Category buttons — all screen sizes */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              {HOME_TEAM_GROUPS.filter(({ key }) =>
+                teams.some((t) => t.category === key)
+              ).map(({ key, label }) => (
+                <Link
+                  key={key}
+                  href={`/teams#${key}`}
+                  className="flex items-center justify-between px-5 py-4 md:py-6 bg-background dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 font-bold text-sm uppercase tracking-wide text-text dark:text-gray-100 hover:bg-primary hover:text-white hover:border-primary transition-all duration-200"
+                >
+                  {label}
+                  <ArrowRight size={14} className="shrink-0" />
+                </Link>
+              ))}
+            </div>
+
+            {/* Mobile only — desktop link is in the section header */}
+            <div className="mt-8 sm:hidden">
+              <Link
+                href="/teams"
+                className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors"
+              >
+                Alle Teams <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Section 5: Spieltagsmagazin ─────────────────────────────── */}
       {upcomingMagazine && upcomingMagazine.pdfFile?.asset?.url && (
         <MagazineTeaser magazine={upcomingMagazine} />
       )}
@@ -320,79 +323,16 @@ function SectionHeader({ label, title }: { label: string; title: string }) {
   );
 }
 
-function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
-  const date = new Date(match.date);
-  const dateStr = new Intl.DateTimeFormat("de-DE", {
-    weekday: "short",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-  const timeStr = new Intl.DateTimeFormat("de-DE", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+// ─── Teams section ────────────────────────────────────────────────────────────
 
-  return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      {/* Top accent bar */}
-      <div className={`h-[3px] ${isResult ? "bg-accent" : "bg-primary"}`} />
-      <div className="p-5">
-        {/* Badge */}
-        <span
-          className={`inline-block text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded mb-4 ${
-            isResult
-              ? "bg-accent/10 text-accent"
-              : "bg-primary/10 text-primary"
-          }`}
-        >
-          {isResult ? "Ergebnis" : "Nächstes Spiel"}
-        </span>
+const HOME_TEAM_GROUPS: { key: TeamCategory; label: string }[] = [
+  { key: "herren",   label: "Herren" },
+  { key: "damen",    label: "Damen" },
+  { key: "jugend_m", label: "Jugend männlich" },
+  { key: "jugend_w", label: "Jugend weiblich" },
+];
 
-        {/* Teams */}
-        <p className="font-black text-text dark:text-gray-100 text-base leading-tight">
-          {match.homeTeam}
-        </p>
-        <p className="text-muted dark:text-gray-400 text-sm mt-0.5">vs. {match.awayTeam}</p>
-
-        {/* Result / Time */}
-        {isResult && match.result ? (
-          <p className="text-3xl font-black text-primary mt-4 tabular-nums">
-            {match.result}
-          </p>
-        ) : (
-          <p className="text-2xl font-black text-accent mt-4 tabular-nums">
-            {timeStr} Uhr
-          </p>
-        )}
-
-        {/* Meta */}
-        <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-          <span className="flex items-center gap-1.5 text-[11px] text-muted dark:text-gray-400">
-            <Calendar size={11} className="shrink-0" />
-            {dateStr}
-          </span>
-          {match.venue && (
-            <span className="flex items-center gap-1.5 text-[11px] text-muted dark:text-gray-400">
-              <MapPin size={11} className="shrink-0" />
-              {match.venue}
-            </span>
-          )}
-          {match.isHomeGame !== undefined && (
-            <span
-              className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide ${
-                match.isHomeGame ? "text-primary" : "text-muted dark:text-gray-400"
-              }`}
-            >
-              <Trophy size={10} className="shrink-0" />
-              {match.isHomeGame ? "Heimspiel" : "Auswärts"}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+// ─── News section ─────────────────────────────────────────────────────────────
 
 const CATEGORY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   herren:  { bg: "bg-accent/10",      text: "text-accent",      label: "Herren"  },
