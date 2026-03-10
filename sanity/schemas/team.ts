@@ -124,6 +124,13 @@ export default defineType({
       },
     }),
     defineField({
+      name: "nuligaTeamId",
+      title: "nuLiga Team-ID (Tabelle & Spielplan Widget)",
+      type: "string",
+      description:
+        'Team-ID aus handball.net, z.B. "nuliga.bhv.1678219". Wird für die eingebetteten Tabellen- und Spielplan-Widgets verwendet.',
+    }),
+    defineField({
       name: "order",
       title: "Reihenfolge",
       type: "number",

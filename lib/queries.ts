@@ -78,6 +78,7 @@ export const teamDetailQuery = groq`
       footnote,
       infoBox,
     },
+    nuligaTeamId,
   }
 `;
 

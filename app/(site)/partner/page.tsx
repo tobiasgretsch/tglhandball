@@ -119,45 +119,47 @@ function SectionHeading({ accent, label }: { accent: string; label: string }) {
 
 function PremiumCard({ partner }: { partner: Partner }) {
   const logoUrl = partner.logo
-    ? urlFor(partner.logo).width(400).height(200).url()
+    ? urlFor(partner.logo).width(640).height(360).fit("max").url()
     : null;
 
   const inner = (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">
+    <div className="bg-gray-300 dark:bg-gray-300 rounded-xl border border-gray-400 dark:border-gray-400 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden group">
       {/* Top accent bar */}
       <div className="h-[3px] bg-primary" />
 
-      {/* Logo area */}
-      <div className="flex items-center justify-center px-8 py-10 bg-white dark:bg-gray-800 min-h-[160px]">
+      {/* Logo area — 16:9 */}
+      <div className="relative aspect-[16/9] bg-gray-300 dark:bg-gray-300 overflow-hidden">
         {logoUrl ? (
           <Image
             src={logoUrl}
             alt={partner.name}
-            width={240}
-            height={120}
-            className="object-contain max-h-[110px] w-auto transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-contain transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <span className="text-2xl font-black text-text/20 uppercase tracking-tight text-center">
-            {partner.name}
-          </span>
+          <div className="absolute inset-0 flex items-center justify-center px-6">
+            <span className="text-2xl font-black text-gray-400 uppercase tracking-tight text-center">
+              {partner.name}
+            </span>
+          </div>
         )}
       </div>
 
       {/* Body */}
-      <div className="p-5 flex flex-col flex-1 border-t border-gray-100 dark:border-gray-700">
-        <p className="font-black text-text dark:text-gray-100 text-base leading-tight">
+      <div className="p-5 flex flex-col flex-1 border-t border-gray-400 dark:border-gray-400">
+        <p className="font-black text-gray-900 text-base leading-tight">
           {partner.name}
         </p>
 
         {partner.description && (
-          <p className="text-muted dark:text-gray-400 text-sm mt-2 leading-relaxed flex-1">
+          <p className="text-gray-600 text-sm mt-2 leading-relaxed flex-1">
             {partner.description}
           </p>
         )}
 
         {partner.websiteUrl && (
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <div className="mt-4 pt-4 border-t border-gray-400 dark:border-gray-400">
             <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-accent group-hover:text-primary transition-colors">
               <ExternalLink size={11} />
               Website besuchen
@@ -183,30 +185,32 @@ function PremiumCard({ partner }: { partner: Partner }) {
 
 function StandardTile({ partner }: { partner: Partner }) {
   const logoUrl = partner.logo
-    ? urlFor(partner.logo).width(320).height(160).url()
+    ? urlFor(partner.logo).width(320).height(180).fit("max").url()
     : null;
 
   const inner = (
-    <div className="group flex flex-col items-center bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200 p-5 cursor-pointer">
-      {/* Logo */}
-      <div className="flex items-center justify-center h-[72px] w-full">
+    <div className="group flex flex-col bg-gray-300 dark:bg-gray-300 rounded-xl border border-gray-400 dark:border-gray-400 shadow-sm hover:shadow-md hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-200 overflow-hidden cursor-pointer">
+      {/* Logo — 16:9 */}
+      <div className="relative aspect-[16/9] bg-gray-300 dark:bg-gray-300 overflow-hidden">
         {logoUrl ? (
           <Image
             src={logoUrl}
             alt={partner.name}
-            width={160}
-            height={72}
-            className="object-contain max-h-[72px] w-auto transition-transform duration-200 group-hover:scale-105"
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-contain transition-transform duration-200 group-hover:scale-105"
           />
         ) : (
-          <span className="text-sm font-black text-text/30 dark:text-gray-400 text-center leading-tight uppercase tracking-tight">
-            {partner.name}
-          </span>
+          <div className="absolute inset-0 flex items-center justify-center px-4">
+            <span className="text-sm font-black text-gray-400 text-center leading-tight uppercase tracking-tight">
+              {partner.name}
+            </span>
+          </div>
         )}
       </div>
 
       {/* Name */}
-      <p className="mt-3 text-[11px] font-bold text-muted dark:text-gray-400 text-center leading-tight group-hover:text-text dark:group-hover:text-gray-200 transition-colors truncate w-full">
+      <p className="px-3 py-2 text-[11px] font-bold text-gray-600 text-center leading-tight group-hover:text-gray-900 transition-colors truncate">
         {partner.name}
       </p>
     </div>

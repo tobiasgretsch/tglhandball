@@ -26,7 +26,7 @@ const MOMENTUM_THRESHOLD = 0.05;
 
 const CARD_STYLES: Record<PartnerBannerVariant, string> = {
   premium:
-    "flex items-center shrink-0 rounded px-12 py-7 transition-all duration-300 " +
+    "flex items-center shrink-0 rounded px-5 py-4 transition-all duration-300 " +
     "bg-white/10 border border-white/10 " +
     "shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] " +
     "hover:bg-white/18 hover:border-amber-400/40 " +
@@ -37,9 +37,10 @@ const CARD_STYLES: Record<PartnerBannerVariant, string> = {
     "hover:bg-white/12 hover:border-white/20",
 };
 
-const LOGO_HEIGHT: Record<PartnerBannerVariant, number> = {
-  premium: 70,
-  standard: 36,
+// 16:9 container dimensions per variant (width × height in px)
+const LOGO_SIZE: Record<PartnerBannerVariant, { w: number; h: number }> = {
+  premium: { w: 220, h: 124 },
+  standard: { w: 128, h: 72 },
 };
 
 function PartnerCard({
@@ -49,26 +50,28 @@ function PartnerCard({
   partner: PartnerBannerItem;
   variant: PartnerBannerVariant;
 }) {
-  const h = LOGO_HEIGHT[variant];
+  const { w, h } = LOGO_SIZE[variant];
 
   const inner = partner.logoUrl ? (
-    <Image
-      src={partner.logoUrl}
-      alt={partner.name}
-      width={h * 3}
-      height={h}
-      draggable={false}
-      className={`object-contain brightness-0 invert opacity-90 w-auto pointer-events-none`}
-      style={{ height: h }}
-    />
+    <div className="relative shrink-0" style={{ width: w, height: h }}>
+      <Image
+        src={partner.logoUrl}
+        alt={partner.name}
+        fill
+        draggable={false}
+        className="object-contain brightness-0 invert opacity-90 pointer-events-none"
+      />
+    </div>
   ) : (
-    <span
-      className={`font-bold text-white/85 uppercase tracking-wider ${
-        variant === "premium" ? "text-lg" : "text-[11px]"
-      }`}
-    >
-      {partner.name}
-    </span>
+    <div style={{ width: w, height: h }} className="flex items-center justify-center">
+      <span
+        className={`font-bold text-white/85 uppercase tracking-wider text-center ${
+          variant === "premium" ? "text-lg" : "text-[11px]"
+        }`}
+      >
+        {partner.name}
+      </span>
+    </div>
   );
 
   const cardClass = CARD_STYLES[variant];

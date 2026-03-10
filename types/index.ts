@@ -98,6 +98,7 @@ export interface Team {
   betreuer?: Betreuer[];
   squad?: Player[];
   pricingSection?: PricingSection;
+  nuligaTeamId?: string;
   order?: number;
 }
 

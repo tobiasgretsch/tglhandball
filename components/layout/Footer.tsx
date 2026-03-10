@@ -87,7 +87,7 @@ export default async function Footer() {
               partners={premiumPartners.map((p) => ({
                 _id: p._id,
                 name: p.name,
-                logoUrl: p.logo ? urlFor(p.logo).width(400).height(140).url() : null,
+                logoUrl: p.logo ? urlFor(p.logo).width(440).height(248).fit("max").url() : null,
                 websiteUrl: p.websiteUrl,
               }))}
             />
@@ -126,7 +126,7 @@ export default async function Footer() {
               partners={standardPartners.map((p) => ({
                 _id: p._id,
                 name: p.name,
-                logoUrl: p.logo ? urlFor(p.logo).width(200).height(72).url() : null,
+                logoUrl: p.logo ? urlFor(p.logo).width(256).height(144).fit("max").url() : null,
                 websiteUrl: p.websiteUrl,
               }))}
             />
