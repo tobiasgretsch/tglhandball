@@ -48,6 +48,8 @@ export interface NewsArticle {
 
 // ─── Team ─────────────────────────────────────────────────────────────────────
 
+export type TeamCategory = "herren" | "damen" | "jugend_m" | "jugend_w";
+
 export interface Coach {
   _key: string;
   name: string;
@@ -75,6 +77,7 @@ export interface Team {
   name: string;
   slug: Slug;
   league?: string;
+  category?: TeamCategory;
   headerImage?: SanityImage;
   description?: PortableTextBlock[];
   coaches?: Coach[];

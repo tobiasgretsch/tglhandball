@@ -22,8 +22,12 @@ const fadeUp = {
 export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen flex items-end">
-      {/* Fixed background — stays in place while content scrolls over it */}
-      <div className="fixed inset-0 -z-10 bg-accent">
+      {/* Fixed background — stays in place while content scrolls over it.
+          Uses top/left/right + h-screen (100vh) instead of inset-0 so the
+          container height is locked to the initial layout viewport. This
+          prevents iOS Safari from rescaling the image when the browser chrome
+          hides/shows during scroll (the "zoom" effect on mobile). */}
+      <div className="fixed top-0 left-0 right-0 h-screen -z-10 bg-accent">
         {heroImageUrl ? (
           <Image
             src={heroImageUrl}

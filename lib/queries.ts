@@ -50,6 +50,7 @@ export const allTeamsQuery = groq`
     name,
     slug,
     league,
+    category,
     headerImage,
     order,
   }

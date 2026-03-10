@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Facebook, Youtube, Mail, MapPin } from "lucide-react";
+import PartnerBanner from "@/components/sections/PremiumPartnerBanner";
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
@@ -80,48 +81,16 @@ export default async function Footer() {
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber-400/35" />
             </div>
 
-            {/* Partner cards */}
-            <div className="flex flex-wrap gap-4 items-center justify-center">
-              {premiumPartners.map((partner) => {
-                const inner = partner.logo ? (
-                  <Image
-                    src={urlFor(partner.logo).width(160).height(56).url()}
-                    alt={partner.name}
-                    width={160}
-                    height={56}
-                    className="object-contain brightness-0 invert opacity-90"
-                  />
-                ) : (
-                  <span className="text-sm font-bold text-white/85 uppercase tracking-wider">
-                    {partner.name}
-                  </span>
-                );
-
-                const cardClass =
-                  "flex items-center rounded px-6 py-4 transition-all duration-300 " +
-                  "bg-white/10 border border-white/10 " +
-                  "shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] " +
-                  "hover:bg-white/18 hover:border-amber-400/40 " +
-                  "hover:shadow-[0_0_18px_rgba(251,191,36,0.12),inset_0_1px_0_rgba(255,255,255,0.12)]";
-
-                return partner.websiteUrl ? (
-                  <a
-                    key={partner._id}
-                    href={partner.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${partner.name} – Website besuchen`}
-                    className={cardClass}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <div key={partner._id} className={cardClass}>
-                    {inner}
-                  </div>
-                );
-              })}
-            </div>
+            {/* Auto-rotating partner banner */}
+            <PartnerBanner
+              variant="premium"
+              partners={premiumPartners.map((p) => ({
+                _id: p._id,
+                name: p.name,
+                logoUrl: p.logo ? urlFor(p.logo).width(400).height(140).url() : null,
+                websiteUrl: p.websiteUrl,
+              }))}
+            />
           </div>
         </div>
       )}
@@ -141,46 +110,16 @@ export default async function Footer() {
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/15" />
             </div>
 
-            {/* Partner cards — smaller, more compact */}
-            <div className="flex flex-wrap gap-2.5 items-center justify-center">
-              {standardPartners.map((partner) => {
-                const inner = partner.logo ? (
-                  <Image
-                    src={urlFor(partner.logo).width(90).height(30).url()}
-                    alt={partner.name}
-                    width={90}
-                    height={30}
-                    className="object-contain brightness-0 invert opacity-70"
-                  />
-                ) : (
-                  <span className="text-[11px] font-semibold text-white/60 uppercase tracking-wider">
-                    {partner.name}
-                  </span>
-                );
-
-                const cardClass =
-                  "flex items-center rounded px-4 py-2.5 transition-all duration-300 " +
-                  "bg-white/6 border border-white/8 " +
-                  "hover:bg-white/12 hover:border-white/20 hover:opacity-100";
-
-                return partner.websiteUrl ? (
-                  <a
-                    key={partner._id}
-                    href={partner.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${partner.name} – Website besuchen`}
-                    className={cardClass}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <div key={partner._id} className={cardClass}>
-                    {inner}
-                  </div>
-                );
-              })}
-            </div>
+            {/* Auto-rotating standard partner banner */}
+            <PartnerBanner
+              variant="standard"
+              partners={standardPartners.map((p) => ({
+                _id: p._id,
+                name: p.name,
+                logoUrl: p.logo ? urlFor(p.logo).width(200).height(72).url() : null,
+                websiteUrl: p.websiteUrl,
+              }))}
+            />
           </div>
         </div>
       )}

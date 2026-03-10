@@ -22,6 +22,7 @@ export default async function Header() {
     name: t.name,
     slug: t.slug,
     league: t.league,
+    category: t.category,
   }));
 
   return (

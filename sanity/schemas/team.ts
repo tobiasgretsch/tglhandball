@@ -105,6 +105,20 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "category",
+      title: "Kategorie",
+      type: "string",
+      options: {
+        list: [
+          { title: "Herren", value: "herren" },
+          { title: "Damen", value: "damen" },
+          { title: "Jugend männlich", value: "jugend_m" },
+          { title: "Jugend weiblich", value: "jugend_w" },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
       name: "order",
       title: "Reihenfolge",
       type: "number",

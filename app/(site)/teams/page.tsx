@@ -4,8 +4,15 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
 import { allTeamsQuery, pageHeroSlidesQuery } from "@/lib/queries";
-import type { Team, SanityImage } from "@/types";
+import type { Team, SanityImage, TeamCategory } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
+
+const TEAM_GROUPS: { key: TeamCategory; label: string }[] = [
+  { key: "herren",   label: "Herren" },
+  { key: "damen",    label: "Damen" },
+  { key: "jugend_m", label: "Jugend männlich" },
+  { key: "jugend_w", label: "Jugend weiblich" },
+];
 
 export const metadata: Metadata = {
   title: "Unsere Teams",
@@ -47,22 +54,51 @@ export default async function TeamsPage() {
         </div>
       </PageHeroSlider>
 
-      {/* Team grid */}
-      <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {teams.length === 0 ? (
-            <p className="text-muted text-center py-16">
-              Keine Teams gefunden. Bitte Teams im CMS anlegen.
-            </p>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {teams.map((team) => (
-                <TeamCard key={team._id} team={team} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Team sections — grouped by category */}
+      <div className="bg-background dark:bg-gray-900">
+        {teams.length === 0 ? (
+          <p className="text-muted text-center py-16">
+            Keine Teams gefunden. Bitte Teams im CMS anlegen.
+          </p>
+        ) : (
+          <>
+            {TEAM_GROUPS.map(({ key, label }) => {
+              const groupTeams = teams.filter((t) => t.category === key);
+              if (groupTeams.length === 0) return null;
+              return (
+                <section key={key} className="py-12 md:py-16 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-6">
+                      {label}
+                    </h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                      {groupTeams.map((team) => (
+                        <TeamCard key={team._id} team={team} />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              );
+            })}
+
+            {/* Teams without a category */}
+            {teams.filter((t) => !t.category).length > 0 && (
+              <section className="py-12 md:py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-6">
+                    Weitere
+                  </h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    {teams.filter((t) => !t.category).map((team) => (
+                      <TeamCard key={team._id} team={team} />
+                    ))}
+                  </div>
+                </div>
+              </section>
+            )}
+          </>
+        )}
+      </div>
     </>
   );
 }
