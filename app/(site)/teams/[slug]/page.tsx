@@ -11,6 +11,7 @@ import {
 } from "@/lib/queries";
 import type { Team, Match, Betreuer } from "@/types";
 import PortableText from "@/components/ui/PortableText";
+import PricingSection from "@/components/sections/PricingSection";
 
 // ─── Static params + metadata ─────────────────────────────────────────────────
 
@@ -143,7 +144,12 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 3. Coaching Staff ─────────────────────────────────────────── */}
+      {/* ── 3. Pricing ────────────────────────────────────────────────── */}
+      {team.pricingSection && (team.pricingSection.rows?.length ?? 0) > 0 && (
+        <PricingSection data={team.pricingSection} />
+      )}
+
+      {/* ── 4. Coaching staff ─────────────────────────────────────────── */}
       {team.coaches && team.coaches.length > 0 && (
         <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

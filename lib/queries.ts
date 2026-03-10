@@ -67,6 +67,17 @@ export const teamDetailQuery = groq`
     coaches,
     betreuer,
     squad,
+    pricingSection {
+      heading,
+      rows[] {
+        _key,
+        label,
+        normalPrice,
+        discountedPrice,
+      },
+      footnote,
+      infoBox,
+    },
   }
 `;
 

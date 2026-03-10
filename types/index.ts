@@ -50,6 +50,20 @@ export interface NewsArticle {
 
 export type TeamCategory = "herren" | "damen" | "jugend_m" | "jugend_w";
 
+export interface TicketPriceRow {
+  _key: string;
+  label: string;
+  normalPrice?: string;
+  discountedPrice?: string;
+}
+
+export interface PricingSection {
+  heading?: string;
+  rows?: TicketPriceRow[];
+  footnote?: string;
+  infoBox?: string;
+}
+
 export interface Coach {
   _key: string;
   name: string;
@@ -83,6 +97,7 @@ export interface Team {
   coaches?: Coach[];
   betreuer?: Betreuer[];
   squad?: Player[];
+  pricingSection?: PricingSection;
   order?: number;
 }
 

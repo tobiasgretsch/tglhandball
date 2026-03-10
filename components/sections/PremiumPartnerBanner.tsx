@@ -17,8 +17,12 @@ interface Props {
   variant?: PartnerBannerVariant;
 }
 
-// px per animation frame (~60 fps)
-const SPEED = 0.5;
+// px per animation frame (~60 fps) — auto-scroll speed
+const SPEED = 0.2;
+// Momentum decay per frame after drag release (0.92 = loses 8% velocity each frame)
+const MOMENTUM_DECAY = 0.92;
+// Stop applying momentum below this threshold
+const MOMENTUM_THRESHOLD = 0.05;
 
 const CARD_STYLES: Record<PartnerBannerVariant, string> = {
   premium:
@@ -106,6 +110,7 @@ function MarqueeTrack({
   const draggingRef = useRef(false);
   const didDragRef = useRef(false);
   const lastXRef = useRef(0);
+  const velocityRef = useRef(0); // px/frame — carries drag momentum after release
   const rafRef = useRef<number | null>(null);
 
   const direction = reverse ? -1 : 1;
@@ -115,7 +120,15 @@ function MarqueeTrack({
     if (!track) return;
 
     const loop = () => {
-      if (!pausedRef.current && !draggingRef.current) {
+      if (draggingRef.current) {
+        // During drag: position is set directly in onPointerMove, nothing to add here
+      } else if (Math.abs(velocityRef.current) > MOMENTUM_THRESHOLD) {
+        // Post-drag: coast with decaying momentum
+        posRef.current += velocityRef.current;
+        velocityRef.current *= MOMENTUM_DECAY;
+      } else if (!pausedRef.current) {
+        // Normal auto-scroll
+        velocityRef.current = 0;
         posRef.current -= SPEED * direction;
       }
 
@@ -137,6 +150,7 @@ function MarqueeTrack({
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     draggingRef.current = true;
     didDragRef.current = false;
+    velocityRef.current = 0;
     lastXRef.current = e.clientX;
     e.currentTarget.setPointerCapture(e.pointerId);
   };
@@ -146,6 +160,8 @@ function MarqueeTrack({
     const delta = e.clientX - lastXRef.current;
     if (Math.abs(delta) > 3) didDragRef.current = true;
     posRef.current += delta;
+    // Track velocity as a rolling value for momentum handoff
+    velocityRef.current = delta;
     lastXRef.current = e.clientX;
   };
 

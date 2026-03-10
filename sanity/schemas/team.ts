@@ -105,6 +105,11 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "pricingSection",
+      title: "Eintrittspreise",
+      type: "pricingSection",
+    }),
+    defineField({
       name: "category",
       title: "Kategorie",
       type: "string",

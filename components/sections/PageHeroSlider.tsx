@@ -93,23 +93,6 @@ export default function PageHeroSlider({
         }}
       />
 
-      {/* ── Dot indicators (only when >1 slide) ──────────────────────── */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              aria-label={`Foto ${i + 1}`}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                i === current
-                  ? "bg-white scale-125"
-                  : "bg-white/40 hover:bg-white/70"
-              }`}
-            />
-          ))}
-        </div>
-      )}
 
       {/* ── Page content (passed as children) ────────────────────────── */}
       <div className="relative">{children}</div>
