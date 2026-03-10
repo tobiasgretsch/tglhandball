@@ -235,8 +235,8 @@ export default function TrainingsplanPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6 md:mb-8 gap-4">
         <div>
-          <h1 className="text-2xl font-black text-text">Trainingspläne</h1>
-          <p className="text-sm text-muted mt-0.5">Erstelle und verwalte Trainingspläne.</p>
+          <h1 className="text-2xl font-black text-text dark:text-gray-100">Trainingspläne</h1>
+          <p className="text-sm text-muted dark:text-gray-400 mt-0.5">Erstelle und verwalte Trainingspläne.</p>
         </div>
         <button
           onClick={openCreate}
@@ -251,8 +251,8 @@ export default function TrainingsplanPage() {
       {loading ? (
         <p className="text-muted">Laden…</p>
       ) : plans.length === 0 ? (
-        <div className="bg-white rounded-xl border border-dashed border-gray-200 p-10 text-center">
-          <p className="text-muted text-sm">Noch keine Trainingspläne.</p>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 p-10 text-center">
+          <p className="text-muted dark:text-gray-400 text-sm">Noch keine Trainingspläne.</p>
           <button
             onClick={openCreate}
             className="mt-4 text-sm text-primary font-semibold hover:underline"
@@ -268,14 +268,14 @@ export default function TrainingsplanPage() {
               <div
                 key={plan._id}
                 onClick={() => openEdit(plan)}
-                className={`bg-white rounded-xl border shadow-sm px-4 py-4 cursor-pointer transition-colors hover:border-primary/40 ${
-                  status === "expired" ? "border-gray-100 opacity-70" : "border-gray-200"
+                className={`bg-white dark:bg-gray-800 rounded-xl border shadow-sm px-4 py-4 cursor-pointer transition-colors hover:border-primary/40 ${
+                  status === "expired" ? "border-gray-100 dark:border-gray-700 opacity-70" : "border-gray-200 dark:border-gray-700"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-bold text-text">{plan.title}</h3>
+                      <h3 className="font-bold text-text dark:text-gray-100">{plan.title}</h3>
                       {/* Status badge */}
                       <span
                         className={`text-xs font-medium px-2 py-0.5 rounded-full ${STATUS_CLASS[status]}`}
@@ -287,13 +287,13 @@ export default function TrainingsplanPage() {
                     {/* Date + validity range */}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1">
                       {plan.date && (
-                        <span className="inline-flex items-center gap-1 text-xs text-muted">
+                        <span className="inline-flex items-center gap-1 text-xs text-muted dark:text-gray-400">
                           <Calendar size={11} />
                           {formatDay(plan.date)}
                         </span>
                       )}
                       {(plan.validFrom || plan.validUntil) && (
-                        <span className="text-xs text-muted">
+                        <span className="text-xs text-muted dark:text-gray-400">
                           Gültig:{" "}
                           {plan.validFrom ? formatDay(plan.validFrom) : "–"}{" "}
                           bis{" "}
@@ -303,7 +303,7 @@ export default function TrainingsplanPage() {
                     </div>
 
                     {plan.description && (
-                      <p className="text-sm text-muted mt-1 line-clamp-2">{plan.description}</p>
+                      <p className="text-sm text-muted dark:text-gray-400 mt-1 line-clamp-2">{plan.description}</p>
                     )}
 
                     <div className="flex flex-wrap gap-2 mt-2">
@@ -316,7 +316,7 @@ export default function TrainingsplanPage() {
                       {plan.assignedToPlayers?.map((pl) => (
                         <span
                           key={pl._id}
-                          className="inline-flex items-center gap-1 text-xs bg-gray-100 text-muted px-2 py-0.5 rounded-full"
+                          className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-700 text-muted dark:text-gray-400 px-2 py-0.5 rounded-full"
                         >
                           <User size={10} />
                           {pl.name}
@@ -339,14 +339,14 @@ export default function TrainingsplanPage() {
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={(e) => { e.stopPropagation(); openEdit(plan); }}
-                      className="p-2 rounded-lg text-muted hover:text-accent hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-lg text-muted hover:text-accent hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       title="Bearbeiten"
                     >
                       <Pencil size={14} />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(plan._id); }}
-                      className="p-2 rounded-lg text-muted hover:text-primary hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-lg text-muted hover:text-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       title="Löschen"
                     >
                       <Trash2 size={14} />
@@ -396,12 +396,12 @@ export default function TrainingsplanPage() {
       {/* Create / Edit Modal */}
       {modal.open && (
         <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
-          <div className="bg-white rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-              <h2 className="font-bold text-text">
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl sm:rounded-xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
+              <h2 className="font-bold text-text dark:text-gray-100">
                 {modal.editing ? "Plan bearbeiten" : "Neuer Trainingsplan"}
               </h2>
-              <button onClick={closeModal} className="text-muted hover:text-text p-1">
+              <button onClick={closeModal} className="text-muted hover:text-text dark:hover:text-gray-100 p-1">
                 <X size={18} />
               </button>
             </div>
@@ -409,52 +409,52 @@ export default function TrainingsplanPage() {
             <div className="p-5 space-y-4 overflow-y-auto">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">Titel *</label>
+                <label className="block text-sm font-medium text-text dark:text-gray-100 mb-1.5">Titel *</label>
                 <input
                   type="text"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-text dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
 
               {/* Date */}
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">Datum</label>
+                <label className="block text-sm font-medium text-text dark:text-gray-100 mb-1.5">Datum</label>
                 <input
                   type="date"
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-text dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
 
               {/* Validity window */}
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">
+                <label className="block text-sm font-medium text-text dark:text-gray-100 mb-1.5">
                   Gültigkeitszeitraum
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-muted mb-1">Gültig ab</label>
+                    <label className="block text-xs text-muted dark:text-gray-400 mb-1">Gültig ab</label>
                     <input
                       type="date"
                       value={form.validFrom}
                       onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-text dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-muted mb-1">Gültig bis</label>
+                    <label className="block text-xs text-muted dark:text-gray-400 mb-1">Gültig bis</label>
                     <input
                       type="date"
                       value={form.validUntil}
                       onChange={(e) => setForm({ ...form, validUntil: e.target.value })}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-text dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
                   </div>
                 </div>
-                <p className="mt-1.5 text-xs text-muted">
+                <p className="mt-1.5 text-xs text-muted dark:text-gray-400">
                   Leer lassen = Plan ist zeitlich unbegrenzt für Spieler sichtbar. Nach „Gültig bis"
                   wird der Plan automatisch ausgeblendet.
                 </p>
@@ -462,23 +462,23 @@ export default function TrainingsplanPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">
+                <label className="block text-sm font-medium text-text dark:text-gray-100 mb-1.5">
                   Beschreibung / Übungen
                 </label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={3}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-text dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                 />
               </div>
 
               {/* PDF upload */}
               <div>
-                <label className="block text-sm font-medium text-text mb-1.5">PDF-Datei</label>
+                <label className="block text-sm font-medium text-text dark:text-gray-100 mb-1.5">PDF-Datei</label>
 
                 {existingPdf?.url && !pdfFile && (
-                  <div className="flex items-center gap-2 mb-2 p-2.5 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2 p-2.5 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-600">
                     <FileText size={14} className="text-primary shrink-0" />
                     <button
                       onClick={() =>
@@ -487,11 +487,11 @@ export default function TrainingsplanPage() {
                           title: existingPdf.originalFilename ?? "PDF",
                         })
                       }
-                      className="text-sm text-primary hover:underline truncate text-left"
+                      className="text-sm text-primary hover:underline truncate text-left dark:text-primary"
                     >
                       {existingPdf.originalFilename ?? "Aktuelles PDF ansehen"}
                     </button>
-                    <span className="text-xs text-muted ml-auto shrink-0">vorhanden</span>
+                    <span className="text-xs text-muted dark:text-gray-400 ml-auto shrink-0">vorhanden</span>
                   </div>
                 )}
 
@@ -527,7 +527,7 @@ export default function TrainingsplanPage() {
                   className={`flex flex-col items-center gap-1.5 px-4 py-5 border-2 border-dashed rounded-lg cursor-pointer transition-colors select-none ${
                     isDraggingPdf
                       ? "border-primary bg-primary/5 text-primary"
-                      : "border-gray-300 text-muted hover:border-primary hover:text-primary"
+                      : "border-gray-300 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary"
                   }`}
                 >
                   <Upload size={20} />
@@ -572,11 +572,11 @@ export default function TrainingsplanPage() {
               {/* Team selector */}
               {form.assignType === "team" && (
                 <div>
-                  <label className="block text-sm font-medium text-text mb-1.5">
+                  <label className="block text-sm font-medium text-text dark:text-gray-100 mb-1.5">
                     Mannschaft wählen
                   </label>
                   {teams.length === 0 ? (
-                    <p className="text-sm text-muted">
+                    <p className="text-sm text-muted dark:text-gray-400">
                       Dir ist noch keine Mannschaft zugewiesen. Bitte einen Admin bitten, deine
                       Clerk ID in Sanity Studio der Mannschaft zu hinterlegen.
                     </p>
@@ -584,7 +584,7 @@ export default function TrainingsplanPage() {
                     <select
                       value={form.teamId}
                       onChange={(e) => setForm({ ...form, teamId: e.target.value })}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white text-text focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-text dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/30"
                     >
                       <option value="">— Mannschaft wählen —</option>
                       {teams.map((t) => (
@@ -600,17 +600,17 @@ export default function TrainingsplanPage() {
               {/* Player multi-select */}
               {form.assignType === "players" && (
                 <div>
-                  <label className="block text-sm font-medium text-text mb-2">
+                  <label className="block text-sm font-medium text-text dark:text-gray-100 mb-2">
                     Spieler wählen
                   </label>
                   {players.length === 0 ? (
-                    <p className="text-sm text-muted">Keine Spieler vorhanden.</p>
+                    <p className="text-sm text-muted dark:text-gray-400">Keine Spieler vorhanden.</p>
                   ) : (
-                    <div className="space-y-1.5 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                    <div className="space-y-1.5 max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg p-2">
                       {players.map((p) => (
                         <label
                           key={p._id}
-                          className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                          className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
                         >
                           <input
                             type="checkbox"
@@ -618,7 +618,7 @@ export default function TrainingsplanPage() {
                             onChange={() => togglePlayer(p._id)}
                             className="accent-primary w-4 h-4"
                           />
-                          <span className="text-sm text-text">{p.name}</span>
+                          <span className="text-sm text-text dark:text-gray-100">{p.name}</span>
                         </label>
                       ))}
                     </div>
@@ -627,7 +627,7 @@ export default function TrainingsplanPage() {
               )}
             </div>
 
-            <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between gap-3 shrink-0">
+            <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between gap-3 shrink-0">
               {saveError ? (
                 <p className="text-sm text-primary">{saveError}</p>
               ) : (

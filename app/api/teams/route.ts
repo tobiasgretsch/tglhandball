@@ -13,7 +13,7 @@ export async function GET() {
   // Other authenticated roles (e.g. admin) see all teams.
   const teams = await client.fetch<{ _id: string; name: string }[]>(
     role === "trainer"
-      ? `*[_type == "team" && trainer->clerkUserId == $id] | order(order asc) { _id, name }`
+      ? `*[_type == "team" && _id in *[_type == "trainerProfil" && clerkUserId == $id][0].teams[]._ref] | order(order asc) { _id, name }`
       : `*[_type == "team"] | order(order asc) { _id, name }`,
     { id: userId }
   );

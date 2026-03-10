@@ -21,23 +21,25 @@ export async function GET() {
   } | null>(
     `*[_type == "spielerProfil" && clerkUserId == $id][0] {
       _id, name, email, position, number,
-      teams[]->{ _id, name }
+      teams[]->{ _id, name, slug, league }
     }`,
     { id: userId }
   );
 
-  if (!profile) return NextResponse.json({ profile: null, plans: [] });
+  if (!profile) return NextResponse.json({ profile: null, plans: [], archivePlans: [] });
 
   const teamIds = profile.teams?.map((t) => t._id) ?? [];
   const today = new Date().toISOString().slice(0, 10);
 
-  // Plans assigned to this player individually OR to any of their teams,
-  // filtered to the active validity window.
+  const assignmentFilter = `(
+    $profileId in assignedToPlayers[]._ref
+    || assignedToTeam._ref in $teamIds
+  )`;
+
+  // Active plans — validity window includes today (or no window set).
   const plans = await client.fetch(
-    `*[_type == "trainingsplan" && (
-      $profileId in assignedToPlayers[]._ref
-      || assignedToTeam._ref in $teamIds
-    ) && (!defined(validFrom) || validFrom <= $today)
+    `*[_type == "trainingsplan" && ${assignmentFilter}
+      && (!defined(validFrom) || validFrom <= $today)
       && (!defined(validUntil) || validUntil >= $today)
     ] | order(date desc) {
       _id, title, description, date, validFrom, validUntil,
@@ -47,5 +49,18 @@ export async function GET() {
     { profileId: profile._id, teamIds, today }
   );
 
-  return NextResponse.json({ profile, plans });
+  // Archive plans — explicitly expired or not yet started.
+  const archivePlans = await client.fetch(
+    `*[_type == "trainingsplan" && ${assignmentFilter}
+      && (
+        (defined(validUntil) && validUntil < $today)
+        || (defined(validFrom) && validFrom > $today)
+      )
+    ] | order(date desc) {
+      _id, title, description, validFrom, validUntil
+    }`,
+    { profileId: profile._id, teamIds, today }
+  );
+
+  return NextResponse.json({ profile, plans, archivePlans });
 }

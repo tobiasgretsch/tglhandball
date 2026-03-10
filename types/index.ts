@@ -48,6 +48,22 @@ export interface NewsArticle {
 
 // ─── Team ─────────────────────────────────────────────────────────────────────
 
+export type TeamCategory = "herren" | "damen" | "jugend_m" | "jugend_w";
+
+export interface TicketPriceRow {
+  _key: string;
+  label: string;
+  normalPrice?: string;
+  discountedPrice?: string;
+}
+
+export interface PricingSection {
+  heading?: string;
+  rows?: TicketPriceRow[];
+  footnote?: string;
+  infoBox?: string;
+}
+
 export interface Coach {
   _key: string;
   name: string;
@@ -75,11 +91,14 @@ export interface Team {
   name: string;
   slug: Slug;
   league?: string;
+  category?: TeamCategory;
   headerImage?: SanityImage;
   description?: PortableTextBlock[];
   coaches?: Coach[];
   betreuer?: Betreuer[];
   squad?: Player[];
+  pricingSection?: PricingSection;
+  nuligaTeamId?: string;
   order?: number;
 }
 
@@ -181,6 +200,7 @@ export interface Settings {
   instagramUrl?: string;
   facebookUrl?: string;
   youtubeUrl?: string;
+  tiktokUrl?: string;
   contactEmail?: string;
   venueName?: string;
   venueAddress?: string;

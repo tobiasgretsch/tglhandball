@@ -105,12 +105,30 @@ export default defineType({
       ],
     }),
     defineField({
-      name: "trainer",
-      title: "Trainer",
-      type: "reference",
-      to: [{ type: "trainerProfil" }],
+      name: "pricingSection",
+      title: "Eintrittspreise",
+      type: "pricingSection",
+    }),
+    defineField({
+      name: "category",
+      title: "Kategorie",
+      type: "string",
+      options: {
+        list: [
+          { title: "Herren", value: "herren" },
+          { title: "Damen", value: "damen" },
+          { title: "Jugend männlich", value: "jugend_m" },
+          { title: "Jugend weiblich", value: "jugend_w" },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
+      name: "nuligaTeamId",
+      title: "nuLiga Team-ID (Tabelle & Spielplan Widget)",
+      type: "string",
       description:
-        "Verknüpft den zuständigen Trainer mit dieser Mannschaft. Die Clerk User ID im Trainerprofil steuert den Dashboard-Zugang.",
+        'Team-ID aus handball.net, z.B. "nuliga.bhv.1678219". Wird für die eingebetteten Tabellen- und Spielplan-Widgets verwendet.',
     }),
     defineField({
       name: "order",

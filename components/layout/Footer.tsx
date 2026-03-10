@@ -1,6 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Facebook, Youtube, Mail, MapPin } from "lucide-react";
+import PartnerBanner from "@/components/sections/PremiumPartnerBanner";
+
+function TikTokIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.34 6.34 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.27 8.27 0 0 0 4.84 1.55V6.79a4.85 4.85 0 0 1-1.07-.1z" />
+    </svg>
+  );
+}
 import { client, urlFor } from "@/lib/sanity";
 import { settingsQuery, premiumPartnersQuery, standardPartnersQuery } from "@/lib/queries";
 import type { Settings, Partner } from "@/types";
@@ -72,47 +81,25 @@ export default async function Footer() {
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber-400/35" />
             </div>
 
-            {/* Partner cards */}
-            <div className="flex flex-wrap gap-4 items-center justify-center">
-              {premiumPartners.map((partner) => {
-                const inner = partner.logo ? (
-                  <Image
-                    src={urlFor(partner.logo).width(160).height(56).url()}
-                    alt={partner.name}
-                    width={160}
-                    height={56}
-                    className="object-contain brightness-0 invert opacity-90"
-                  />
-                ) : (
-                  <span className="text-sm font-bold text-white/85 uppercase tracking-wider">
-                    {partner.name}
-                  </span>
-                );
+            {/* Auto-rotating partner banner */}
+            <PartnerBanner
+              variant="premium"
+              partners={premiumPartners.map((p) => ({
+                _id: p._id,
+                name: p.name,
+                logoUrl: p.logo ? urlFor(p.logo).width(440).height(248).fit("max").url() : null,
+                websiteUrl: p.websiteUrl,
+              }))}
+            />
 
-                const cardClass =
-                  "flex items-center rounded px-6 py-4 transition-all duration-300 " +
-                  "bg-white/10 border border-white/10 " +
-                  "shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] " +
-                  "hover:bg-white/18 hover:border-amber-400/40 " +
-                  "hover:shadow-[0_0_18px_rgba(251,191,36,0.12),inset_0_1px_0_rgba(255,255,255,0.12)]";
-
-                return partner.websiteUrl ? (
-                  <a
-                    key={partner._id}
-                    href={partner.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${partner.name} – Website besuchen`}
-                    className={cardClass}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <div key={partner._id} className={cardClass}>
-                    {inner}
-                  </div>
-                );
-              })}
+            {/* Link to partner page */}
+            <div className="flex justify-center mt-6">
+              <Link
+                href="/partner"
+                className="inline-flex items-center gap-2 border border-amber-400/40 text-amber-400/80 hover:text-amber-400 hover:border-amber-400/70 hover:bg-amber-400/5 text-[12px] font-bold uppercase tracking-widest px-6 py-2.5 rounded-sm transition-all duration-200"
+              >
+                Alle Partner ansehen →
+              </Link>
             </div>
           </div>
         </div>
@@ -133,46 +120,16 @@ export default async function Footer() {
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/15" />
             </div>
 
-            {/* Partner cards — smaller, more compact */}
-            <div className="flex flex-wrap gap-2.5 items-center justify-center">
-              {standardPartners.map((partner) => {
-                const inner = partner.logo ? (
-                  <Image
-                    src={urlFor(partner.logo).width(90).height(30).url()}
-                    alt={partner.name}
-                    width={90}
-                    height={30}
-                    className="object-contain brightness-0 invert opacity-70"
-                  />
-                ) : (
-                  <span className="text-[11px] font-semibold text-white/60 uppercase tracking-wider">
-                    {partner.name}
-                  </span>
-                );
-
-                const cardClass =
-                  "flex items-center rounded px-4 py-2.5 transition-all duration-300 " +
-                  "bg-white/6 border border-white/8 " +
-                  "hover:bg-white/12 hover:border-white/20 hover:opacity-100";
-
-                return partner.websiteUrl ? (
-                  <a
-                    key={partner._id}
-                    href={partner.websiteUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${partner.name} – Website besuchen`}
-                    className={cardClass}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <div key={partner._id} className={cardClass}>
-                    {inner}
-                  </div>
-                );
-              })}
-            </div>
+            {/* Auto-rotating standard partner banner */}
+            <PartnerBanner
+              variant="standard"
+              partners={standardPartners.map((p) => ({
+                _id: p._id,
+                name: p.name,
+                logoUrl: p.logo ? urlFor(p.logo).width(256).height(144).fit("max").url() : null,
+                websiteUrl: p.websiteUrl,
+              }))}
+            />
           </div>
         </div>
       )}
@@ -233,6 +190,17 @@ export default async function Footer() {
                   className="w-9 h-9 rounded-sm bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
                 >
                   <Youtube size={16} />
+                </a>
+              )}
+              {settings?.tiktokUrl && (
+                <a
+                  href={settings.tiktokUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                  className="w-9 h-9 rounded-sm bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                >
+                  <TikTokIcon size={16} />
                 </a>
               )}
             </div>

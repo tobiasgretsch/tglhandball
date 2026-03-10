@@ -9,10 +9,13 @@ export default async function TrainerOverview() {
 
   const userId = user.id;
 
-  const [playerCount, planCount, teamCount] = await Promise.all([
+  const [playerCount, planCount, teams] = await Promise.all([
     client
       .fetch<number>(
-        `count(*[_type == "spielerProfil" && (trainerClerkUserId == $id || team->trainerClerkUserId == $id)])`,
+        `count(*[_type == "spielerProfil" && !(_id in path("drafts.**")) && (
+          count(teams[_ref in *[_type == "trainerProfil" && clerkUserId == $id][0].teams[]._ref]) > 0
+          || (trainerClerkUserId == $id && count(teams) == 0)
+        )])`,
         { id: userId }
       )
       .catch(() => 0),
@@ -23,25 +26,47 @@ export default async function TrainerOverview() {
       )
       .catch(() => 0),
     client
-      .fetch<number>(
-        `count(*[_type == "team" && trainerClerkUserId == $id])`,
+      .fetch<{ _id: string; name: string; league?: string; slug: { current: string } }[]>(
+        `*[_type == "team" && _id in *[_type == "trainerProfil" && clerkUserId == $id][0].teams[]._ref] | order(order asc) { _id, name, league, slug }`,
         { id: userId }
       )
-      .catch(() => 0),
+      .catch(() => [] as { _id: string; name: string; league?: string; slug: { current: string } }[]),
   ]);
 
   return (
     <div className="p-4 md:p-8 max-w-4xl">
-      <h1 className="text-2xl font-black text-text mb-1">
+      <h1 className="text-2xl font-black text-text dark:text-gray-100 mb-1">
         Hallo, {user.firstName ?? "Trainer"}!
       </h1>
-      <p className="text-muted mb-6 text-sm">Hier ist deine Übersicht.</p>
+      <p className="text-muted dark:text-gray-400 mb-6 text-sm">Hier ist deine Übersicht.</p>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 mb-8">
-        <StatCard value={teamCount} label="Mannschaften" color="red" />
+        <StatCard value={teams.length} label="Mannschaften" color="red" />
         <StatCard value={playerCount} label="Spieler" color="blue" />
         <StatCard value={planCount} label="Trainingspläne" color="red" />
       </div>
+
+      {teams.length > 0 && (
+        <div className="mb-8">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted dark:text-gray-400 mb-3">
+            Meine Mannschaften
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {teams.map((team) => (
+              <Link
+                key={team._id}
+                href={`/teams/${team.slug.current}`}
+                className="inline-flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 hover:border-primary hover:shadow-sm transition-all"
+              >
+                <span className="font-bold text-sm text-text dark:text-gray-100">{team.name}</span>
+                {team.league && (
+                  <span className="text-xs text-muted dark:text-gray-400 mt-0.5">{team.league}</span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
         <QuickLink
@@ -69,7 +94,7 @@ function StatCard({
   color: "red" | "blue";
 }) {
   return (
-    <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-200 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 md:p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
       <p
         className={`text-3xl md:text-4xl font-black ${
           color === "red" ? "text-primary" : "text-accent"
@@ -77,7 +102,7 @@ function StatCard({
       >
         {value}
       </p>
-      <p className="text-muted text-sm mt-1">{label}</p>
+      <p className="text-muted dark:text-gray-400 text-sm mt-1">{label}</p>
     </div>
   );
 }
@@ -94,10 +119,10 @@ function QuickLink({
   return (
     <Link
       href={href}
-      className="block bg-white rounded-xl p-4 md:p-5 border border-gray-200 shadow-sm hover:border-primary hover:shadow-md transition-all"
+      className="block bg-white dark:bg-gray-800 rounded-xl p-4 md:p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:border-primary hover:shadow-md transition-all"
     >
-      <h3 className="font-bold text-text mb-1">{title}</h3>
-      <p className="text-sm text-muted">{description}</p>
+      <h3 className="font-bold text-text dark:text-gray-100 mb-1">{title}</h3>
+      <p className="text-sm text-muted dark:text-gray-400">{description}</p>
       <span className="inline-block mt-3 text-xs font-semibold text-primary">
         Öffnen →
       </span>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 
 interface NavItem {
   href: string;
@@ -34,7 +34,9 @@ function SidebarContent({
   userName,
   userEmail,
   onNavigate,
-}: Props & { onNavigate?: () => void }) {
+  isDark,
+  onToggleTheme,
+}: Props & { onNavigate?: () => void; isDark: boolean; onToggleTheme: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -81,10 +83,17 @@ function SidebarContent({
       {/* User */}
       <div className="px-4 py-4 border-t border-white/10 flex items-center gap-3">
         <UserButton />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-white text-xs font-semibold truncate">{userName}</p>
           <p className="text-white/35 text-[11px] truncate">{userEmail}</p>
         </div>
+        <button
+          onClick={onToggleTheme}
+          className="shrink-0 p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+          aria-label={isDark ? "Hellmodus" : "Dunkelmodus"}
+        >
+          {isDark ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
       </div>
     </div>
   );
@@ -92,6 +101,18 @@ function SidebarContent({
 
 export default function DashboardSidebar(props: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  function toggleTheme() {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle("dark", next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+  }
 
   return (
     <>
@@ -110,7 +131,14 @@ export default function DashboardSidebar(props: Props) {
             TG <span className="text-primary">MIPA</span>{" "}
             <span className="text-white/40 font-medium text-xs">Landshut</span>
           </Link>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label={isDark ? "Hellmodus" : "Dunkelmodus"}
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
             <UserButton />
           </div>
         </div>
@@ -130,7 +158,7 @@ export default function DashboardSidebar(props: Props) {
               >
                 <X size={20} />
               </button>
-              <SidebarContent {...props} onNavigate={() => setDrawerOpen(false)} />
+              <SidebarContent {...props} onNavigate={() => setDrawerOpen(false)} isDark={isDark} onToggleTheme={toggleTheme} />
             </div>
           </>
         )}
@@ -138,7 +166,7 @@ export default function DashboardSidebar(props: Props) {
 
       {/* ── Desktop: fixed sidebar ── */}
       <aside className="hidden md:flex md:w-60 flex-col shrink-0 min-h-screen">
-        <SidebarContent {...props} />
+        <SidebarContent {...props} isDark={isDark} onToggleTheme={toggleTheme} />
       </aside>
     </>
   );

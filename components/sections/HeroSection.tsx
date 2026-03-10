@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight, Newspaper } from "lucide-react";
 
 interface HeroSectionProps {
   heroImageUrl: string | null;
@@ -21,23 +21,28 @@ const fadeUp = {
 
 export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps) {
   return (
-    <section className="relative min-h-screen flex items-end overflow-hidden bg-accent -mt-[68px] lg:-mt-[76px]">
-      {/* Background */}
-      {heroImageUrl ? (
-        <Image
-          src={heroImageUrl}
-          alt={clubName}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#003a7a] via-accent to-[#001f4d]" />
-      )}
-
-      {/* Dark gradient overlay — stronger at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+    <section className="relative min-h-screen flex items-end">
+      {/* Fixed background — stays in place while content scrolls over it.
+          Uses top/left/right + h-screen (100vh) instead of inset-0 so the
+          container height is locked to the initial layout viewport. This
+          prevents iOS Safari from rescaling the image when the browser chrome
+          hides/shows during scroll (the "zoom" effect on mobile). */}
+      <div className="fixed top-0 left-0 right-0 h-screen -z-10 bg-accent">
+        {heroImageUrl ? (
+          <Image
+            src={heroImageUrl}
+            alt={clubName}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#003a7a] via-accent to-[#001f4d]" />
+        )}
+        {/* Dark gradient overlay — stronger at bottom */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+      </div>
 
       {/* Content */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 pt-40 w-full">
@@ -81,11 +86,11 @@ export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps
           className="flex flex-wrap gap-4"
         >
           <Link
-            href="/spielplan"
+            href="/news"
             className="inline-flex items-center gap-2 bg-primary hover:bg-primary-light text-white font-bold uppercase tracking-widest text-[13px] px-7 py-4 rounded-sm transition-colors shadow-lg shadow-primary/30"
           >
-            <Calendar size={16} />
-            Nächstes Spiel
+            <Newspaper size={16} />
+            Neuigkeiten
           </Link>
           <Link
             href="/teams"

@@ -42,7 +42,7 @@ export default function PageHeroSlider({
 
   return (
     <section
-      className={`relative overflow-hidden -mt-[68px] lg:-mt-[76px] min-h-[340px] md:min-h-[400px] lg:min-h-[500px] flex items-end ${className}`}
+      className={`relative overflow-hidden min-h-[340px] md:min-h-[400px] lg:min-h-[500px] flex items-end ${className}`}
     >
       {/* ── Background layer ─────────────────────────────────────────── */}
       {hasSlides ? (
@@ -53,7 +53,7 @@ export default function PageHeroSlider({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.9, ease: "easeInOut" }}
-            className="absolute inset-x-0 bottom-0 top-[68px] lg:top-[76px]"
+            className="absolute inset-0"
           >
             <Image
               src={urlFor(slides[current]).width(1920).height(640).url()}
@@ -82,7 +82,7 @@ export default function PageHeroSlider({
       />
 
       {/* ── Dark-mode dimming overlay ─────────────────────────────────── */}
-      <div className="absolute inset-0 pointer-events-none opacity-0 dark:opacity-100 bg-black/40 transition-opacity duration-300" />
+      <div className="absolute inset-0 pointer-events-none opacity-0 dark:opacity-100 bg-black/25 transition-opacity duration-300" />
 
       {/* ── Subtle diagonal stripe texture (design continuity) ─────────── */}
       <div
@@ -93,23 +93,6 @@ export default function PageHeroSlider({
         }}
       />
 
-      {/* ── Dot indicators (only when >1 slide) ──────────────────────── */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              aria-label={`Foto ${i + 1}`}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                i === current
-                  ? "bg-white scale-125"
-                  : "bg-white/40 hover:bg-white/70"
-              }`}
-            />
-          ))}
-        </div>
-      )}
 
       {/* ── Page content (passed as children) ────────────────────────── */}
       <div className="relative">{children}</div>

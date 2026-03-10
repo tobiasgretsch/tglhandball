@@ -6,13 +6,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
+import type { TeamCategory } from "@/types";
 
 interface TeamItem {
   _id: string;
   name: string;
   slug: { current: string };
   league?: string;
+  category?: TeamCategory;
 }
+
+const TEAM_GROUPS: { key: TeamCategory; label: string }[] = [
+  { key: "herren",   label: "Herren" },
+  { key: "damen",    label: "Damen" },
+  { key: "jugend_m", label: "Jugend männlich" },
+  { key: "jugend_w", label: "Jugend weiblich" },
+];
 
 interface HeaderClientProps {
   logoUrl: string | null;
@@ -41,9 +50,9 @@ const VEREIN_ITEMS: StaticDropdownItem[] = [
 const NAV_LINKS: NavLink[] = [
   { label: "News", href: "/news" },
   { label: "Teams", href: "/teams", dropdown: "teams" },
-  { label: "Spielplan", href: "/spielplan" },
   { label: "Magazine", href: "/spieltagsmagazin" },
   { label: "Impressionen", href: "/impressionen" },
+  { label: "Fanshop", href: "/fanshop" },
   { label: "Verein", href: "/ueberuns", dropdown: "verein", staticItems: VEREIN_ITEMS },
 ];
 
@@ -58,9 +67,19 @@ export default function HeaderClient({
   const [openDropdown, setOpenDropdown] = useState<"teams" | "verein" | null>(null);
   const [isDark, setIsDark] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<Set<string>>(new Set());
+  const [openDesktopGroups, setOpenDesktopGroups] = useState<Set<TeamCategory>>(new Set());
 
   const toggleMobileSection = (key: string) => {
     setMobileExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const toggleDesktopGroup = (key: TeamCategory) => {
+    setOpenDesktopGroups((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
       else next.add(key);
@@ -204,23 +223,67 @@ export default function HeaderClient({
                     >
                       {link.dropdown === "teams" && (
                         <>
-                          {teams.map((team) => (
+                          {TEAM_GROUPS.map(({ key, label }) => {
+                            const groupTeams = teams.filter((t) => t.category === key);
+                            if (groupTeams.length === 0) return null;
+                            const expanded = openDesktopGroups.has(key);
+                            return (
+                              <div key={key} className="border-b border-gray-100 dark:border-white/5 last:border-0">
+                                <button
+                                  onClick={() => toggleDesktopGroup(key)}
+                                  className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                                >
+                                  {label}
+                                  <motion.span
+                                    animate={{ rotate: expanded ? 180 : 0 }}
+                                    transition={{ duration: 0.18 }}
+                                    className="inline-flex"
+                                  >
+                                    <ChevronDown size={11} />
+                                  </motion.span>
+                                </button>
+                                <AnimatePresence initial={false}>
+                                  {expanded && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: "auto", opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.18, ease: "easeInOut" }}
+                                      className="overflow-hidden"
+                                    >
+                                      {groupTeams.map((team) => (
+                                        <Link
+                                          key={team._id}
+                                          href={`/teams/${team.slug.current}`}
+                                          className="block pl-6 pr-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-white transition-colors border-t border-gray-100 dark:border-white/5"
+                                        >
+                                          {team.name}
+                                          {team.league && (
+                                            <span className="block text-[11px] text-gray-500 dark:text-white/45 font-normal normal-case tracking-normal mt-0.5">
+                                              {team.league}
+                                            </span>
+                                          )}
+                                        </Link>
+                                      ))}
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                          {/* Teams without a category */}
+                          {teams.filter((t) => !t.category).map((team) => (
                             <Link
                               key={team._id}
                               href={`/teams/${team.slug.current}`}
-                              className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-200 dark:border-white/10 last:border-0"
+                              className="block px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-100 dark:border-white/5 last:border-0"
                             >
                               {team.name}
-                              {team.league && (
-                                <span className="block text-[12px] text-gray-500 dark:text-white/45 font-normal normal-case tracking-normal mt-0.5">
-                                  {team.league}
-                                </span>
-                              )}
                             </Link>
                           ))}
                           <Link
                             href="/teams"
-                            className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-400 hover:text-gray-900 hover:bg-red-50 dark:text-white/50 dark:hover:text-white dark:hover:bg-white/10 transition-colors"
+                            className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-400 hover:text-gray-900 hover:bg-red-50 dark:text-white/50 dark:hover:text-white dark:hover:bg-white/10 transition-colors border-t border-gray-100 dark:border-white/10"
                           >
                             Alle Teams →
                           </Link>
@@ -330,12 +393,31 @@ export default function HeaderClient({
 
               {/* Drawer links */}
               <nav className="flex-1 overflow-y-auto py-4" aria-label="Mobile Navigation">
+                {/* Home — mobile only */}
+                <motion.div
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0, duration: 0.22 }}
+                >
+                  <Link
+                    href="/"
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center px-6 py-4 text-[12px] font-bold uppercase tracking-widest border-b border-gray-200 dark:border-white/10 transition-colors ${
+                      pathname === "/"
+                        ? "text-gray-900 bg-red-50 dark:text-white dark:bg-white/10"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
+                    }`}
+                  >
+                    Home
+                  </Link>
+                </motion.div>
+
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
                     key={link.href}
                     initial={{ opacity: 0, x: 16 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.055, duration: 0.22 }}
+                    transition={{ delay: (i + 1) * 0.055, duration: 0.22 }}
                   >
                     {link.dropdown ? (
                       /* Collapsible section header */
@@ -370,7 +452,7 @@ export default function HeaderClient({
                       </Link>
                     )}
 
-                    {/* Collapsible team list under Teams */}
+                    {/* Collapsible team list under Teams — grouped by category */}
                     <AnimatePresence initial={false}>
                       {link.dropdown === "teams" && mobileExpanded.has("teams") && teams.length > 0 && (
                         <motion.div
@@ -380,12 +462,58 @@ export default function HeaderClient({
                           transition={{ duration: 0.22, ease: "easeInOut" }}
                           className="overflow-hidden bg-gray-50 dark:bg-black/20"
                         >
-                          {teams.map((team) => (
+                          {TEAM_GROUPS.map(({ key, label }) => {
+                            const groupTeams = teams.filter((t) => t.category === key);
+                            if (groupTeams.length === 0) return null;
+                            const groupKey = `tg_${key}`;
+                            const expanded = mobileExpanded.has(groupKey);
+                            return (
+                              <div key={key}>
+                                <button
+                                  onClick={() => toggleMobileSection(groupKey)}
+                                  className="w-full flex items-center justify-between pl-10 pr-6 py-2.5 text-[12px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-red-50 dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                                >
+                                  {label}
+                                  <motion.span
+                                    animate={{ rotate: expanded ? 180 : 0 }}
+                                    transition={{ duration: 0.18 }}
+                                    className="inline-flex"
+                                  >
+                                    <ChevronDown size={11} />
+                                  </motion.span>
+                                </button>
+                                <AnimatePresence initial={false}>
+                                  {expanded && (
+                                    <motion.div
+                                      initial={{ height: 0, opacity: 0 }}
+                                      animate={{ height: "auto", opacity: 1 }}
+                                      exit={{ height: 0, opacity: 0 }}
+                                      transition={{ duration: 0.18, ease: "easeInOut" }}
+                                      className="overflow-hidden"
+                                    >
+                                      {groupTeams.map((team) => (
+                                        <Link
+                                          key={team._id}
+                                          href={`/teams/${team.slug.current}`}
+                                          onClick={() => setMobileOpen(false)}
+                                          className="flex items-center pl-14 pr-6 py-2.5 text-[13px] font-semibold uppercase tracking-wider text-gray-600 hover:text-gray-900 hover:bg-red-50 dark:text-white/55 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                                        >
+                                          {team.name}
+                                        </Link>
+                                      ))}
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
+                            );
+                          })}
+                          {/* Teams without a category */}
+                          {teams.filter((t) => !t.category).map((team) => (
                             <Link
                               key={team._id}
                               href={`/teams/${team.slug.current}`}
                               onClick={() => setMobileOpen(false)}
-                              className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-600 hover:text-gray-900 hover:bg-red-50 dark:text-white/55 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                              className="flex items-center pl-10 pr-6 py-2.5 text-[13px] font-semibold uppercase tracking-wider text-gray-600 hover:text-gray-900 hover:bg-red-50 dark:text-white/55 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                             >
                               {team.name}
                             </Link>
@@ -393,7 +521,7 @@ export default function HeaderClient({
                           <Link
                             href="/teams"
                             onClick={() => setMobileOpen(false)}
-                            className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-400 hover:text-gray-900 hover:bg-red-50 dark:text-white/40 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                            className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-400 hover:text-gray-900 hover:bg-red-50 dark:text-white/40 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-t border-gray-200 dark:border-white/10"
                           >
                             Alle Teams →
                           </Link>

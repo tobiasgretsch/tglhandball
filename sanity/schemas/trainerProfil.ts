@@ -29,6 +29,13 @@ export default defineType({
       description:
         "Clerk User ID des Trainers — im Clerk Dashboard unter Users nachschlagen (beginnt mit user_…). Wird für die Dashboard-Zugriffskontrolle benötigt.",
     }),
+    defineField({
+      name: "teams",
+      title: "Zugewiesene Mannschaften",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "team" }] }],
+      description: "Mannschaften, die dieser Trainer im Dashboard verwaltet.",
+    }),
   ],
   preview: {
     select: { title: "name", subtitle: "email" },

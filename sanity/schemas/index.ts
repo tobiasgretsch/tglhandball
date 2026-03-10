@@ -8,6 +8,8 @@ import settings from "./settings";
 import spielerProfil from "./spielerProfil";
 import trainerProfil from "./trainerProfil";
 import trainingsplan from "./trainingsplan";
+import ticketPriceRow from "./ticketPriceRow";
+import pricingSection from "./pricingSection";
 
 export const schemaTypes = [
   news,
@@ -20,4 +22,6 @@ export const schemaTypes = [
   spielerProfil,
   trainerProfil,
   trainingsplan,
+  ticketPriceRow,
+  pricingSection,
 ];

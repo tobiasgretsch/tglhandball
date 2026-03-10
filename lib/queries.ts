@@ -50,6 +50,7 @@ export const allTeamsQuery = groq`
     name,
     slug,
     league,
+    category,
     headerImage,
     order,
   }
@@ -66,6 +67,18 @@ export const teamDetailQuery = groq`
     coaches,
     betreuer,
     squad,
+    pricingSection {
+      heading,
+      rows[] {
+        _key,
+        label,
+        normalPrice,
+        discountedPrice,
+      },
+      footnote,
+      infoBox,
+    },
+    nuligaTeamId,
   }
 `;
 
@@ -232,6 +245,18 @@ export const latestNewsQuery = groq`
   }
 `;
 
+/** Returns the next upcoming magazine (date >= today) that has a PDF attached. */
+export const homeMagazineQuery = groq`
+  *[_type == "magazine" && date >= $today && defined(pdfFile.asset)] | order(date asc) [0] {
+    _id,
+    season,
+    matchday,
+    opponent,
+    date,
+    pdfFile { asset->{ url } },
+  }
+`;
+
 // ─── Team-specific match queries ─────────────────────────────────────────────
 
 export const teamUpcomingMatchesQuery = groq`
@@ -304,6 +329,7 @@ export const settingsQuery = groq`
     instagramUrl,
     facebookUrl,
     youtubeUrl,
+    tiktokUrl,
     contactEmail,
     venueName,
     venueAddress,
