@@ -91,6 +91,16 @@ export default async function Footer() {
                 websiteUrl: p.websiteUrl,
               }))}
             />
+
+            {/* Link to partner page */}
+            <div className="flex justify-center mt-6">
+              <Link
+                href="/partner"
+                className="inline-flex items-center gap-2 border border-amber-400/40 text-amber-400/80 hover:text-amber-400 hover:border-amber-400/70 hover:bg-amber-400/5 text-[12px] font-bold uppercase tracking-widest px-6 py-2.5 rounded-sm transition-all duration-200"
+              >
+                Alle Partner ansehen →
+              </Link>
+            </div>
           </div>
         </div>
       )}
