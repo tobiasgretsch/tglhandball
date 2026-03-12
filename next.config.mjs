@@ -11,6 +11,8 @@ const nextConfig = {
         hostname: "cdn.sanity.io",
       },
     ],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 2592000, // 30 days — safe for content-addressed Sanity URLs
   },
 };
 

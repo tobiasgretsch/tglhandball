@@ -137,6 +137,24 @@ export default defineType({
       type: "string",
     }),
 
+    // ─── Partner page ────────────────────────────────────────────────────────
+    defineField({
+      name: "partnerPageText",
+      title: "Partnerseite – Infotext",
+      type: "array",
+      of: [defineArrayMember({ type: "block" })],
+      description:
+        "Dieser Text erscheint auf der Partnerseite zwischen dem Hauptsponsor und den weiteren Partnerkategorien.",
+    }),
+    defineField({
+      name: "partnerInfoPdf",
+      title: "Partnerseite – Info-PDF",
+      type: "file",
+      options: { accept: ".pdf" },
+      description:
+        "PDF-Datei für das Partnerprogramm. Erscheint als Button auf der Partnerseite und wird inline angezeigt.",
+    }),
+
     // ─── Venue ───────────────────────────────────────────────────────────────
     defineField({
       name: "venueName",

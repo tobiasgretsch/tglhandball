@@ -37,13 +37,14 @@ interface StaticDropdownItem {
 interface NavLink {
   label: string;
   href: string;
-  dropdown?: "teams" | "verein";
+  dropdown?: "teams" | "abteilung";
   staticItems?: StaticDropdownItem[];
 }
 
-const VEREIN_ITEMS: StaticDropdownItem[] = [
+const ABTEILUNG_ITEMS: StaticDropdownItem[] = [
   { label: "Über uns", href: "/ueberuns" },
-  { label: "Partner", href: "/partner" },
+  { label: "Förderverein", href: "/foerderverein" },
+  { label: "Impressionen", href: "/impressionen" },
   { label: "Mitgliederbereich", href: "/dashboard" },
 ];
 
@@ -51,9 +52,9 @@ const NAV_LINKS: NavLink[] = [
   { label: "News", href: "/news" },
   { label: "Teams", href: "/teams", dropdown: "teams" },
   { label: "Magazine", href: "/spieltagsmagazin" },
-  { label: "Impressionen", href: "/impressionen" },
+  { label: "Partner", href: "/partner" },
   { label: "Fanshop", href: "/fanshop" },
-  { label: "Verein", href: "/ueberuns", dropdown: "verein", staticItems: VEREIN_ITEMS },
+  { label: "Abteilung", href: "/ueberuns", dropdown: "abteilung", staticItems: ABTEILUNG_ITEMS },
 ];
 
 export default function HeaderClient({
@@ -64,7 +65,7 @@ export default function HeaderClient({
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<"teams" | "verein" | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<"teams" | "abteilung" | null>(null);
   const [isDark, setIsDark] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<Set<string>>(new Set());
   const [openDesktopGroups, setOpenDesktopGroups] = useState<Set<TeamCategory>>(new Set());
@@ -126,7 +127,7 @@ export default function HeaderClient({
     return pathname === link.href || pathname.startsWith(link.href + "/");
   };
 
-  const openMenu = (key: "teams" | "verein") => {
+  const openMenu = (key: "teams" | "abteilung") => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setOpenDropdown(key);
   };
@@ -169,7 +170,7 @@ export default function HeaderClient({
           )}
           <span className="font-black text-white text-xl lg:text-2xl tracking-tight uppercase leading-none select-none">
             TG{" "}
-            <span className="text-blue-400 font-bold">MIPA</span>{" "}
+            <span className="font-bold" style={{ color: "#004f9e" }}>MIPA</span>{" "}
             <span className="text-white/70 font-bold">LANDSHUT</span>
           </span>
         </Link>
@@ -289,7 +290,7 @@ export default function HeaderClient({
                           </Link>
                         </>
                       )}
-                      {link.dropdown === "verein" &&
+                      {link.dropdown === "abteilung" &&
                         link.staticItems?.map((item) => (
                           <Link
                             key={item.href}
@@ -531,7 +532,7 @@ export default function HeaderClient({
 
                     {/* Collapsible Verein sub-links */}
                     <AnimatePresence initial={false}>
-                      {link.dropdown === "verein" && mobileExpanded.has("verein") && link.staticItems && (
+                      {link.dropdown === "abteilung" && mobileExpanded.has("abteilung") && link.staticItems && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}

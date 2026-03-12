@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Document, Page, pdfjs } from "react-pdf";
+import type { PDFDocumentProxy } from "pdfjs-dist";
 import { X, ChevronLeft, ChevronRight, Loader2, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Load worker from CDN matching the installed pdfjs-dist version
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+const TOP_BAR_HEIGHT = 48;
 
 interface PdfViewerProps {
   url: string;
@@ -17,13 +21,23 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
   const [numPages, setNumPages] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [pageHeight, setPageHeight] = useState(0);
   const [direction, setDirection] = useState(0);
+  // Natural (scale=1) page dimensions from pdfjs — used to compute correct render size
+  const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null);
+  // Available container dimensions
+  const [availableWidth, setAvailableWidth] = useState(0);
+  const [availableHeight, setAvailableHeight] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
-  // Height = viewport minus the 48px top bar so the full page is always visible
+  // Measure available container area on mount and resize
   useEffect(() => {
-    const measure = () => setPageHeight(window.innerHeight - 48);
+    const measure = () => {
+      if (containerRef.current) {
+        setAvailableWidth(containerRef.current.clientWidth);
+        setAvailableHeight(containerRef.current.clientHeight);
+      }
+    };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
@@ -46,6 +60,24 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
     return () => window.removeEventListener("keydown", onKey);
   });
 
+  async function handleLoadSuccess(pdf: PDFDocumentProxy) {
+    setNumPages(pdf.numPages);
+    setStatus("ready");
+    // Get the natural size of page 1 to compute aspect ratio for scaling
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1 });
+    setNaturalSize({ width: viewport.width, height: viewport.height });
+  }
+
+  // Compute the render width that keeps the full page visible within the container.
+  // Uses the tighter of the two constraints: fill width vs fill height.
+  function computeRenderWidth(): number | undefined {
+    if (!naturalSize || availableWidth === 0 || availableHeight === 0) return undefined;
+    const aspectRatio = naturalSize.width / naturalSize.height;
+    const widthFromHeight = availableHeight * aspectRatio;
+    return Math.min(availableWidth, widthFromHeight);
+  }
+
   function goNext() {
     if (pageNumber < numPages) {
       setDirection(1);
@@ -60,13 +92,11 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
     }
   }
 
-  // Tap left/right half of screen to navigate
   function handleTap(e: React.MouseEvent<HTMLDivElement>) {
     if (e.clientX < window.innerWidth / 2) goPrev();
     else goNext();
   }
 
-  // Swipe detection
   function handleTouchStart(e: React.TouchEvent) {
     touchStartX.current = e.touches[0].clientX;
   }
@@ -81,10 +111,15 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
     touchStartX.current = null;
   }
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col select-none">
+  const renderWidth = computeRenderWidth();
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black flex flex-col select-none">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-3 h-12 shrink-0 bg-black/70 backdrop-blur-sm border-b border-white/10">
+      <div
+        className="flex items-center justify-between px-3 shrink-0 bg-black/70 backdrop-blur-sm border-b border-white/10"
+        style={{ height: TOP_BAR_HEIGHT }}
+      >
         <button
           onClick={goPrev}
           disabled={pageNumber <= 1}
@@ -107,9 +142,10 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
         </button>
       </div>
 
-      {/* PDF content area */}
+      {/* PDF content area — no scrolling, page always fits entirely */}
       <div
-        className="flex-1 overflow-hidden relative"
+        ref={containerRef}
+        className="flex-1 overflow-hidden flex items-center justify-center relative"
         onClick={handleTap}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -131,13 +167,9 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
 
         <Document
           file={url}
-          onLoadSuccess={({ numPages }) => {
-            setNumPages(numPages);
-            setStatus("ready");
-          }}
+          onLoadSuccess={handleLoadSuccess}
           onLoadError={() => setStatus("error")}
           loading={null}
-          className="h-full flex items-center justify-center overflow-y-auto"
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -146,12 +178,11 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: direction * -50 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="flex items-center justify-center"
             >
-              {pageHeight > 0 && (
+              {renderWidth !== undefined && (
                 <Page
                   pageNumber={pageNumber}
-                  height={pageHeight}
+                  width={renderWidth}
                   renderAnnotationLayer={false}
                   renderTextLayer={false}
                 />
@@ -160,7 +191,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
           </AnimatePresence>
         </Document>
 
-        {/* Side arrow hints — visible but non-blocking */}
+        {/* Side arrow hints */}
         {status === "ready" && pageNumber > 1 && (
           <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
             <div className="bg-black/50 rounded-full p-2.5">
@@ -176,6 +207,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
