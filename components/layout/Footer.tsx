@@ -19,7 +19,6 @@ const QUICK_LINKS = [
   { label: "Teams", href: "/teams" },
   { label: "Partner", href: "/partner" },
   { label: "Abteilung", href: "/ueberuns" },
-  { label: "Kontakt", href: "/kontakt" },
 ];
 
 export default async function Footer() {
