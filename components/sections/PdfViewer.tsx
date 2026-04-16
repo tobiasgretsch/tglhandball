@@ -204,12 +204,15 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
                 )}
               </AnimatePresence>
 
-              {/* Incoming page — renders at opacity 0, fades in only after onRenderSuccess */}
-              <motion.div
+              {/* Incoming page — renders invisibly beneath the outgoing page.
+                  Snaps to full opacity instantly once painted (no transition needed:
+                  the outgoing page at z-10 covers the snap, and since incoming is
+                  already at opacity 1 when the outgoing fades, total opacity = 1
+                  throughout — no black ever bleeds through). */}
+              <div
                 key={pageNumber}
                 className="absolute inset-0"
-                animate={{ opacity: isChanging ? 0 : 1 }}
-                transition={{ duration: CROSSFADE_DURATION }}
+                style={{ opacity: isChanging ? 0 : 1 }}
               >
                 <Page
                   pageNumber={pageNumber}
@@ -218,7 +221,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
                   renderTextLayer={false}
                   onRenderSuccess={handlePageRenderSuccess}
                 />
-              </motion.div>
+              </div>
             </div>
           )}
         </Document>
