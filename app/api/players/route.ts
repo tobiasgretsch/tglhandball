@@ -105,7 +105,7 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unbekannter Fehler";
     console.error("Sanity create error:", msg);
-    return NextResponse.json({ error: `Spieler konnte nicht erstellt werden: ${msg}` }, { status: 500 });
+    return NextResponse.json({ error: "Spieler konnte nicht erstellt werden." }, { status: 500 });
   }
 
   // Send Clerk invitation if the player has an email address.
