@@ -148,9 +148,11 @@ function MasonryItem({
   const alt = item.image.alt ?? item.caption ?? "Galeriebild";
 
   return (
-    <div
-      className="break-inside-avoid mb-3 md:mb-4 group relative overflow-hidden rounded-lg cursor-pointer bg-gray-100 dark:bg-gray-700"
+    <button
+      type="button"
+      aria-label={alt}
       onClick={onClick}
+      className="break-inside-avoid mb-3 md:mb-4 group relative overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700 w-full text-left appearance-none"
     >
       <Image
         src={src}
@@ -172,7 +174,7 @@ function MasonryItem({
           </span>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 

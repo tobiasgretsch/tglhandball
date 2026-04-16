@@ -10,6 +10,7 @@ import {
   allTeamsQuery,
   partnerOfTheDayQuery,
   homeMagazineQuery,
+  topSponsorsQuery,
 } from "@/lib/queries";
 import type { Settings, NewsArticle, Team, TeamCategory, Magazine, Partner } from "@/types";
 import HeroSection from "@/components/sections/HeroSection";
@@ -37,7 +38,7 @@ export const revalidate = 300;
 export default async function HomePage() {
   const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD" — magazine date filter
 
-  const [settings, news, teams, partnerOfDay, upcomingMagazine] =
+  const [settings, news, teams, partnerOfDay, upcomingMagazine, topSponsors] =
     await Promise.all([
       client
         .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
@@ -54,6 +55,9 @@ export default async function HomePage() {
       client
         .fetch<Magazine | null>(homeMagazineQuery, { today }, { next: { revalidate: 3600 } })
         .catch(() => null),
+      client
+        .fetch<Partner[]>(topSponsorsQuery, {}, { next: { revalidate: 3600 } })
+        .catch(() => [] as Partner[]),
     ]);
 
   const heroImageUrl = settings?.heroImage
@@ -65,6 +69,7 @@ export default async function HomePage() {
       {/* ── Section 1: Hero ─────────────────────────────────────────── */}
       <HeroSection
         heroImageUrl={heroImageUrl}
+        heroImageBlurDataURL={settings?.heroImage?.lqip ?? undefined}
         clubName={settings?.clubName ?? "TG MIPA Landshut"}
       />
 
@@ -109,7 +114,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Section 4: Mannschaften ─────────────────────────────────── */}
+      {/* ── Section 4: Top-Sponsoren ────────────────────────────────── */}
+      {topSponsors.length > 0 && (
+        <TopSponsorsSection sponsors={topSponsors} />
+      )}
+
+      {/* ── Section 5: Mannschaften ─────────────────────────────────── */}
       {teams.length > 0 && (
         <section className="bg-white dark:bg-gray-800 py-16 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -152,7 +162,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── Section 5: Spieltagsmagazin ─────────────────────────────── */}
+      {/* ── Section 6: Spieltagsmagazin ─────────────────────────────── */}
       {upcomingMagazine && upcomingMagazine.pdfFile?.asset?.url && (
         <MagazineTeaser magazine={upcomingMagazine} />
       )}
@@ -232,6 +242,87 @@ function PartnerOfDaySection({ partner }: { partner: Partner }) {
         ) : (
           card
         )}
+      </div>
+    </section>
+  );
+}
+
+// ─── Top-Sponsoren (Hauptsponsor + Exclusiv-Partner) ─────────────────────────
+
+function TopSponsorsSection({ sponsors }: { sponsors: Partner[] }) {
+  return (
+    <section className="relative bg-white dark:bg-gray-900 overflow-hidden py-12 md:py-16 border-t border-b border-gray-100 dark:border-gray-800">
+      {/* Subtle gold shimmer lines */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
+      <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/25 to-transparent" />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Heading with decorative rule */}
+        <div className="flex items-center gap-4 mb-10">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-400/40 dark:to-amber-400/35" />
+          <div className="flex items-center gap-2.5">
+            <span className="text-amber-500/80 dark:text-amber-400/70 text-[9px] leading-none">★</span>
+            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-amber-600 dark:text-amber-400/80">
+              Exclusiv-Partner
+            </p>
+            <span className="text-amber-500/80 dark:text-amber-400/70 text-[9px] leading-none">★</span>
+          </div>
+          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber-400/40 dark:to-amber-400/35" />
+        </div>
+
+        {/* Centered logo cards */}
+        <div className="flex flex-wrap justify-center gap-6">
+          {sponsors.map((sponsor) => {
+            const logoUrl = sponsor.logo
+              ? urlFor(sponsor.logo).width(440).height(248).fit("max").url()
+              : null;
+
+            const card = (
+              <div className="flex items-center shrink-0 rounded px-5 py-4 transition-all duration-300 bg-gray-50 dark:bg-white/10 border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-amber-400/50 dark:hover:border-amber-400/40 hover:shadow-[0_0_18px_rgba(251,191,36,0.10)]">
+                {logoUrl ? (
+                  <div className="relative" style={{ width: 220, height: 124 }}>
+                    <Image
+                      src={logoUrl}
+                      alt={sponsor.name}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div style={{ width: 220, height: 124 }} className="flex items-center justify-center">
+                    <span className="font-bold text-text dark:text-white/85 uppercase tracking-wider text-center text-lg">
+                      {sponsor.name}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+
+            return sponsor.websiteUrl ? (
+              <a
+                key={sponsor._id}
+                href={sponsor.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${sponsor.name} – Website besuchen`}
+              >
+                {card}
+              </a>
+            ) : (
+              <div key={sponsor._id}>{card}</div>
+            );
+          })}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/partner"
+            className="inline-flex items-center gap-2 border border-amber-500/50 text-amber-600 hover:text-amber-700 hover:border-amber-500/80 hover:bg-amber-50 dark:border-amber-400/40 dark:text-amber-400/80 dark:hover:text-amber-400 dark:hover:border-amber-400/70 dark:hover:bg-amber-400/5 text-[12px] font-bold uppercase tracking-widest px-6 py-2.5 rounded-sm transition-all duration-200"
+          >
+            Alle Partner ansehen →
+          </Link>
+        </div>
       </div>
     </section>
   );
@@ -372,6 +463,8 @@ function NewsCard({ article }: { article: NewsArticle }) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
+            placeholder={article.mainImage?.lqip ? "blur" : "empty"}
+            blurDataURL={article.mainImage?.lqip ?? undefined}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">

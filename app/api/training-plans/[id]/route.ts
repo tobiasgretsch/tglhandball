@@ -76,7 +76,7 @@ export async function PATCH(
   } catch (err) {
     console.error("[PATCH /api/training-plans]", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Speichern fehlgeschlagen" },
+      { error: "Speichern fehlgeschlagen." },
       { status: 500 }
     );
   }

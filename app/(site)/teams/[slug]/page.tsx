@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import type React from "react";
 import Image from "next/image";
 import { groq } from "next-sanity";
 import { Calendar, MapPin, Shield, User } from "lucide-react";
@@ -116,6 +117,8 @@ export default async function TeamDetailPage({ params }: Props) {
             priority
             sizes="100vw"
             className="object-cover object-top"
+            placeholder={team.headerImage?.lqip ? "blur" : "empty"}
+            blurDataURL={team.headerImage?.lqip ?? undefined}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-accent to-[#003a7a]" />
@@ -145,9 +148,16 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 3. Pricing ────────────────────────────────────────────────── */}
-      {team.pricingSection && (team.pricingSection.rows?.length ?? 0) > 0 && (
-        <PricingSection data={team.pricingSection} />
+      {/* ── 3. Tabelle (nuLiga) — shown directly after About ──────────── */}
+      {team.nuligaTeamId && (
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Tabelle" />
+            <WidgetCard>
+              <HandballWidget teamId={team.nuligaTeamId} type="tabelle" />
+            </WidgetCard>
+          </div>
+        </section>
       )}
 
       {/* ── 4. Coaching staff ─────────────────────────────────────────── */}
@@ -158,7 +168,7 @@ export default async function TeamDetailPage({ params }: Props) {
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
               {team.coaches.map((coach) => {
                 const coachImageUrl = coach.image
-                  ? urlFor(coach.image).width(240).height(300).url()
+                  ? urlFor(coach.image).width(400).height(500).url()
                   : null;
                 return (
                   <div
@@ -198,7 +208,7 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 4. Squad ──────────────────────────────────────────────────── */}
+      {/* ── 7. Squad ──────────────────────────────────────────────────── */}
       {team.squad && team.squad.length > 0 && (
         <section className="bg-white dark:bg-gray-800 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -206,7 +216,7 @@ export default async function TeamDetailPage({ params }: Props) {
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
               {team.squad.map((player) => {
                 const playerImageUrl = player.image
-                  ? urlFor(player.image).width(240).height(300).url()
+                  ? urlFor(player.image).width(400).height(500).url()
                   : null;
                 return (
                   <div
@@ -253,7 +263,7 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 5. Betreuer ───────────────────────────────────────────────── */}
+      {/* ── 8. Betreuer ───────────────────────────────────────────────── */}
       {team.betreuer && team.betreuer.length > 0 && (
         <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -261,7 +271,7 @@ export default async function TeamDetailPage({ params }: Props) {
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
               {team.betreuer.map((b: Betreuer) => {
                 const imageUrl = b.image
-                  ? urlFor(b.image).width(240).height(300).url()
+                  ? urlFor(b.image).width(400).height(500).url()
                   : null;
                 return (
                   <div
@@ -301,7 +311,7 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 6 & 7: Schedule + Results (side by side on desktop) ───────── */}
+      {/* ── 9 & 10: Schedule + Results (side by side on desktop) ─────── */}
       {(upcoming.length > 0 || results.length > 0) && (
         <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -334,33 +344,46 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 8 & 9: nuLiga widgets (Tabelle + Spielplan) ───────────────── */}
+      {/* ── 8: nuLiga Spielplan ────────────────────────────────────────── */}
       {team.nuligaTeamId && (
-        <>
-          <section className="bg-white dark:bg-gray-800 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <SectionHeading label="Tabelle" />
-              <div className="mt-8 overflow-x-auto rounded-lg bg-white dark:bg-gray-300 p-4">
-                <HandballWidget teamId={team.nuligaTeamId} type="tabelle" />
-              </div>
-            </div>
-          </section>
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Spielplan" />
+            <WidgetCard>
+              <HandballWidget teamId={team.nuligaTeamId} type="spielplan" />
+            </WidgetCard>
+          </div>
+        </section>
+      )}
 
-          <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <SectionHeading label="Spielplan" />
-              <div className="mt-8 overflow-x-auto rounded-lg bg-white dark:bg-gray-300 p-4">
-                <HandballWidget teamId={team.nuligaTeamId} type="spielplan" />
-              </div>
-            </div>
-          </section>
-        </>
+      {/* ── 9. Pricing ────────────────────────────────────────────────── */}
+      {team.pricingSection && (team.pricingSection.rows?.length ?? 0) > 0 && (
+        <PricingSection data={team.pricingSection} />
       )}
     </>
   );
 }
 
 // ─── Shared sub-components ───────────────────────────────────────────────────
+
+/**
+ * Modern card wrapper for nuLiga widgets.
+ * On mobile: full-width, scrollable with a subtle right-fade hint.
+ * On desktop: rounded card with shadow.
+ */
+function WidgetCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-6 relative">
+      {/* Fade hint on the right edge — signals horizontal scroll on mobile */}
+      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background dark:from-gray-900 to-transparent z-10 md:hidden" />
+      <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-white">
+        <div className="min-w-[320px] p-4 md:p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function SectionHeading({ label }: { label: string }) {
   return (

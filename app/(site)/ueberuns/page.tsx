@@ -6,7 +6,6 @@ import { settingsQuery } from "@/lib/queries";
 import type { Settings } from "@/types";
 import PortableText from "@/components/ui/PortableText";
 import VenueMap from "@/components/sections/VenueMap";
-import ContactForm from "@/components/sections/ContactForm";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
@@ -209,42 +208,8 @@ export default async function UeberUnsPage() {
                 />
               </div>
             </section>
-
-            <Divider />
           </>
         )}
-
-        {/* ── Section 4: Contact form ──────────────────────────────────── */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
-          <SectionHeading accent="bg-accent" label="Kontakt" />
-
-          <div className="mt-8 grid lg:grid-cols-[1fr_2fr] gap-12 lg:gap-16 items-start">
-            {/* Left: call-to-action text */}
-            <div className="lg:sticky lg:top-[88px]">
-              <h2 className="text-2xl md:text-3xl font-black text-text dark:text-gray-100 uppercase tracking-tight leading-tight">
-                Schreib uns eine Nachricht
-              </h2>
-              <p className="text-muted dark:text-gray-400 text-sm mt-4 leading-relaxed">
-                Fragen, Anregungen oder Interesse am Handball? Wir freuen uns
-                über jede Nachricht und melden uns so schnell wie möglich.
-              </p>
-              {settings?.contactEmail && (
-                <a
-                  href={`mailto:${settings.contactEmail}`}
-                  className="inline-flex items-center gap-2 mt-6 text-[12px] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors"
-                >
-                  <Mail size={13} />
-                  {settings.contactEmail}
-                </a>
-              )}
-            </div>
-
-            {/* Right: form */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 md:p-8">
-              <ContactForm />
-            </div>
-          </div>
-        </section>
 
       </div>
     </>

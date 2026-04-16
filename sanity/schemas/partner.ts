@@ -34,8 +34,12 @@ export default defineType({
       type: "string",
       options: {
         list: [
+          { title: "Hauptsponsor", value: "hauptsponsor" },
+          { title: "Exclusiv-Partner Hallenname", value: "exclusiv_hallenname" },
           { title: "Premium", value: "premium" },
-          { title: "Standard", value: "standard" },
+          { title: "Top-Partner", value: "standard" },
+          { title: "Fitness-Partner", value: "fitness_partner" },
+          { title: "Supporter-Club", value: "supporter_club" },
         ],
         layout: "radio",
       },

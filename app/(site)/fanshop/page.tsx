@@ -3,7 +3,8 @@ import { client } from "@/lib/sanity";
 import { pageHeroSlidesQuery } from "@/lib/queries";
 import type { SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
-import { ExternalLink, Trophy, ShoppingBag, Wind, Layers, Shirt, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import FanshopCategories from "./_categories";
 
 export const metadata: Metadata = {
   title: "Fanshop",
@@ -20,39 +21,6 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 const SHOP_BASE = "https://tengo.de/webshop/TG-Landshut-1861-eV";
-
-const CATEGORIES = [
-  {
-    title: "TGL Vereinskollektion",
-    description: "Offizielle Trikots und exklusive Vereinskleidung — zeig deine Vereinsfarben auf und neben dem Platz.",
-    href: "https://tengo.de/webshop/TGL-Vereinskollektion",
-    Icon: Trophy,
-  },
-  {
-    title: "Tops, Shirts & Hoodies",
-    description: "Shirts, Polos und Hoodies mit Vereinslogo — perfekt für Training und Freizeit.",
-    href: "https://tengo.de/webshop/Tops-Shirts-Hoodies",
-    Icon: Shirt,
-  },
-  {
-    title: "Hosen & Shorts",
-    description: "Sporthosen und Shorts für Training und Wettkampf — bequem und funktionell.",
-    href: "https://tengo.de/webshop/Hosen-Shorts",
-    Icon: Layers,
-  },
-  {
-    title: "Jacken, Westen & Regen",
-    description: "Wetterfeste Jacken, Westen und Regenbekleidung für jede Witterung.",
-    href: "https://tengo.de/webshop/Jacken-Westen-Regenbekleidung",
-    Icon: Wind,
-  },
-  {
-    title: "Taschen & Rucksäcke",
-    description: "Sporttaschen und Rucksäcke im Vereinsdesign — praktisch und stilvoll.",
-    href: "https://tengo.de/webshop/Taschen-Rucksaecke",
-    Icon: ShoppingBag,
-  },
-] as const;
 
 export default async function FanshopPage() {
   const slides = await client
@@ -82,41 +50,7 @@ export default async function FanshopPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
 
           {/* Category grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {CATEGORIES.map(({ title, description, href, Icon }) => (
-              <a
-                key={href}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col"
-              >
-                {/* Top accent bar */}
-                <div className="h-1 bg-primary" />
-
-                <div className="p-5 flex flex-col flex-1">
-                  {/* Icon */}
-                  <div className="w-11 h-11 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-4 shrink-0">
-                    <Icon size={22} className="text-primary" />
-                  </div>
-
-                  {/* Text */}
-                  <h2 className="font-black text-text dark:text-gray-100 text-base leading-snug mb-2">
-                    {title}
-                  </h2>
-                  <p className="text-muted dark:text-gray-400 text-sm leading-relaxed flex-1">
-                    {description}
-                  </p>
-
-                  {/* CTA */}
-                  <span className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-widest text-primary group-hover:text-primary-light transition-colors mt-5">
-                    Jetzt shoppen
-                    <ExternalLink size={11} />
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
+          <FanshopCategories />
 
           {/* Full shop CTA */}
           <div className="mt-8 rounded-xl bg-primary px-6 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

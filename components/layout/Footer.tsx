@@ -17,9 +17,8 @@ import type { Settings, Partner } from "@/types";
 const QUICK_LINKS = [
   { label: "News", href: "/news" },
   { label: "Teams", href: "/teams" },
-  { label: "Spielplan", href: "/spielplan" },
-  { label: "Verein", href: "/verein" },
-  { label: "Kontakt", href: "/kontakt" },
+  { label: "Partner", href: "/partner" },
+  { label: "Abteilung", href: "/ueberuns" },
 ];
 
 export default async function Footer() {

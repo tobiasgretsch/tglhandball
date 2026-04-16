@@ -56,12 +56,14 @@ export default function PageHeroSlider({
             className="absolute inset-0"
           >
             <Image
-              src={urlFor(slides[current]).width(1920).height(640).url()}
-              alt={(slides[current] as SanityImage & { alt?: string }).alt ?? ""}
+              src={urlFor(slides[current]).auto("format").url()}
+              alt={slides[current].alt ?? ""}
               fill
               sizes="100vw"
               className="object-cover object-top"
               priority
+              placeholder={slides[current].lqip ? "blur" : "empty"}
+              blurDataURL={slides[current].lqip ?? undefined}
             />
           </motion.div>
         </AnimatePresence>

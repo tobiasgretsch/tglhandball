@@ -7,6 +7,7 @@ import { ArrowRight, Newspaper } from "lucide-react";
 
 interface HeroSectionProps {
   heroImageUrl: string | null;
+  heroImageBlurDataURL?: string;
   clubName: string;
 }
 
@@ -19,7 +20,7 @@ const fadeUp = {
   }),
 };
 
-export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps) {
+export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubName }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen flex items-end">
       {/* Fixed background — stays in place while content scrolls over it.
@@ -36,6 +37,8 @@ export default function HeroSection({ heroImageUrl, clubName }: HeroSectionProps
             priority
             sizes="100vw"
             className="object-cover"
+            placeholder={heroImageBlurDataURL ? "blur" : "empty"}
+            blurDataURL={heroImageBlurDataURL}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[#003a7a] via-accent to-[#001f4d]" />

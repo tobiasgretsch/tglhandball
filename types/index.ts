@@ -8,6 +8,7 @@ export interface SanityImage {
   };
   alt?: string;
   hotspot?: { x: number; y: number; height: number; width: number };
+  lqip?: string; // base64 data URL from Sanity asset metadata — used for blur placeholder
 }
 
 export interface SanityFile {
@@ -153,7 +154,13 @@ export interface Trainingsplan {
 
 // ─── Partner ──────────────────────────────────────────────────────────────────
 
-export type PartnerTier = "premium" | "standard";
+export type PartnerTier =
+  | "hauptsponsor"
+  | "exclusiv_hallenname"
+  | "premium"
+  | "standard"
+  | "fitness_partner"
+  | "supporter_club";
 
 export interface Partner {
   _id: string;
@@ -206,4 +213,6 @@ export interface Settings {
   venueAddress?: string;
   venueLat?: number;
   venueLng?: number;
+  partnerPageText?: PortableTextBlock[];
+  partnerInfoPdf?: SanityFile;
 }

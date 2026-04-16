@@ -9,7 +9,7 @@ export const allNewsQuery = groq`
     slug,
     publishedAt,
     category,
-    mainImage,
+    mainImage { ..., "lqip": asset->metadata.lqip },
     teaser,
     author,
   }
@@ -22,7 +22,7 @@ export const newsByCategoryQuery = groq`
     slug,
     publishedAt,
     category,
-    mainImage,
+    mainImage { ..., "lqip": asset->metadata.lqip },
     teaser,
     author,
   }
@@ -35,7 +35,7 @@ export const newsDetailQuery = groq`
     slug,
     publishedAt,
     category,
-    mainImage,
+    mainImage { ..., "lqip": asset->metadata.lqip },
     teaser,
     body,
     author,
@@ -51,7 +51,7 @@ export const allTeamsQuery = groq`
     slug,
     league,
     category,
-    headerImage,
+    headerImage { ..., "lqip": asset->metadata.lqip },
     order,
   }
 `;
@@ -62,7 +62,7 @@ export const teamDetailQuery = groq`
     name,
     slug,
     league,
-    headerImage,
+    headerImage { ..., "lqip": asset->metadata.lqip },
     description,
     coaches,
     betreuer,
@@ -200,7 +200,7 @@ export const relatedNewsQuery = groq`
     slug,
     publishedAt,
     category,
-    mainImage,
+    mainImage { ..., "lqip": asset->metadata.lqip },
     teaser,
   }
 `;
@@ -239,7 +239,7 @@ export const latestNewsQuery = groq`
     slug,
     publishedAt,
     category,
-    mainImage,
+    mainImage { ..., "lqip": asset->metadata.lqip },
     teaser,
     author,
   }
@@ -283,6 +283,19 @@ export const teamRecentResultsQuery = groq`
   }
 `;
 
+// ─── Top sponsors (homepage section: Hauptsponsor + Exclusiv-Partner) ─────────
+
+export const topSponsorsQuery = groq`
+  *[_type == "partner" && active == true && tier in ["hauptsponsor", "exclusiv_hallenname"]]
+  | order(tier asc, name asc) {
+    _id,
+    name,
+    logo,
+    websiteUrl,
+    tier,
+  }
+`;
+
 // ─── Premium Partners (footer strip) ─────────────────────────────────────────
 
 export const premiumPartnersQuery = groq`
@@ -303,11 +316,20 @@ export const standardPartnersQuery = groq`
   }
 `;
 
+// ─── Partner page settings ───────────────────────────────────────────────────
+
+export const partnerPageSettingsQuery = groq`
+  *[_type == "settings"][0] {
+    partnerPageText,
+    partnerInfoPdf { asset->{ url } },
+  }
+`;
+
 // ─── Settings (singleton) ────────────────────────────────────────────────────
 
 /** Fetches only the page-header slider images — used by pages that don't need full settings. */
 export const pageHeroSlidesQuery = groq`
-  *[_type == "settings"][0].pageHeroSlides
+  *[_type == "settings"][0].pageHeroSlides[] { ..., "lqip": asset->metadata.lqip }
 `;
 
 export const settingsQuery = groq`
@@ -315,8 +337,8 @@ export const settingsQuery = groq`
     clubName,
     logo,
     favicon,
-    heroImage,
-    pageHeroSlides,
+    heroImage { ..., "lqip": asset->metadata.lqip },
+    pageHeroSlides[] { ..., "lqip": asset->metadata.lqip },
     aboutText,
     aboutPhoto,
     boardMembers[] {
