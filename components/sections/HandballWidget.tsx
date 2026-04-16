@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +42,9 @@ export default function HandballWidget({ teamId, type }: HandballWidgetProps) {
   const scriptWidgetId = `hb-widget-${type}-${teamId.replace(/[^a-z0-9]/gi, "-")}`;
 
   const [loaded, setLoaded] = useState(false);
+  const [scale, setScale] = useState(1);
+  const [scaledHeight, setScaledHeight] = useState<number | undefined>(undefined);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Watch for the widget injecting DOM nodes — swap skeleton for real content
   useEffect(() => {
@@ -57,6 +60,32 @@ export default function HandballWidget({ teamId, type }: HandballWidgetProps) {
     observer.observe(container, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, [containerId]);
+
+  // After the widget renders, scale it down to fit the container on narrow screens.
+  // ResizeObserver re-runs whenever the wrapper width changes (orientation, resize).
+  useEffect(() => {
+    if (!loaded) return;
+
+    const recalc = () => {
+      const wrapper = wrapperRef.current;
+      if (!wrapper) return;
+      const inner = wrapper.querySelector(`#${containerId}`) as HTMLElement | null;
+      if (!inner || inner.scrollWidth === 0) return;
+
+      const available = wrapper.clientWidth;
+      const natural = inner.scrollWidth;
+      const s = natural > available ? available / natural : 1;
+      setScale(s);
+      // Shrink the wrapper height to match the scaled content so there is no gap
+      setScaledHeight(s < 1 ? inner.scrollHeight * s : undefined);
+    };
+
+    // Run once after render, then react to container size changes
+    recalc();
+    const ro = new ResizeObserver(recalc);
+    if (wrapperRef.current) ro.observe(wrapperRef.current);
+    return () => ro.disconnect();
+  }, [loaded, containerId]);
 
   return (
     <>
@@ -85,9 +114,32 @@ export default function HandballWidget({ teamId, type }: HandballWidgetProps) {
         _hb({widget:'${type}',teamId:'${teamId}',container:'${containerId}'});
       `}</Script>
 
-      <div className="relative">
+      {/*
+       * Outer wrapper: measured by ResizeObserver. No overflow hidden needed —
+       * the inner content is scaled to fit exactly.
+       */}
+      <div
+        ref={wrapperRef}
+        style={scaledHeight !== undefined ? { height: scaledHeight } : undefined}
+      >
         {!loaded && <WidgetSkeleton type={type} />}
-        <div id={containerId} />
+        {/*
+         * Inner scaler: transform-origin top-left keeps the content anchored.
+         * Width is widened to 100/scale % so after scaling it fills the wrapper.
+         */}
+        <div
+          style={
+            scale < 1
+              ? {
+                  transform: `scale(${scale})`,
+                  transformOrigin: "top left",
+                  width: `${(1 / scale) * 100}%`,
+                }
+              : undefined
+          }
+        >
+          <div id={containerId} />
+        </div>
       </div>
     </>
   );
