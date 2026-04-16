@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const TOP_BAR_HEIGHT = 48;
+const CROSSFADE_DURATION = 0.22;
 
 interface PdfViewerProps {
   url: string;
@@ -19,12 +20,11 @@ interface PdfViewerProps {
 
 export default function PdfViewer({ url, onClose }: PdfViewerProps) {
   const [numPages, setNumPages] = useState(0);
+  // `pageNumber` = page being requested (may be rendering); `visiblePage` = last fully painted page
   const [pageNumber, setPageNumber] = useState(1);
+  const [visiblePage, setVisiblePage] = useState(1);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [direction, setDirection] = useState(0);
-  // Natural (scale=1) page dimensions from pdfjs — used to compute correct render size
   const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null);
-  // Available container dimensions
   const [availableWidth, setAvailableWidth] = useState(0);
   const [availableHeight, setAvailableHeight] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,14 +63,12 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
   async function handleLoadSuccess(pdf: PDFDocumentProxy) {
     setNumPages(pdf.numPages);
     setStatus("ready");
-    // Get the natural size of page 1 to compute aspect ratio for scaling
     const page = await pdf.getPage(1);
     const viewport = page.getViewport({ scale: 1 });
     setNaturalSize({ width: viewport.width, height: viewport.height });
   }
 
   // Compute the render width that keeps the full page visible within the container.
-  // Uses the tighter of the two constraints: fill width vs fill height.
   function computeRenderWidth(): number | undefined {
     if (!naturalSize || availableWidth === 0 || availableHeight === 0) return undefined;
     const aspectRatio = naturalSize.width / naturalSize.height;
@@ -79,17 +77,11 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
   }
 
   function goNext() {
-    if (pageNumber < numPages) {
-      setDirection(1);
-      setPageNumber((p) => p + 1);
-    }
+    if (pageNumber < numPages) setPageNumber((p) => p + 1);
   }
 
   function goPrev() {
-    if (pageNumber > 1) {
-      setDirection(-1);
-      setPageNumber((p) => p - 1);
-    }
+    if (pageNumber > 1) setPageNumber((p) => p - 1);
   }
 
   function handleTap(e: React.MouseEvent<HTMLDivElement>) {
@@ -111,7 +103,20 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
     touchStartX.current = null;
   }
 
+  // Called when the incoming page has fully painted onto the canvas.
+  // Only then do we reveal it — this eliminates the white-canvas flash.
+  function handlePageRenderSuccess() {
+    setVisiblePage(pageNumber);
+  }
+
   const renderWidth = computeRenderWidth();
+  const renderHeight =
+    renderWidth && naturalSize
+      ? renderWidth * (naturalSize.height / naturalSize.width)
+      : undefined;
+
+  // True while the incoming page is still rendering
+  const isChanging = pageNumber !== visiblePage;
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col select-none">
@@ -130,7 +135,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
         </button>
 
         <span className="text-white/70 text-sm font-medium tabular-nums">
-          {status === "ready" ? `${pageNumber} / ${numPages}` : "…"}
+          {status === "ready" ? `${visiblePage} / ${numPages}` : "…"}
         </span>
 
         <button
@@ -171,35 +176,62 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
           onLoadError={() => setStatus("error")}
           loading={null}
         >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={pageNumber}
-              initial={{ opacity: 0, x: direction * 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: direction * -50 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
-            >
-              {renderWidth !== undefined && (
+          {renderWidth !== undefined && renderHeight !== undefined && (
+            /*
+             * Fixed-size container matching the page dimensions.
+             * Both pages occupy the same space via position:absolute so that
+             * the outgoing page can stay on top while the incoming page renders
+             * invisibly behind it — only revealing itself once fully painted.
+             */
+            <div className="relative" style={{ width: renderWidth, height: renderHeight }}>
+              {/* Outgoing page — sits on top (z-10), fades out after incoming is ready */}
+              <AnimatePresence>
+                {isChanging && (
+                  <motion.div
+                    key={`out-${visiblePage}`}
+                    className="absolute inset-0 z-10"
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: CROSSFADE_DURATION }}
+                  >
+                    <Page
+                      pageNumber={visiblePage}
+                      width={renderWidth}
+                      renderAnnotationLayer={false}
+                      renderTextLayer={false}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Incoming page — renders at opacity 0, fades in only after onRenderSuccess */}
+              <motion.div
+                key={pageNumber}
+                className="absolute inset-0"
+                animate={{ opacity: isChanging ? 0 : 1 }}
+                transition={{ duration: CROSSFADE_DURATION }}
+              >
                 <Page
                   pageNumber={pageNumber}
                   width={renderWidth}
                   renderAnnotationLayer={false}
                   renderTextLayer={false}
+                  onRenderSuccess={handlePageRenderSuccess}
                 />
-              )}
-            </motion.div>
-          </AnimatePresence>
+              </motion.div>
+            </div>
+          )}
         </Document>
 
         {/* Side arrow hints */}
-        {status === "ready" && pageNumber > 1 && (
+        {status === "ready" && visiblePage > 1 && (
           <div className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">
             <div className="bg-black/50 rounded-full p-2.5">
               <ChevronLeft size={18} className="text-white/70" />
             </div>
           </div>
         )}
-        {status === "ready" && pageNumber < numPages && (
+        {status === "ready" && visiblePage < numPages && (
           <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
             <div className="bg-black/50 rounded-full p-2.5">
               <ChevronRight size={18} className="text-white/70" />
