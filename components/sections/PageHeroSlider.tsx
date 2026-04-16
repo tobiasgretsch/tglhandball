@@ -56,7 +56,7 @@ export default function PageHeroSlider({
             className="absolute inset-0"
           >
             <Image
-              src={urlFor(slides[current]).width(1920).height(640).url()}
+              src={urlFor(slides[current]).auto("format").url()}
               alt={slides[current].alt ?? ""}
               fill
               sizes="100vw"

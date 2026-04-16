@@ -283,7 +283,7 @@ function ExclusivCard({ partner }: { partner: Partner }) {
             src={logoUrl}
             alt={partner.name}
             fill
-            sizes="(max-width: 640px) 100vw, 50vw"
+            sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-contain p-6 transition-transform duration-300 group-hover:scale-105"
           />
         ) : (

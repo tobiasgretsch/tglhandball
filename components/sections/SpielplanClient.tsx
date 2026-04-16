@@ -117,7 +117,7 @@ function FilterPill({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wide transition-colors border ${
+      className={`shrink-0 px-4 py-2.5 rounded-full text-sm font-bold uppercase tracking-wide transition-colors border ${
         active
           ? "bg-primary border-primary text-white shadow-sm shadow-primary/20"
           : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary"
