@@ -36,7 +36,7 @@ interface StaticDropdownItem {
 
 interface NavLink {
   label: string;
-  href: string;
+  href?: string;
   dropdown?: "teams" | "abteilung";
   staticItems?: StaticDropdownItem[];
 }
@@ -54,7 +54,7 @@ const NAV_LINKS: NavLink[] = [
   { label: "Magazine", href: "/spieltagsmagazin" },
   { label: "Partner", href: "/partner" },
   { label: "Fanshop", href: "/fanshop" },
-  { label: "Abteilung", href: "/ueberuns", dropdown: "abteilung", staticItems: ABTEILUNG_ITEMS },
+  { label: "Abteilung", dropdown: "abteilung", staticItems: ABTEILUNG_ITEMS },
 ];
 
 export default function HeaderClient({
@@ -124,7 +124,7 @@ export default function HeaderClient({
         (item) => pathname === item.href || pathname.startsWith(item.href + "/")
       );
     }
-    return pathname === link.href || pathname.startsWith(link.href + "/");
+    return !!link.href && (pathname === link.href || pathname.startsWith(link.href + "/"));
   };
 
   const openMenu = (key: "teams" | "abteilung") => {
@@ -180,7 +180,7 @@ export default function HeaderClient({
           {NAV_LINKS.map((link) =>
             link.dropdown ? (
               <div
-                key={link.href}
+                key={link.label}
                 className="relative"
                 onMouseEnter={() => openMenu(link.dropdown!)}
                 onMouseLeave={scheduleClose}
@@ -220,7 +220,7 @@ export default function HeaderClient({
                       transition={{ duration: 0.16, ease: "easeOut" }}
                       onMouseEnter={() => openMenu(link.dropdown!)}
                       onMouseLeave={scheduleClose}
-                      className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-[#8B0000] rounded-sm shadow-2xl overflow-hidden"
+                      className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-primary rounded-sm shadow-2xl overflow-hidden"
                     >
                       {link.dropdown === "teams" && (
                         <>
@@ -306,8 +306,8 @@ export default function HeaderClient({
               </div>
             ) : (
               <Link
-                key={link.href}
-                href={link.href}
+                key={link.label}
+                href={link.href!}
                 className={`relative px-4 py-2 text-[15px] font-bold uppercase tracking-[0.12em] rounded-sm transition-colors ${
                   isActive(link)
                     ? "text-white"
@@ -376,7 +376,7 @@ export default function HeaderClient({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 340, damping: 32 }}
-              className="fixed top-0 right-0 h-full w-80 bg-white dark:bg-[#8B0000] z-50 flex flex-col shadow-2xl"
+              className="fixed top-0 right-0 h-full w-80 bg-white dark:bg-primary z-50 flex flex-col shadow-2xl"
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between px-6 h-[68px] border-b border-gray-200 dark:border-white/10">
@@ -415,7 +415,7 @@ export default function HeaderClient({
 
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
-                    key={link.href}
+                    key={link.label}
                     initial={{ opacity: 0, x: 16 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: (i + 1) * 0.055, duration: 0.22 }}
@@ -441,7 +441,7 @@ export default function HeaderClient({
                       </button>
                     ) : (
                       <Link
-                        href={link.href}
+                        href={link.href!}
                         onClick={() => setMobileOpen(false)}
                         className={`flex items-center px-6 py-4 text-[12px] font-bold uppercase tracking-widest border-b border-gray-200 dark:border-white/10 transition-colors ${
                           isActive(link)
