@@ -373,14 +373,8 @@ export default async function TeamDetailPage({ params }: Props) {
  */
 function WidgetCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-6 relative">
-      {/* Fade hint on the right edge — signals horizontal scroll on mobile */}
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background dark:from-gray-900 to-transparent z-10 md:hidden" />
-      <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-white">
-        <div className="min-w-[320px] p-4 md:p-6">
-          {children}
-        </div>
-      </div>
+    <div className="mt-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-white p-4 md:p-6">
+      {children}
     </div>
   );
 }

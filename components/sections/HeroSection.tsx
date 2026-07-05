@@ -36,12 +36,12 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
 =======
     <section className="relative min-h-dvh flex items-end" aria-labelledby="hero-heading">
 >>>>>>> Stashed changes
+    <section className="relative min-h-dvh flex items-end">
       {/* Fixed background — stays in place while content scrolls over it.
-          Uses top/left/right + h-screen (100vh) instead of inset-0 so the
-          container height is locked to the initial layout viewport. This
-          prevents iOS Safari from rescaling the image when the browser chrome
-          hides/shows during scroll (the "zoom" effect on mobile). */}
-      <div className="fixed top-0 left-0 right-0 h-screen -z-10 bg-accent">
+          Uses dvh (dynamic viewport height) so the image fills exactly the
+          visible area including safe-area insets, without overflowing behind
+          the browser taskbar or home indicator on mobile. */}
+      <div className="fixed top-0 left-0 right-0 h-dvh -z-10 bg-accent">
         {heroImageUrl ? (
           <Image
             src={heroImageUrl}
@@ -61,11 +61,7 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
       </div>
 
       {/* Content */}
-<<<<<<< Updated upstream
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 pt-40 w-full">
-=======
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 w-full" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom, 0px))" }}>
->>>>>>> Stashed changes
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 pt-40 w-full" style={{ paddingBottom: "max(6rem, calc(6rem + env(safe-area-inset-bottom)))" }}>
         <motion.p
           custom={0}
           variants={fadeUp}
