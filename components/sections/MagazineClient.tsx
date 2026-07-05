@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ChevronDown, BookOpen, FileX } from "lucide-react";
 import type { Magazine } from "@/types";
 import dynamic from "next/dynamic";
@@ -113,6 +113,7 @@ function SeasonAccordion({
   onToggle: () => void;
   onOpenPdf: (url: string) => void;
 }) {
+  const prefersReduced = useReducedMotion() ?? false;
   const availableCount = group.entries.filter(
     (m) => getPdfUrl(m) !== null
   ).length;
@@ -146,7 +147,7 @@ function SeasonAccordion({
           </span>
           <motion.span
             animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
+            transition={{ duration: prefersReduced ? 0 : 0.2, ease: "easeInOut" }}
             className="text-muted dark:text-gray-400"
           >
             <ChevronDown size={18} />
@@ -161,7 +162,7 @@ function SeasonAccordion({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: prefersReduced ? 0 : 0.28, ease: [0.4, 0, 0.2, 1] }}
             style={{ overflow: "hidden" }}
           >
             <div className="border-t border-gray-100 dark:border-gray-700">

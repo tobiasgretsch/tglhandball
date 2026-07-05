@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Barlow_Condensed } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -8,7 +8,14 @@ import { client, urlFor } from "@/lib/sanity";
 import { settingsQuery } from "@/lib/queries";
 import type { Settings } from "@/types";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  variable: "--font-barlow-condensed",
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://tglhandball.de";
 
@@ -118,7 +125,7 @@ export default async function RootLayout({
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
           />
         </head>
-        <body className={inter.className}>
+        <body className={`${inter.variable} ${barlowCondensed.variable} ${inter.className}`}>
           {children}
           <SpeedInsights />
           <Analytics />

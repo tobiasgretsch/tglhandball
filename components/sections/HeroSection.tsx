@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Newspaper } from "lucide-react";
 
 interface HeroSectionProps {
@@ -11,18 +11,31 @@ interface HeroSectionProps {
   clubName: string;
 }
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  show: (delay: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: "easeOut" as const, delay },
-  }),
-};
+function makeFadeUp(reduced: boolean) {
+  return {
+    hidden: { opacity: 0, y: reduced ? 0 : 28 },
+    show: (delay: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: reduced ? 0 : 0.7,
+        ease: "easeOut" as const,
+        delay: reduced ? 0 : delay,
+      },
+    }),
+  };
+}
 
 export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubName }: HeroSectionProps) {
+  const prefersReduced = useReducedMotion() ?? false;
+  const fadeUp = makeFadeUp(prefersReduced);
+
   return (
+<<<<<<< Updated upstream
     <section className="relative min-h-screen flex items-end">
+=======
+    <section className="relative min-h-dvh flex items-end" aria-labelledby="hero-heading">
+>>>>>>> Stashed changes
       {/* Fixed background — stays in place while content scrolls over it.
           Uses top/left/right + h-screen (100vh) instead of inset-0 so the
           container height is locked to the initial layout viewport. This
@@ -41,34 +54,40 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
             blurDataURL={heroImageBlurDataURL}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#003a7a] via-accent to-[#001f4d]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-accent-deep via-accent to-accent-dark" />
         )}
         {/* Dark gradient overlay — stronger at bottom */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
       </div>
 
       {/* Content */}
+<<<<<<< Updated upstream
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 pt-40 w-full">
+=======
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-40 w-full" style={{ paddingBottom: "calc(8rem + env(safe-area-inset-bottom, 0px))" }}>
+>>>>>>> Stashed changes
         <motion.p
           custom={0}
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          className="text-[11px] font-bold uppercase tracking-[0.3em] text-white/55 mb-5"
+          aria-hidden="true"
+          className="inline-block bg-primary text-white font-display font-bold italic uppercase text-base sm:text-lg px-4 py-1 -skew-x-12 mb-6"
         >
-          TG MIPA Landshut
+          <span className="inline-block skew-x-12">TG MIPA Landshut</span>
         </motion.p>
 
         <motion.h1
+          id="hero-heading"
           custom={0.1}
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white uppercase tracking-tight leading-[0.9] mb-6"
+          className="font-display font-bold italic text-6xl sm:text-7xl md:text-8xl text-white uppercase tracking-tight leading-[0.88] mb-6"
         >
           Handball
           <br />
-          <span className="text-primary">in Landshut</span>
+          <span className="text-primary-glow">in Landshut</span>
         </motion.h1>
 
         <motion.p

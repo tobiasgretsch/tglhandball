@@ -4,12 +4,28 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
+  /* ── Match-Rot: attacks. CTAs, live elements, hover states ──────────── */
   --color-primary: #da251c;
   --color-primary-light: #e64752;
+  --color-primary-dark: #a81b14;   /* pressed states, deep red surfaces */
+  --color-primary-glow: #ff6b61;   /* red text on dark surfaces — 5.9:1 on #111827 */
+  --color-primary-tint: #fdeceb;   /* red-tinted light surface */
+
+  /* ── Vereinsblau: grounds. Full-bleed surfaces, secondary accents ───── */
   --color-accent: #004f9f;
+  --color-accent-deep: #003a7a;
+  --color-accent-dark: #001f4d;
+  --color-accent-sky: #7db3e8;     /* blue accent text on dark surfaces */
+  --color-accent-tint: #e8f0fa;    /* blue-tinted light surface */
+
+  /* ── Neutrals ────────────────────────────────────────────────────────── */
   --color-background: #F8F9FA;
   --color-text: #1A1A1A;
   --color-muted: #6B7280;
+
+  /* ── Typography: Barlow Condensed for display, Inter for body ───────── */
+  --font-display: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
 body {
@@ -26,13 +42,33 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Scoreboard digits — fixed-width numerals so scores/countdowns don't jitter */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Diagonal section edges — the "attack line" of the matchday system.
+     Consistent ~4vw pitch across the site so all cuts share one angle. ── */
+  .clip-diagonal-b {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - clamp(1.5rem, 4vw, 3.5rem)));
+  }
+  .clip-diagonal-t {
+    clip-path: polygon(0 clamp(1.5rem, 4vw, 3.5rem), 100% 0, 100% 100%, 0 100%);
+  }
+  .clip-diagonal-both {
+    clip-path: polygon(
+      0 clamp(1.5rem, 4vw, 3.5rem), 100% 0,
+      100% calc(100% - clamp(1.5rem, 4vw, 3.5rem)), 0 100%
+    );
+  }
 }
 
 /* ─── Accessibility: visible focus ring for keyboard navigation ─────────────── */
 :focus-visible {
   outline: 3px solid #da251c;
   outline-offset: 3px;
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 /* Skip-to-content helper — visually hidden until focused ───────────────────── */
@@ -42,16 +78,16 @@ body {
   left: 1rem;
   z-index: 9999;
   background: #da251c;
-  color: #fff;
+  color: #ffffff;
   font-weight: 700;
   font-size: 0.875rem;
   padding: 0.5rem 1rem;
-  border-radius: 0 0 6px 6px;
+  border-radius: 0 0 8px 8px;
   transition: top 0.1s;
 }
 .skip-link:focus {
   top: 0;
-  outline: 3px solid #fff;
+  outline: 3px solid #ffffff;
   outline-offset: -3px;
 }
 

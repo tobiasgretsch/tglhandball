@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import type { TeamCategory } from "@/types";
 
@@ -69,6 +69,7 @@ export default function HeaderClient({
   const [isDark, setIsDark] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<Set<string>>(new Set());
   const [openDesktopGroups, setOpenDesktopGroups] = useState<Set<TeamCategory>>(new Set());
+  const prefersReduced = useReducedMotion() ?? false;
 
   const toggleMobileSection = (key: string) => {
     setMobileExpanded((prev) => {
@@ -198,7 +199,7 @@ export default function HeaderClient({
                   {link.label}
                   <motion.span
                     animate={{ rotate: openDropdown === link.dropdown ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: prefersReduced ? 0 : 0.2 }}
                     className="inline-flex"
                   >
                     <ChevronDown size={13} />
@@ -214,10 +215,10 @@ export default function HeaderClient({
                 <AnimatePresence>
                   {openDropdown === link.dropdown && (
                     <motion.div
-                      initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                      initial={{ opacity: 0, y: prefersReduced ? 0 : 6, scale: prefersReduced ? 1 : 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                      transition={{ duration: 0.16, ease: "easeOut" }}
+                      exit={{ opacity: 0, y: prefersReduced ? 0 : 6, scale: prefersReduced ? 1 : 0.97 }}
+                      transition={{ duration: prefersReduced ? 0 : 0.16, ease: "easeOut" }}
                       onMouseEnter={() => openMenu(link.dropdown!)}
                       onMouseLeave={scheduleClose}
                       className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-primary rounded-sm shadow-2xl overflow-hidden"
@@ -237,7 +238,7 @@ export default function HeaderClient({
                                   {label}
                                   <motion.span
                                     animate={{ rotate: expanded ? 180 : 0 }}
-                                    transition={{ duration: 0.18 }}
+                                    transition={{ duration: prefersReduced ? 0 : 0.18 }}
                                     className="inline-flex"
                                   >
                                     <ChevronDown size={11} />
@@ -249,7 +250,7 @@ export default function HeaderClient({
                                       initial={{ height: 0, opacity: 0 }}
                                       animate={{ height: "auto", opacity: 1 }}
                                       exit={{ height: 0, opacity: 0 }}
-                                      transition={{ duration: 0.18, ease: "easeInOut" }}
+                                      transition={{ duration: prefersReduced ? 0 : 0.18, ease: "easeInOut" }}
                                       className="overflow-hidden"
                                     >
                                       {groupTeams.map((team) => (
@@ -365,17 +366,17 @@ export default function HeaderClient({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: prefersReduced ? 0 : 0.2 }}
               className="fixed inset-0 bg-black/55 z-40"
               onClick={() => setMobileOpen(false)}
             />
 
             {/* Drawer panel */}
             <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 340, damping: 32 }}
+              initial={{ x: prefersReduced ? 0 : "100%", opacity: prefersReduced ? 0 : 1 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: prefersReduced ? 0 : "100%", opacity: prefersReduced ? 0 : 1 }}
+              transition={prefersReduced ? { duration: 0 } : { type: "spring", stiffness: 340, damping: 32 }}
               className="fixed top-0 right-0 h-full w-80 bg-white dark:bg-primary z-50 flex flex-col shadow-2xl"
             >
               {/* Drawer header */}
@@ -396,9 +397,9 @@ export default function HeaderClient({
               <nav className="flex-1 overflow-y-auto py-4" aria-label="Mobile Navigation">
                 {/* Home — mobile only */}
                 <motion.div
-                  initial={{ opacity: 0, x: 16 }}
+                  initial={{ opacity: 0, x: prefersReduced ? 0 : 16 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0, duration: 0.22 }}
+                  transition={{ delay: 0, duration: prefersReduced ? 0 : 0.22 }}
                 >
                   <Link
                     href="/"
@@ -418,7 +419,7 @@ export default function HeaderClient({
                     key={link.label}
                     initial={{ opacity: 0, x: 16 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: (i + 1) * 0.055, duration: 0.22 }}
+                    transition={{ delay: prefersReduced ? 0 : (i + 1) * 0.055, duration: prefersReduced ? 0 : 0.22 }}
                   >
                     {link.dropdown ? (
                       /* Collapsible section header */
@@ -433,7 +434,7 @@ export default function HeaderClient({
                         {link.label}
                         <motion.span
                           animate={{ rotate: mobileExpanded.has(link.dropdown) ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
+                          transition={{ duration: prefersReduced ? 0 : 0.2 }}
                           className="inline-flex"
                         >
                           <ChevronDown size={14} />
@@ -460,7 +461,7 @@ export default function HeaderClient({
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: "easeInOut" }}
+                          transition={{ duration: prefersReduced ? 0 : 0.22, ease: "easeInOut" }}
                           className="overflow-hidden bg-gray-50 dark:bg-black/20"
                         >
                           {TEAM_GROUPS.map(({ key, label }) => {
@@ -477,7 +478,7 @@ export default function HeaderClient({
                                   {label}
                                   <motion.span
                                     animate={{ rotate: expanded ? 180 : 0 }}
-                                    transition={{ duration: 0.18 }}
+                                    transition={{ duration: prefersReduced ? 0 : 0.18 }}
                                     className="inline-flex"
                                   >
                                     <ChevronDown size={11} />
@@ -489,7 +490,7 @@ export default function HeaderClient({
                                       initial={{ height: 0, opacity: 0 }}
                                       animate={{ height: "auto", opacity: 1 }}
                                       exit={{ height: 0, opacity: 0 }}
-                                      transition={{ duration: 0.18, ease: "easeInOut" }}
+                                      transition={{ duration: prefersReduced ? 0 : 0.18, ease: "easeInOut" }}
                                       className="overflow-hidden"
                                     >
                                       {groupTeams.map((team) => (
@@ -537,7 +538,7 @@ export default function HeaderClient({
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.22, ease: "easeInOut" }}
+                          transition={{ duration: prefersReduced ? 0 : 0.22, ease: "easeInOut" }}
                           className="overflow-hidden bg-gray-50 dark:bg-black/20"
                         >
                           {link.staticItems.map((item) => (

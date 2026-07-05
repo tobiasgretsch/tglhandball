@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { urlFor } from "@/lib/sanity";
 import type { SanityImage } from "@/types";
 
@@ -21,6 +21,7 @@ export default function PageHeroSlider({
   className = "",
 }: PageHeroSliderProps) {
   const [current, setCurrent] = useState(0);
+  const prefersReduced = useReducedMotion() ?? false;
   const hasSlides = slides.length > 0;
 
   // Randomise the starting slide after hydration to avoid SSR mismatch.
@@ -52,7 +53,7 @@ export default function PageHeroSlider({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.9, ease: "easeInOut" }}
+            transition={{ duration: prefersReduced ? 0 : 0.9, ease: "easeInOut" }}
             className="absolute inset-0"
           >
             <Image
@@ -69,7 +70,7 @@ export default function PageHeroSlider({
         </AnimatePresence>
       ) : (
         /* Fallback: original accent-blue gradient when no slides are set */
-        <div className="absolute inset-0 bg-gradient-to-br from-accent via-accent to-[#003a7a]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-accent via-accent to-accent-deep" />
       )}
 
       {/* ── Gradient overlay ─────────────────────────────────────────────

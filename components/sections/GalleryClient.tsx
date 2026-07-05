@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { urlFor } from "@/lib/sanity";
 import type { GalleryItem, GalleryCategory } from "@/types";
@@ -189,6 +189,7 @@ interface LightboxProps {
 }
 
 function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
+  const prefersReduced = useReducedMotion() ?? false;
   const isOpen = index !== null;
   const item = isOpen ? items[index] : null;
 
@@ -224,10 +225,10 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
 
           <motion.div
             key="panel"
-            initial={{ opacity: 0, scale: 0.92 }}
+            initial={{ opacity: 0, scale: prefersReduced ? 1 : 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.92 }}
-            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+            exit={{ opacity: 0, scale: prefersReduced ? 1 : 0.92 }}
+            transition={{ duration: prefersReduced ? 0 : 0.22, ease: [0.4, 0, 0.2, 1] }}
             className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
           >
             <div
@@ -284,9 +285,9 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
           {items.length > 1 && (
             <motion.button
               key="prev"
-              initial={{ opacity: 0, x: -8 }}
+              initial={{ opacity: 0, x: prefersReduced ? 0 : -8 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -8 }}
+              exit={{ opacity: 0, x: prefersReduced ? 0 : -8 }}
               transition={{ duration: 0.2 }}
               onClick={onPrev}
               className="fixed left-3 md:left-6 top-1/2 -translate-y-1/2 z-[60] p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -299,9 +300,9 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
           {items.length > 1 && (
             <motion.button
               key="next"
-              initial={{ opacity: 0, x: 8 }}
+              initial={{ opacity: 0, x: prefersReduced ? 0 : 8 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 8 }}
+              exit={{ opacity: 0, x: prefersReduced ? 0 : 8 }}
               transition={{ duration: 0.2 }}
               onClick={onNext}
               className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-[60] p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
