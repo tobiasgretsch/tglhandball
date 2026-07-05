@@ -31,12 +31,7 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
   const fadeUp = makeFadeUp(prefersReduced);
 
   return (
-<<<<<<< Updated upstream
-    <section className="relative min-h-screen flex items-end">
-=======
     <section className="relative min-h-dvh flex items-end" aria-labelledby="hero-heading">
->>>>>>> Stashed changes
-    <section className="relative min-h-dvh flex items-end">
       {/* Fixed background — stays in place while content scrolls over it.
           Uses dvh (dynamic viewport height) so the image fills exactly the
           visible area including safe-area insets, without overflowing behind
