@@ -10,6 +10,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "cdn.sanity.io",
       },
+      {
+        protocol: "https",
+        hostname: "srv3a.sw6uhlsport-clubshops.gbc.systems",
+      },
     ],
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 2592000, // 30 days — safe for content-addressed Sanity URLs
