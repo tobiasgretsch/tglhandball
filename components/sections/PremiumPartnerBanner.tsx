@@ -26,13 +26,13 @@ const MOMENTUM_THRESHOLD = 0.05;
 
 const CARD_STYLES: Record<PartnerBannerVariant, string> = {
   premium:
-    "flex items-center shrink-0 rounded-2xl px-5 py-4 transition-all duration-300 " +
+    "flex items-center shrink-0 rounded-2xl px-5 py-4 transition-[box-shadow,border-color,background-color,transform,opacity] duration-300 " +
     "bg-white/10 border border-white/10 " +
     "shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] " +
     "hover:bg-white/18 hover:border-amber-400/40 " +
     "hover:shadow-[0_0_18px_rgba(251,191,36,0.12),inset_0_1px_0_rgba(255,255,255,0.12)]",
   standard:
-    "flex items-center shrink-0 rounded-xl px-5 py-3 transition-all duration-300 " +
+    "flex items-center shrink-0 rounded-xl px-5 py-3 transition-[box-shadow,border-color,background-color,transform,opacity] duration-300 " +
     "bg-white/6 border border-white/8 " +
     "hover:bg-white/12 hover:border-white/20",
 };

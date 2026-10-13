@@ -61,7 +61,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
   return (
     <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
       {/* ── Filter bar ──────────────────────────────────────────────────── */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border-b border-gray-100/80 dark:border-white/10 sticky top-[54px] lg:top-[60px] z-40">
+      <div className="material-bar sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
             {FILTER_OPTIONS.map(({ value, label }) => (
@@ -169,7 +169,7 @@ function MasonryItem({
           </p>
         )}
         {item.category && (
-          <span className="inline-block mt-1.5 text-xs font-bold uppercase tracking-widest text-white/75">
+          <span className="inline-block mt-1.5 text-xs font-bold uppercase tracking-[0.12em] text-white/75">
             {CATEGORY_LABELS[item.category]}
           </span>
         )}
@@ -256,7 +256,7 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
                     </p>
                   )}
                   {item.category && (
-                    <span className="shrink-0 text-xs font-bold uppercase tracking-widest text-white/70 border border-white/25 px-2.5 py-0.5 rounded-full">
+                    <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-white/70 border border-white/25 px-2.5 py-0.5 rounded-full">
                       {CATEGORY_LABELS[item.category]}
                     </span>
                   )}

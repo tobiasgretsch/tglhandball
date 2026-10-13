@@ -183,7 +183,7 @@ export default async function UeberUnsPage() {
                       href={`https://www.openstreetmap.org/?mlat=${settings.venueLat}&mlon=${settings.venueLng}&zoom=16`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-accent dark:text-accent-sky hover:text-primary transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent dark:text-accent-sky hover:text-primary transition-colors"
                     >
                       In OpenStreetMap öffnen →
                     </a>

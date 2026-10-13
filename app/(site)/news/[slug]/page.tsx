@@ -120,7 +120,7 @@ export default async function NewsDetailPage({ params }: Props) {
           <div className="pt-8 mb-8">
             <Link
               href="/news"
-              className="press inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted dark:text-gray-400 hover:text-primary dark:hover:text-primary-glow transition-colors"
+              className="press inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400 hover:text-primary dark:hover:text-primary-glow transition-colors"
             >
               <ArrowLeft size={14} aria-hidden="true" />
               Alle Neuigkeiten
@@ -132,7 +132,7 @@ export default async function NewsDetailPage({ params }: Props) {
           <div className="flex flex-wrap items-center gap-3 mb-5">
             {category && (
               <span
-                className={`text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${category.bg} ${category.text}`}
+                className={`text-xs font-bold uppercase tracking-[0.12em] px-2.5 py-0.5 rounded-full ${category.bg} ${category.text}`}
               >
                 {category.label}
               </span>
@@ -188,7 +188,7 @@ export default async function NewsDetailPage({ params }: Props) {
               </h2>
               <Link
                 href="/news"
-                className="press hidden sm:inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary dark:text-primary-glow hover:text-primary-light transition-colors shrink-0 mb-1"
+                className="press hidden sm:inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-primary dark:text-primary-glow hover:text-primary-light transition-colors shrink-0 mb-1"
               >
                 Alle News <ArrowRight size={14} aria-hidden="true" />
               </Link>

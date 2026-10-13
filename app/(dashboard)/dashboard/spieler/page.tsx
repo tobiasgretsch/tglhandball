@@ -149,7 +149,7 @@ export default function SpielerDashboard() {
       {/* My teams */}
       {profile?.teams && profile.teams.length > 0 && (
         <div className="mb-8">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted dark:text-gray-400 mb-3">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-3">
             Meine Mannschaften
           </p>
           <div className="flex flex-wrap gap-2">

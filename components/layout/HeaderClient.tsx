@@ -141,7 +141,7 @@ export default function HeaderClient({
   return (
     <>
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,box-shadow] duration-300 motion-reduce:transition-none ${
         scrolled
           ? "bg-primary/80 dark:bg-gray-900/90 backdrop-blur-xl backdrop-saturate-150 [@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none [@media(prefers-reduced-transparency:reduce)]:bg-primary shadow-[0_1px_0_rgb(255_255_255/0.12),0_8px_32px_-8px_rgba(0,0,0,0.3)]"
           : "bg-primary dark:bg-gray-900"
@@ -155,7 +155,7 @@ export default function HeaderClient({
       </div>
 
       {/* Inner nav bar — shrinks slightly when scrolled */}
-      <div className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-300 ${
+      <div className={`relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-[height] duration-300 motion-reduce:transition-none ${
         scrolled ? "h-[54px] lg:h-[60px]" : "h-[68px] lg:h-[76px]"
       }`}>
         {/* Logo + club name */}
@@ -382,7 +382,7 @@ export default function HeaderClient({
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between px-6 h-[68px] border-b border-gray-200 dark:border-white/10">
-                <span className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-widest">
+                <span className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-[0.12em]">
                   Navigation
                 </span>
                 <button
@@ -405,7 +405,7 @@ export default function HeaderClient({
                   <Link
                     href="/"
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center px-6 py-4 text-[12px] font-bold uppercase tracking-widest border-b border-gray-200 dark:border-white/10 transition-colors ${
+                    className={`flex items-center px-6 py-4 text-[12px] font-bold uppercase tracking-[0.12em] border-b border-gray-200 dark:border-white/10 transition-colors ${
                       pathname === "/"
                         ? "text-gray-900 bg-red-50 dark:text-white dark:bg-white/10"
                         : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
@@ -426,7 +426,7 @@ export default function HeaderClient({
                       /* Collapsible section header */
                       <button
                         onClick={() => toggleMobileSection(link.dropdown!)}
-                        className={`w-full flex items-center justify-between px-6 py-4 text-[12px] font-bold uppercase tracking-widest border-b border-gray-200 dark:border-white/10 transition-colors ${
+                        className={`w-full flex items-center justify-between px-6 py-4 text-[12px] font-bold uppercase tracking-[0.12em] border-b border-gray-200 dark:border-white/10 transition-colors ${
                           isActive(link)
                             ? "text-gray-900 bg-red-50 dark:text-white dark:bg-white/10"
                             : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
@@ -445,7 +445,7 @@ export default function HeaderClient({
                       <Link
                         href={link.href!}
                         onClick={() => setMobileOpen(false)}
-                        className={`flex items-center px-6 py-4 text-[12px] font-bold uppercase tracking-widest border-b border-gray-200 dark:border-white/10 transition-colors ${
+                        className={`flex items-center px-6 py-4 text-[12px] font-bold uppercase tracking-[0.12em] border-b border-gray-200 dark:border-white/10 transition-colors ${
                           isActive(link)
                             ? "text-gray-900 bg-red-50 dark:text-white dark:bg-white/10"
                             : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
@@ -474,7 +474,7 @@ export default function HeaderClient({
                               <div key={key}>
                                 <button
                                   onClick={() => toggleMobileSection(groupKey)}
-                                  className="w-full flex items-center justify-between pl-10 pr-6 py-2.5 text-[12px] font-bold uppercase tracking-widest text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-red-50 dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                                  className="w-full flex items-center justify-between pl-10 pr-6 py-2.5 text-[12px] font-bold uppercase tracking-[0.12em] text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-red-50 dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                                 >
                                   {label}
                                   <motion.span

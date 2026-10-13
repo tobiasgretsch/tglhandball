@@ -29,7 +29,7 @@ export default function OnboardingPage() {
     <div className="w-full max-w-md">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
         <div className="mb-8">
-          <p className="text-xs font-bold uppercase tracking-widest text-primary mb-2">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary mb-2">
             TG MIPA Landshut
           </p>
           <h1 className="text-2xl font-black text-text dark:text-white">Willkommen!</h1>

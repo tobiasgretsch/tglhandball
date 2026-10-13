@@ -108,7 +108,7 @@ function Countdown({ date }: { date: string }) {
           <span className="font-display font-bold text-3xl sm:text-4xl leading-none text-white tabular-nums">
             {parts === "pending" ? "–" : String(parts[key]).padStart(2, "0")}
           </span>
-          <span className="text-xs font-bold uppercase tracking-widest text-accent-sky mt-1">
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-accent-sky mt-1">
             {label}
           </span>
         </div>
@@ -237,7 +237,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
 
               {followingMatch && (
                 <div className="mt-8 pt-6 border-t border-white/15">
-                  <p className="text-xs font-bold uppercase tracking-widest text-accent-sky mb-1.5">
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-accent-sky mb-1.5">
                     Danach
                   </p>
                   <p className="font-display font-bold uppercase text-lg leading-tight">

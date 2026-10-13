@@ -50,7 +50,7 @@ function ProductCard({ product }: { product: ShopProduct }) {
           className="object-contain p-4 transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none"
         />
         {badge && (
-          <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-white">
+          <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-white">
             {badge}
           </span>
         )}
@@ -90,7 +90,7 @@ function ProductSection({ section }: { section: ShopSection }) {
         <a
           href={href}
           {...SHOP_LINK_PROPS}
-          className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary transition-colors hover:text-primary-light dark:text-primary-glow"
+          className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-primary transition-colors hover:text-primary-light dark:text-primary-glow"
         >
           {linkLabel}
           <ArrowUpRight size={14} aria-hidden="true" />

@@ -182,7 +182,7 @@ function MagazineTable({ entries, onOpenPdf }: { entries: Magazine[]; onOpenPdf:
     <>
       <table className="hidden sm:table w-full text-sm border-collapse">
         <thead>
-          <tr className="text-xs font-bold uppercase tracking-widest text-muted dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+          <tr className="text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
             <th className="text-left px-5 py-3 w-[160px]">Spieltag</th>
             <th className="text-left px-3 py-3">Gegner</th>
             <th className="text-left px-3 py-3 w-[130px]">Datum</th>

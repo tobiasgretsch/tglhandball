@@ -70,7 +70,7 @@ export function NewsCard({ article }: { article: NewsArticle }) {
         <div className="flex items-center gap-3 mb-3">
           {category && (
             <span
-              className={`text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${category.bg} ${category.text}`}
+              className={`text-xs font-bold uppercase tracking-[0.12em] px-2.5 py-0.5 rounded-full ${category.bg} ${category.text}`}
             >
               {category.label}
             </span>
@@ -97,7 +97,7 @@ export function NewsCard({ article }: { article: NewsArticle }) {
 
         <Link
           href={`/news/${article.slug.current}`}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider mt-4 group-hover:gap-2.5 transition-all"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider mt-4 group-hover:gap-2.5 transition-[gap]"
         >
           Weiterlesen <ArrowRight size={12} aria-hidden="true" />
         </Link>

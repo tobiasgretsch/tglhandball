@@ -65,7 +65,7 @@ export default function SpielplanClient({ matches, teams }: SpielplanClientProps
   return (
     <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
       {/* ── Filter bar ───────────────────────────────────────────────── */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border-b border-gray-100/80 dark:border-white/10 sticky top-[54px] lg:top-[60px] z-40">
+      <div className="material-bar sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
             <FilterPill
@@ -189,7 +189,7 @@ function MatchTable({
   return (
     <table className="w-full text-sm border-collapse">
       <thead>
-        <tr className="border-b border-gray-100 dark:border-gray-700 text-xs font-bold uppercase tracking-widest text-muted dark:text-gray-400">
+        <tr className="border-b border-gray-100 dark:border-gray-700 text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400">
           <th className="text-left px-5 py-3 w-[220px]">Datum &amp; Zeit</th>
           <th className="text-right px-3 py-3">Heim</th>
           <th className="text-center px-3 py-3 w-[80px]">

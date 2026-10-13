@@ -135,7 +135,7 @@ function TeamCard({ team }: { team: Team }) {
           <p className="text-muted dark:text-gray-400 text-xs mt-1 leading-snug">{team.league}</p>
         )}
         <div className="mt-auto pt-4">
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider group-hover:gap-2 transition-all duration-200">
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider group-hover:gap-2 transition-[gap] duration-200">
             Zum Team
             <ArrowRight size={12} aria-hidden="true" />
           </span>

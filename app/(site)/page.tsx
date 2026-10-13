@@ -110,7 +110,7 @@ export default async function HomePage() {
             <SectionTitle id="news-heading" title="Aktuelles" />
             <Link
               href="/news"
-              className="hidden sm:inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-primary hover:text-primary-light dark:text-primary-glow transition-colors shrink-0 mb-1"
+              className="hidden sm:inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-primary hover:text-primary-light dark:text-primary-glow transition-colors shrink-0 mb-1"
             >
               Alle News <ArrowRight size={14} aria-hidden="true" />
             </Link>
@@ -143,7 +143,7 @@ export default async function HomePage() {
           <div className="mt-8 sm:hidden">
             <Link
               href="/news"
-              className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-primary dark:text-primary-glow hover:text-primary-light transition-colors"
+              className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-primary dark:text-primary-glow hover:text-primary-light transition-colors"
             >
               Alle News <ArrowRight size={14} aria-hidden="true" />
             </Link>
@@ -162,7 +162,7 @@ export default async function HomePage() {
               <SectionTitle id="teams-heading" title="Unsere Teams" />
               <Link
                 href="/teams"
-                className="hidden sm:inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-primary hover:text-primary-light dark:text-primary-glow transition-colors shrink-0 mb-1"
+                className="hidden sm:inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-primary hover:text-primary-light dark:text-primary-glow transition-colors shrink-0 mb-1"
               >
                 Alle Teams <ArrowRight size={14} aria-hidden="true" />
               </Link>
@@ -180,7 +180,7 @@ export default async function HomePage() {
             <div className="mt-8 sm:hidden">
               <Link
                 href="/teams"
-                className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-primary dark:text-primary-glow hover:text-primary-light transition-colors"
+                className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-primary dark:text-primary-glow hover:text-primary-light transition-colors"
               >
                 Alle Teams <ArrowRight size={14} aria-hidden="true" />
               </Link>
@@ -244,7 +244,7 @@ function CategoryChip({ category }: { category?: string }) {
   const style = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.verein;
   return (
     <span
-      className={`text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${style.bg} ${style.text}`}
+      className={`text-xs font-bold uppercase tracking-[0.12em] px-2.5 py-0.5 rounded-full ${style.bg} ${style.text}`}
     >
       {style.label}
     </span>
@@ -297,7 +297,7 @@ function FeaturedNewsCard({ article }: { article: NewsArticle }) {
             {article.teaser}
           </p>
         )}
-        <span className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider mt-4 group-hover:gap-2 transition-all">
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider mt-4 group-hover:gap-2 transition-[gap]">
           Lesen <ArrowRight size={11} aria-hidden="true" />
         </span>
       </div>
@@ -422,14 +422,14 @@ function TeamTile({ tile }: { tile: TeamTileData }) {
       {/* Red wipe — slides in behind the label on hover */}
       <div
         aria-hidden="true"
-        className="absolute bottom-0 left-0 h-1.5 w-24 bg-primary -skew-x-12 -translate-x-2 group-hover:w-full transition-all duration-500 ease-out motion-reduce:transition-none"
+        className="absolute bottom-0 left-0 h-1.5 w-24 bg-primary -skew-x-12 -translate-x-2 group-hover:w-full transition-[width] duration-500 ease-out motion-reduce:transition-none"
       />
 
       <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
         <p className="font-display font-bold italic uppercase text-3xl md:text-4xl text-white leading-none">
           {tile.label}
         </p>
-        <p className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-widest text-white/85 mt-2 group-hover:gap-2.5 transition-all">
+        <p className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.12em] text-white/85 mt-2 group-hover:gap-2.5 transition-[gap]">
           {tile.teamCount === 1 ? "1 Mannschaft" : `${tile.teamCount} Mannschaften`}
           <ArrowRight size={13} aria-hidden="true" />
         </p>
@@ -455,7 +455,7 @@ function TopSponsorsSection({ sponsors }: { sponsors: Partner[] }) {
           <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-400/40 dark:to-amber-400/35" aria-hidden="true" />
           <div className="flex items-center gap-2.5">
             <span className="text-amber-500/80 dark:text-amber-400/70 text-[9px] leading-none" aria-hidden="true">★</span>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-800 dark:text-amber-400/80">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-amber-800 dark:text-amber-400/80">
               Exclusiv-Partner
             </p>
             <span className="text-amber-500/80 dark:text-amber-400/70 text-[9px] leading-none" aria-hidden="true">★</span>
@@ -471,7 +471,7 @@ function TopSponsorsSection({ sponsors }: { sponsors: Partner[] }) {
               : null;
 
             const card = (
-              <div className="flex items-center shrink-0 rounded px-5 py-4 transition-all duration-300 bg-gray-50 dark:bg-white/10 border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-amber-400/50 dark:hover:border-amber-400/40 hover:shadow-[0_0_18px_rgba(251,191,36,0.10)]">
+              <div className="flex items-center shrink-0 rounded px-5 py-4 transition-[box-shadow,border-color,background-color,transform,opacity] duration-300 bg-gray-50 dark:bg-white/10 border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-amber-400/50 dark:hover:border-amber-400/40 hover:shadow-[0_0_18px_rgba(251,191,36,0.10)]">
                 {logoUrl ? (
                   <div className="relative" style={{ width: 220, height: 124 }}>
                     <Image
@@ -511,7 +511,7 @@ function TopSponsorsSection({ sponsors }: { sponsors: Partner[] }) {
         <div className="mt-10 flex justify-center">
           <Link
             href="/partner"
-            className="inline-flex items-center gap-2 border border-amber-500/50 text-amber-800 hover:text-amber-900 hover:border-amber-500/80 hover:bg-amber-50 dark:border-amber-400/40 dark:text-amber-400/80 dark:hover:text-amber-400 dark:hover:border-amber-400/70 dark:hover:bg-amber-400/5 text-[12px] font-bold uppercase tracking-widest px-6 py-2.5 rounded-sm transition-all duration-200"
+            className="press inline-flex items-center gap-2 border border-amber-500/50 text-amber-800 hover:text-amber-900 hover:border-amber-500/80 hover:bg-amber-50 dark:border-amber-400/40 dark:text-amber-400/80 dark:hover:text-amber-400 dark:hover:border-amber-400/70 dark:hover:bg-amber-400/5 text-[12px] font-bold uppercase tracking-[0.12em] px-6 py-2.5 rounded-sm transition-all duration-200"
           >
             Alle Partner ansehen
             <ArrowRight size={13} aria-hidden="true" />
@@ -564,7 +564,7 @@ function PartnerOfDaySection({ partner }: { partner: Partner }) {
       </div>
 
       {partner.websiteUrl && (
-        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary dark:text-primary-glow group-hover:text-primary-light transition-colors shrink-0">
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-primary dark:text-primary-glow group-hover:text-primary-light transition-colors shrink-0">
           <ExternalLink size={11} aria-hidden="true" />
           Website besuchen
         </span>
@@ -634,7 +634,7 @@ function MagazineTeaser({ magazine }: { magazine: Magazine }) {
             {/* Info */}
             <div className="px-5 py-5 flex-1">
               {meta && (
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted dark:text-gray-400 mb-1">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-1">
                   {meta}
                 </p>
               )}
@@ -651,7 +651,7 @@ function MagazineTeaser({ magazine }: { magazine: Magazine }) {
               <PdfOpenButton url={pdfUrl} label="Lesen" />
               <Link
                 href="/spieltagsmagazin"
-                className="inline-flex items-center justify-center gap-1.5 text-[12px] font-bold uppercase tracking-widest text-primary dark:text-primary-glow hover:text-primary-light transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 text-[12px] font-bold uppercase tracking-[0.12em] text-primary dark:text-primary-glow hover:text-primary-light transition-colors"
               >
                 Alle Magazine <ArrowRight size={13} aria-hidden="true" />
               </Link>

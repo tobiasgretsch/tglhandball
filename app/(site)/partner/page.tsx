@@ -237,7 +237,7 @@ function HauptsponsorCard({ partner }: { partner: Partner }) {
 
         {partner.websiteUrl && (
           <div className="mt-4 pt-4 border-t border-primary/20 w-full">
-            <span className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary group-hover:text-primary-light transition-colors">
+            <span className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-primary group-hover:text-primary-light transition-colors">
               <ExternalLink size={12} aria-hidden="true" />
               Website besuchen
             </span>
@@ -306,7 +306,7 @@ function ExclusivCard({ partner }: { partner: Partner }) {
 
         {partner.websiteUrl && (
           <div className="mt-4 pt-4 border-t border-accent/20 w-full">
-            <span className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-widest text-accent group-hover:text-primary transition-colors">
+            <span className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent group-hover:text-primary transition-colors">
               <ExternalLink size={12} aria-hidden="true" />
               Website besuchen
             </span>
@@ -369,7 +369,7 @@ function PremiumCard({ partner }: { partner: Partner }) {
 
         {partner.websiteUrl && (
           <div className="mt-4 pt-4 border-t border-gray-400 dark:border-gray-400">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-accent group-hover:text-primary transition-colors">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent group-hover:text-primary transition-colors">
               <ExternalLink size={12} aria-hidden="true" />
               Website besuchen
             </span>

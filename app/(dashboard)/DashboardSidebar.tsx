@@ -52,7 +52,7 @@ function SidebarContent({
           <span className="text-white/40 font-medium">Landshut</span>
         </Link>
         <span
-          className={`inline-block mt-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+          className={`inline-block mt-2 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${
             role === "trainer"
               ? "bg-primary/20 text-primary"
               : "bg-accent/20 text-blue-400"
@@ -85,7 +85,7 @@ function SidebarContent({
         <UserButton />
         <div className="min-w-0 flex-1">
           <p className="text-white text-xs font-semibold truncate">{userName}</p>
-          <p className="text-white/35 text-[11px] truncate">{userEmail}</p>
+          <p className="text-white/35 text-xs truncate">{userEmail}</p>
         </div>
         <button
           onClick={onToggleTheme}
@@ -165,7 +165,7 @@ export default function DashboardSidebar(props: Props) {
       </div>
 
       {/* ── Desktop: fixed sidebar ── */}
-      <aside className="hidden md:flex md:w-60 flex-col shrink-0 min-h-screen">
+      <aside className="hidden md:flex md:w-60 flex-col shrink-0 min-h-dvh">
         <SidebarContent {...props} isDark={isDark} onToggleTheme={toggleTheme} />
       </aside>
     </>

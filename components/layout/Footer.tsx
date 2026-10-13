@@ -72,7 +72,7 @@ export default async function Footer() {
               <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-400/35" />
               <div className="flex items-center gap-2.5">
                 <span className="text-amber-400/70 text-xs leading-none">★</span>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-400/80">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-400/80">
                   Premium Partner
                 </p>
                 <span className="text-amber-400/70 text-xs leading-none">★</span>
@@ -95,7 +95,7 @@ export default async function Footer() {
             <div className="flex justify-center mt-6">
               <Link
                 href="/partner"
-                className="inline-flex items-center gap-2 border border-amber-400/40 text-amber-400/80 hover:text-amber-400 hover:border-amber-400/70 hover:bg-amber-400/5 text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-full press"
+                className="inline-flex items-center gap-2 border border-amber-400/40 text-amber-400/80 hover:text-amber-400 hover:border-amber-400/70 hover:bg-amber-400/5 text-xs font-bold uppercase tracking-[0.12em] px-6 py-3 rounded-full press"
               >
                 Alle Partner ansehen →
               </Link>
@@ -113,7 +113,7 @@ export default async function Footer() {
             {/* Section heading */}
             <div className="flex items-center gap-4 mb-5">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/15" />
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/60">
                 Partner
               </p>
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/15" />

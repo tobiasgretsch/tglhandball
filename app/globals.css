@@ -28,6 +28,16 @@
   --font-sans: var(--font-inter), system-ui, sans-serif;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Remove the 300ms double-tap-zoom delay on every control */
+a, button, summary, [role="button"], label, select, input {
+  touch-action: manipulation;
+}
+
 body {
   color: #1A1A1A;
   background: #F8F9FA;
@@ -106,6 +116,30 @@ body {
     }
   }
 
+  /* Sticky filter/toolbar: content scrolls under a translucent layer. */
+  .material-bar {
+    background: rgb(255 255 255 / 0.8);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgb(229 231 235 / 0.8);
+  }
+  .dark .material-bar {
+    background: rgb(31 41 55 / 0.8);
+    border-bottom-color: rgb(255 255 255 / 0.1);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .material-bar {
+      background: #fff;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .dark .material-bar { background: #1f2937; }
+  }
+  @media (prefers-contrast: more) {
+    .material-bar { background: #fff; border-bottom-color: #1a1a1a; }
+    .dark .material-bar { background: #111827; border-bottom-color: #fff; }
+  }
+
   /* Translucent material for cards on dark surfaces. Bright top edge = light
      catching the glass. Never nest a second light glass inside — use bg-black/20. */
   .glass {
@@ -135,7 +169,6 @@ body {
 :focus-visible {
   outline: 3px solid #da251c;
   outline-offset: 3px;
-  border-radius: 2px;
 }
 
 /* Skip-to-content helper — visually hidden until focused ───────────────────── */
