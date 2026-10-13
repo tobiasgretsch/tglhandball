@@ -4,6 +4,7 @@ import { pageHeroSlidesQuery } from "@/lib/queries";
 import type { SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 import Reveal from "@/components/ui/Reveal";
+import FoerdervereinForm from "@/components/sections/FoerdervereinForm";
 import { Users, Heart, Trophy } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -73,21 +74,22 @@ export default async function FoerdervereinPage() {
             />
           </div>
 
-          {/* Contact CTA */}
-          <Reveal className="bg-primary-tint dark:bg-primary/10 border border-primary/15 rounded-2xl p-8 md:p-10 text-center">
-            <h3 className="font-display font-bold italic uppercase text-2xl md:text-3xl tracking-[-0.02em] text-text dark:text-gray-100 mb-3">
-              Interesse? Wir freuen uns auf dich!
-            </h3>
-            <p className="text-muted dark:text-gray-400 text-sm mb-6 max-w-md mx-auto">
-              Für Informationen zur Mitgliedschaft im Förderverein nimm gerne Kontakt mit uns auf.
-            </p>
-            <a
-              href="/ueberuns#kontakt"
-              className="btn btn-primary"
-            >
-              Kontakt aufnehmen
-            </a>
+          {/* Membership signup */}
+          <div id="mitglied-werden" className="scroll-mt-24">
+          <Reveal
+            className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-6 sm:p-8 md:p-10 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)]"
+          >
+            <div className="text-center mb-10">
+              <h3 className="font-display font-bold italic uppercase text-2xl md:text-3xl tracking-[-0.02em] text-text dark:text-gray-100 mb-3">
+                Jetzt Mitglied werden
+              </h3>
+              <p className="text-muted dark:text-gray-400 text-sm max-w-md mx-auto">
+                Fülle das Formular aus und erteile uns ein SEPA-Lastschriftmandat für den Jahresbeitrag.
+              </p>
+            </div>
+            <FoerdervereinForm />
           </Reveal>
+          </div>
 
         </div>
       </div>
