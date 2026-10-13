@@ -13,9 +13,9 @@ const IBAN_MAX_LENGTH = 34;
 const IBAN_MOD = 97;
 const LETTER_OFFSET = 55; // 'A' (65) → 10
 
-/** Strips whitespace and upper-cases an IBAN. */
+/** Strips everything but letters and digits and upper-cases an IBAN. */
 export function normalizeIban(value: string): string {
-  return value.replace(/\s+/g, "").toUpperCase();
+  return value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
 }
 
 /** Groups an IBAN in blocks of four characters for display. */
@@ -38,6 +38,13 @@ export function isValidIban(value: string): boolean {
     }
   }
   return remainder === 1;
+}
+
+/** Masks the middle of an IBAN for display, e.g. "DE89 **** **** **** **** 00". */
+export function maskIban(value: string): string {
+  const iban = normalizeIban(value);
+  const masked = iban.slice(0, 4) + "*".repeat(Math.max(iban.length - 6, 0)) + iban.slice(-2);
+  return masked.replace(/(.{4})/g, "$1 ").trim();
 }
 
 export function formatEuro(amount: number): string {
