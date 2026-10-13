@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import type { Match, Team } from "@/types";
+import { CLUB_TIME_ZONE } from "@/lib/dates";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 
 interface MatchdaySectionProps {
@@ -51,6 +52,7 @@ function formatMatchDate(date: string): string {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: CLUB_TIME_ZONE,
   }).format(new Date(date));
 }
 

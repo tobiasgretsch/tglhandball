@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { urlFor } from "@/lib/sanity";
 import type { NewsArticle, NewsCategory } from "@/types";
+import { CLUB_TIME_ZONE } from "@/lib/dates";
 
 // ─── Shared constants & helpers ───────────────────────────────────────────────
 // Kept in a plain module (no 'use client') so Server Components can import them.
@@ -22,6 +23,7 @@ export function formatPublishedDate(dateStr: string): string {
     day: "2-digit",
     month: "long",
     year: "numeric",
+    timeZone: CLUB_TIME_ZONE,
   }).format(new Date(dateStr));
 }
 

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { MapPin, Home, Plane } from "lucide-react";
 import type { Match } from "@/types";
+import { CLUB_TIME_ZONE } from "@/lib/dates";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 
 interface TeamOption {
@@ -23,11 +24,13 @@ function formatDateTime(dateStr: string): { date: string; time: string } {
     weekday: "short",
     day: "2-digit",
     month: "long",
+    timeZone: CLUB_TIME_ZONE,
     year: "numeric",
   }).format(d);
   const time = new Intl.DateTimeFormat("de-DE", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: CLUB_TIME_ZONE,
   }).format(d);
   return { date, time };
 }
