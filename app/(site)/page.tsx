@@ -146,7 +146,7 @@ export default async function HomePage() {
       {/* ── Section 4: Mannschaften ─────────────────────────────────── */}
       {teams.length > 0 && (
         <section
-          className="bg-white dark:bg-gray-800 clip-diagonal-t pt-24 md:pt-28 pb-16 md:pb-20"
+          className="relative bg-white dark:bg-gray-800 sheet-top -mt-8 md:-mt-12 pt-16 md:pt-20 pb-16 md:pb-20"
           aria-labelledby="teams-heading"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -206,11 +206,10 @@ function SectionTitle({ title, id }: { title: string; id?: string }) {
     <div>
       <h2
         id={id}
-        className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-tight text-text dark:text-gray-100"
+        className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-[-0.02em] text-text dark:text-gray-100"
       >
         {title}
       </h2>
-      <div className="mt-2 h-1.5 w-16 bg-primary -skew-x-12" aria-hidden="true" />
     </div>
   );
 }
@@ -218,10 +217,10 @@ function SectionTitle({ title, id }: { title: string; id?: string }) {
 // ─── News section ─────────────────────────────────────────────────────────────
 
 const CATEGORY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  herren:  { bg: "bg-accent/10",      text: "text-accent",      label: "Herren"  },
-  damen:   { bg: "bg-rose-100",        text: "text-rose-600",    label: "Damen"   },
-  jugend:  { bg: "bg-emerald-100",     text: "text-emerald-700", label: "Jugend"  },
-  verein:  { bg: "bg-gray-100",        text: "text-gray-600",    label: "Verein"  },
+  herren:  { bg: "bg-accent",          text: "text-white",        label: "Herren"  },
+  damen:   { bg: "bg-primary",         text: "text-white",        label: "Damen"   },
+  jugend:  { bg: "bg-accent-tint",     text: "text-accent-deep",  label: "Jugend"  },
+  verein:  { bg: "bg-gray-100",        text: "text-gray-700",     label: "Verein"  },
 };
 
 function formatNewsDate(publishedAt: string): string {
@@ -237,7 +236,7 @@ function CategoryChip({ category }: { category?: string }) {
   const style = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.verein;
   return (
     <span
-      className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded ${style.bg} ${style.text}`}
+      className={`text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${style.bg} ${style.text}`}
     >
       {style.label}
     </span>
@@ -251,15 +250,15 @@ function FeaturedNewsCard({ article }: { article: NewsArticle }) {
     : null;
 
   return (
-    <Link href={`/news/${article.slug.current}`} className="group block">
-      <div className="relative aspect-video overflow-hidden rounded-lg bg-accent-tint dark:bg-gray-700">
+    <Link href={`/news/${article.slug.current}`} className="group block press-card">
+      <div className="relative aspect-video overflow-hidden rounded-2xl bg-accent-tint dark:bg-gray-700">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={article.title}
             fill
             sizes="(max-width: 1024px) 100vw, 60vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
             placeholder={article.mainImage?.lqip ? "blur" : "empty"}
             blurDataURL={article.mainImage?.lqip ?? undefined}
           />
@@ -273,11 +272,11 @@ function FeaturedNewsCard({ article }: { article: NewsArticle }) {
       </div>
 
       {/* Text panel — overlaps the image, breaks the card rectangle */}
-      <div className="relative -mt-14 md:-mt-20 ml-0 sm:ml-8 mr-0 sm:mr-4 bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 md:p-7">
+      <div className="relative -mt-14 md:-mt-20 ml-0 sm:ml-8 mr-0 sm:mr-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 rounded-2xl border border-white/60 dark:border-white/10 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.25)] p-6 md:p-7">
         <div className="flex items-center gap-3 mb-3">
           <CategoryChip category={article.category} />
           {article.publishedAt && (
-            <span className="text-[11px] text-muted dark:text-gray-400 ml-auto">
+            <span className="text-xs text-muted dark:text-gray-400 ml-auto">
               {formatNewsDate(article.publishedAt)}
             </span>
           )}
@@ -290,7 +289,7 @@ function FeaturedNewsCard({ article }: { article: NewsArticle }) {
             {article.teaser}
           </p>
         )}
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary dark:text-primary-glow uppercase tracking-wider mt-4 group-hover:gap-2 transition-all">
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider mt-4 group-hover:gap-2 transition-all">
           Lesen <ArrowRight size={11} aria-hidden="true" />
         </span>
       </div>
@@ -307,16 +306,16 @@ function CompactNewsRow({ article }: { article: NewsArticle }) {
   return (
     <Link
       href={`/news/${article.slug.current}`}
-      className="group flex gap-4 py-5 first:pt-0 last:pb-0"
+      className="group flex gap-4 py-5 first:pt-0 last:pb-0 press-card"
     >
-      <div className="relative w-28 sm:w-32 aspect-video shrink-0 overflow-hidden rounded-md bg-accent-tint dark:bg-gray-700">
+      <div className="relative w-28 sm:w-32 aspect-video shrink-0 overflow-hidden rounded-xl bg-accent-tint dark:bg-gray-700">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={article.title}
             fill
             sizes="128px"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
             placeholder={article.mainImage?.lqip ? "blur" : "empty"}
             blurDataURL={article.mainImage?.lqip ?? undefined}
           />
@@ -333,7 +332,7 @@ function CompactNewsRow({ article }: { article: NewsArticle }) {
         <div className="flex items-center gap-2.5 mb-1.5">
           <CategoryChip category={article.category} />
           {article.publishedAt && (
-            <span className="text-[11px] text-muted dark:text-gray-400">
+            <span className="text-xs text-muted dark:text-gray-400">
               {formatNewsDate(article.publishedAt)}
             </span>
           )}
@@ -388,7 +387,7 @@ function TeamTile({ tile }: { tile: TeamTileData }) {
   return (
     <Link
       href={`/teams#${tile.category}`}
-      className="group relative block h-52 md:h-64 overflow-hidden rounded-lg bg-accent"
+      className="group relative block h-52 md:h-64 overflow-hidden rounded-2xl bg-accent press-card"
     >
       {imageUrl ? (
         <Image
@@ -396,7 +395,7 @@ function TeamTile({ tile }: { tile: TeamTileData }) {
           alt={`${tile.label} — Mannschaftsfoto`}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 58vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          className="object-cover motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
           placeholder={tile.image?.lqip ? "blur" : "empty"}
           blurDataURL={tile.image?.lqip ?? undefined}
         />
@@ -448,7 +447,7 @@ function TopSponsorsSection({ sponsors }: { sponsors: Partner[] }) {
           <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-400/40 dark:to-amber-400/35" aria-hidden="true" />
           <div className="flex items-center gap-2.5">
             <span className="text-amber-500/80 dark:text-amber-400/70 text-[9px] leading-none" aria-hidden="true">★</span>
-            <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-amber-800 dark:text-amber-400/80">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-800 dark:text-amber-400/80">
               Exclusiv-Partner
             </p>
             <span className="text-amber-500/80 dark:text-amber-400/70 text-[9px] leading-none" aria-hidden="true">★</span>
@@ -543,8 +542,8 @@ function PartnerOfDaySection({ partner }: { partner: Partner }) {
 
       {/* Text */}
       <div className="flex-1 min-w-0">
-        <p className="inline-block bg-accent text-white font-display font-bold italic uppercase text-sm px-3 py-0.5 -skew-x-12 mb-2">
-          <span className="inline-block skew-x-12">Partner des Tages</span>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent dark:text-accent-sky mb-2">
+          Partner des Tages
         </p>
         <p className="font-display font-bold uppercase text-xl text-text dark:text-gray-100 leading-tight">
           {partner.name}
@@ -557,7 +556,7 @@ function PartnerOfDaySection({ partner }: { partner: Partner }) {
       </div>
 
       {partner.websiteUrl && (
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-primary dark:text-primary-glow group-hover:text-primary-light transition-colors shrink-0">
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary dark:text-primary-glow group-hover:text-primary-light transition-colors shrink-0">
           <ExternalLink size={11} aria-hidden="true" />
           Website besuchen
         </span>
@@ -613,7 +612,7 @@ function MagazineTeaser({ magazine }: { magazine: Magazine }) {
           <SectionTitle id="magazine-heading" title="Spieltagsmagazin" />
         </Reveal>
 
-        <Reveal className="rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 ml-auto max-w-2xl w-full" delay={0.1}>
+        <Reveal className="rounded-2xl overflow-hidden shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] border border-gray-100 dark:border-gray-700 ml-auto max-w-2xl w-full" delay={0.1}>
           {/* Red header */}
           <div className="bg-primary px-5 py-3 flex items-center gap-2.5">
             <FileText size={15} className="text-white/75 shrink-0" aria-hidden="true" />
@@ -627,7 +626,7 @@ function MagazineTeaser({ magazine }: { magazine: Magazine }) {
             {/* Info */}
             <div className="px-5 py-5 flex-1">
               {meta && (
-                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-1">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted dark:text-gray-400 mb-1">
                   {meta}
                 </p>
               )}

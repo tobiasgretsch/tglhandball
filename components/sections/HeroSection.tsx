@@ -17,11 +17,9 @@ function makeFadeUp(reduced: boolean) {
     show: (delay: number) => ({
       opacity: 1,
       y: 0,
-      transition: {
-        duration: reduced ? 0 : 0.7,
-        ease: "easeOut" as const,
-        delay: reduced ? 0 : delay,
-      },
+      transition: reduced
+        ? { duration: 0 }
+        : { type: "spring" as const, bounce: 0, duration: 0.8, delay },
     }),
   };
 }
@@ -52,7 +50,7 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
           <div className="absolute inset-0 bg-gradient-to-br from-accent-deep via-accent to-accent-dark" />
         )}
         {/* Dark gradient overlay — stronger at bottom */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-accent-dark/85 via-black/20 to-black/10" />
       </div>
 
       {/* Content */}
@@ -74,7 +72,7 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          className="font-display font-bold italic text-6xl sm:text-7xl md:text-8xl text-white uppercase tracking-tight leading-[0.88] mb-6"
+          className="font-display font-bold italic text-6xl sm:text-7xl md:text-8xl text-white uppercase tracking-[-0.03em] leading-[0.88] mb-6"
         >
           Handball
           <br />
@@ -86,7 +84,7 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
           variants={fadeUp}
           initial="hidden"
           animate="show"
-          className="text-white/65 text-lg md:text-xl font-light max-w-xl mb-10 leading-relaxed"
+          className="text-white/85 text-lg md:text-xl font-normal max-w-xl mb-10 leading-relaxed"
         >
           TG MIPA Landshut — Leidenschaft seit Jahrzehnten.
         </motion.p>
@@ -100,17 +98,17 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
         >
           <Link
             href="/news"
-            className="inline-flex items-center gap-2 bg-primary hover:bg-primary-light text-white font-bold uppercase tracking-widest text-[13px] px-7 py-4 rounded-sm transition-colors shadow-lg shadow-primary/30"
+            className="btn btn-primary"
           >
-            <Newspaper size={16} />
+            <Newspaper size={16} aria-hidden="true" />
             Neuigkeiten
           </Link>
           <Link
             href="/teams"
-            className="inline-flex items-center gap-2 border-2 border-white/40 hover:border-white text-white font-bold uppercase tracking-widest text-[13px] px-7 py-4 rounded-sm transition-colors hover:bg-white/10"
+            className="btn btn-glass"
           >
             Zu den Teams
-            <ArrowRight size={16} />
+            <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </motion.div>
       </div>

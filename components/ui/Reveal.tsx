@@ -23,11 +23,11 @@ export default function Reveal({ children, delay = 0, className }: RevealProps) 
       initial={reduced ? false : { opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{
-        duration: 0.6,
-        ease: [0.22, 1, 0.36, 1],
-        delay: reduced ? 0 : delay,
-      }}
+      transition={
+        reduced
+          ? { duration: 0 }
+          : { type: "spring", bounce: 0, duration: 0.8, delay }
+      }
     >
       {children}
     </motion.div>

@@ -48,19 +48,86 @@ body {
     font-variant-numeric: tabular-nums;
   }
 
-  /* ── Diagonal section edges — the "attack line" of the matchday system.
-     Consistent ~4vw pitch across the site so all cuts share one angle. ── */
-  .clip-diagonal-b {
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 calc(100% - clamp(1.5rem, 4vw, 3.5rem)));
+  /* Stacked sheet: content slides over the fixed hero like a card.
+     One radius across the site so every sheet edge matches. */
+  .sheet-top {
+    border-top-left-radius: 2rem;
+    border-top-right-radius: 2rem;
   }
-  .clip-diagonal-t {
-    clip-path: polygon(0 clamp(1.5rem, 4vw, 3.5rem), 100% 0, 100% 100%, 0 100%);
+  @media (min-width: 768px) {
+    .sheet-top {
+      border-top-left-radius: 3rem;
+      border-top-right-radius: 3rem;
+    }
   }
-  .clip-diagonal-both {
-    clip-path: polygon(
-      0 clamp(1.5rem, 4vw, 3.5rem), 100% 0,
-      100% calc(100% - clamp(1.5rem, 4vw, 3.5rem)), 0 100%
-    );
+
+  /* Press feedback: respond on pointer-down, not on release. */
+  .press,
+  .press-card,
+  .btn {
+    transition: transform 100ms ease-out, background-color 150ms ease-out, border-color 150ms ease-out;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .press:active,
+    .btn:active { transform: scale(0.97); }
+    .press-card:active { transform: scale(0.985); }
+  }
+
+  /* Pill buttons: sentence case, 15px, one shape across the site. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #fff;
+  }
+  .btn-primary {
+    background: var(--color-primary);
+    box-shadow: 0 8px 24px -8px rgb(218 37 28 / 0.55);
+  }
+  .btn-primary:hover { background: var(--color-primary-light); }
+  .btn-glass {
+    background: rgb(255 255 255 / 0.15);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgb(255 255 255 / 0.2);
+  }
+  .btn-glass:hover { background: rgb(255 255 255 / 0.25); }
+  @media (prefers-reduced-transparency: reduce) {
+    .btn-glass {
+      background: var(--color-accent-deep);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* Translucent material for cards on dark surfaces. Bright top edge = light
+     catching the glass. Never nest a second light glass inside — use bg-black/20. */
+  .glass {
+    background: rgb(255 255 255 / 0.08);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-top-color: rgb(255 255 255 / 0.25);
+    box-shadow: 0 12px 40px -12px rgb(0 0 0 / 0.45);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass {
+      background: var(--color-accent-deep);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+  @media (prefers-contrast: more) {
+    .glass {
+      background: var(--color-accent-deep);
+      border-color: rgb(255 255 255 / 0.6);
+    }
   }
 }
 
