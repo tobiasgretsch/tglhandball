@@ -143,7 +143,7 @@ export default function HeaderClient({
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-primary/80 dark:bg-gray-900/90 backdrop-blur-md shadow-[0_2px_24px_rgba(0,0,0,0.2)]"
+          ? "bg-primary/80 dark:bg-gray-900/90 backdrop-blur-xl backdrop-saturate-150 [@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none [@media(prefers-reduced-transparency:reduce)]:bg-primary shadow-[0_1px_0_rgb(255_255_255/0.12),0_8px_32px_-8px_rgba(0,0,0,0.3)]"
           : "bg-primary dark:bg-gray-900"
       }`}
     >
@@ -262,7 +262,7 @@ export default function HeaderClient({
                                         >
                                           {team.name}
                                           {team.league && (
-                                            <span className="block text-[11px] text-gray-500 dark:text-white/45 font-normal normal-case tracking-normal mt-0.5">
+                                            <span className="block text-xs text-gray-500 dark:text-white/45 font-normal normal-case tracking-normal mt-0.5">
                                               {team.league}
                                             </span>
                                           )}
@@ -331,7 +331,7 @@ export default function HeaderClient({
           <button
             onClick={toggleTheme}
             aria-label={isDark ? "Helles Design aktivieren" : "Dunkles Design aktivieren"}
-            className="ml-2 p-2 rounded-sm text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            className="ml-2 p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 press"
           >
             {isDark ? <Sun size={17} /> : <Moon size={17} />}
           </button>
@@ -342,12 +342,12 @@ export default function HeaderClient({
           <button
             onClick={toggleTheme}
             aria-label={isDark ? "Helles Design aktivieren" : "Dunkles Design aktivieren"}
-            className="p-2 text-white/80 hover:text-white transition-colors"
+            className="p-2 text-white/80 hover:text-white press"
           >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
           <button
-            className="p-2 text-white/90 hover:text-white transition-colors"
+            className="p-2 text-white/90 hover:text-white press"
             onClick={() => setMobileOpen(true)}
             aria-label="Menü öffnen"
           >

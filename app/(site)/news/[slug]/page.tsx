@@ -3,10 +3,11 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { groq } from "next-sanity";
-import { CalendarDays, User, ArrowLeft } from "lucide-react";
+import { CalendarDays, User, ArrowLeft, ArrowRight } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
 import { newsDetailQuery, relatedNewsQuery } from "@/lib/queries";
 import type { NewsArticle } from "@/types";
+import Reveal from "@/components/ui/Reveal";
 import PortableText from "@/components/ui/PortableText";
 import { NewsCard, CATEGORY_STYLES, formatPublishedDate } from "@/components/sections/NewsCard";
 
@@ -93,7 +94,7 @@ export default async function NewsDetailPage({ params }: Props) {
   return (
     <>
       {/* ── Hero image ─────────────────────────────────────────────── */}
-      <div className="relative w-full h-[300px] md:h-[440px] lg:h-[520px] bg-gradient-to-br from-accent to-[#001f4d] overflow-hidden">
+      <div className="relative w-full h-[300px] md:h-[440px] lg:h-[520px] bg-gradient-to-br from-accent to-accent-dark overflow-hidden">
         {heroUrl && (
           <Image
             src={heroUrl}
@@ -104,8 +105,12 @@ export default async function NewsDetailPage({ params }: Props) {
             className="object-cover"
           />
         )}
-        {/* Bottom fade */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-gray-900 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-accent-dark/40 to-transparent" />
+        {/* Rounded sheet edge — article slides over the image */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-8 md:h-12 sheet-top bg-white dark:bg-gray-900"
+        />
       </div>
 
       {/* ── Article content ────────────────────────────────────────── */}
@@ -115,32 +120,33 @@ export default async function NewsDetailPage({ params }: Props) {
           <div className="pt-8 mb-8">
             <Link
               href="/news"
-              className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-muted dark:text-gray-400 hover:text-primary transition-colors"
+              className="press inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted dark:text-gray-400 hover:text-primary dark:hover:text-primary-glow transition-colors"
             >
-              <ArrowLeft size={14} />
+              <ArrowLeft size={14} aria-hidden="true" />
               Alle Neuigkeiten
             </Link>
           </div>
 
+          <Reveal>
           {/* Category + date */}
           <div className="flex flex-wrap items-center gap-3 mb-5">
             {category && (
               <span
-                className={`text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded ${category.bg} ${category.text}`}
+                className={`text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${category.bg} ${category.text}`}
               >
                 {category.label}
               </span>
             )}
             {dateStr && (
-              <span className="flex items-center gap-1.5 text-[12px] text-muted dark:text-gray-400">
-                <CalendarDays size={13} className="shrink-0" />
+              <span className="flex items-center gap-1.5 text-xs text-muted dark:text-gray-400">
+                <CalendarDays size={13} className="shrink-0" aria-hidden="true" />
                 {dateStr}
               </span>
             )}
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-text dark:text-gray-100 leading-tight tracking-tight mb-6">
+          <h1 className="font-display font-bold italic uppercase text-4xl md:text-5xl lg:text-6xl text-text dark:text-gray-100 leading-[0.95] tracking-[-0.02em] text-balance mb-6">
             {article.title}
           </h1>
 
@@ -148,17 +154,18 @@ export default async function NewsDetailPage({ params }: Props) {
           {article.author && (
             <div className="flex items-center gap-2 mb-8 pb-8 border-b border-gray-100 dark:border-gray-700">
               <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center">
-                <User size={14} className="text-accent" />
+                <User size={14} className="text-accent dark:text-accent-sky" aria-hidden="true" />
               </div>
-              <span className="text-[13px] text-muted dark:text-gray-400">
+              <span className="text-sm text-muted dark:text-gray-400">
                 Von <strong className="text-text dark:text-gray-100">{article.author}</strong>
               </span>
             </div>
           )}
+          </Reveal>
 
           {/* Teaser (if no body, show as lead paragraph) */}
           {article.teaser && (!article.body || article.body.length === 0) && (
-            <p className="text-lg text-text/70 dark:text-gray-300 leading-relaxed mb-6">
+            <p className="text-lg md:text-xl text-text/75 dark:text-gray-300 leading-[1.6] mb-6 max-w-[65ch]">
               {article.teaser}
             </p>
           )}
@@ -172,23 +179,20 @@ export default async function NewsDetailPage({ params }: Props) {
 
       {/* ── Related news ───────────────────────────────────────────── */}
       {related.length > 0 && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-t border-gray-100 dark:border-gray-700">
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 ">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Section heading */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-4">
-                <span className="block w-8 h-[3px] bg-primary rounded-full" />
-                <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400">
-                  Weitere Neuigkeiten
-                </h2>
-              </div>
+            <Reveal className="flex items-end justify-between mb-10">
+              <h2 className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-[-0.02em] text-text dark:text-gray-100">
+                Weitere Neuigkeiten
+              </h2>
               <Link
                 href="/news"
-                className="hidden sm:inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-widest text-primary hover:text-primary-light transition-colors"
+                className="press hidden sm:inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary dark:text-primary-glow hover:text-primary-light transition-colors shrink-0 mb-1"
               >
-                Alle News <ArrowLeft size={13} className="rotate-180" />
+                Alle News <ArrowRight size={14} aria-hidden="true" />
               </Link>
-            </div>
+            </Reveal>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {related.map((a) => (

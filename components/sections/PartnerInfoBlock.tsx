@@ -23,7 +23,7 @@ export default function PartnerInfoBlock({ text, pdfUrl }: PartnerInfoBlockProps
         <PdfViewer url={pdfUrl} onClose={() => setViewerOpen(false)} />
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8 md:p-10">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] p-8 md:p-10">
         {text && text.length > 0 && (
           <PortableText value={text} className="mb-8 max-w-3xl" />
         )}
@@ -31,17 +31,17 @@ export default function PartnerInfoBlock({ text, pdfUrl }: PartnerInfoBlockProps
           {pdfUrl && (
             <button
               onClick={() => setViewerOpen(true)}
-              className="inline-flex items-center justify-center gap-2 bg-primary text-white font-bold text-sm uppercase tracking-wider px-6 py-3 rounded-lg hover:bg-primary-light transition-colors w-full sm:w-auto"
+              className="btn btn-primary w-full sm:w-auto"
             >
-              <FileText size={16} className="shrink-0" />
+              <FileText size={16} className="shrink-0" aria-hidden="true" />
               Imagebroschüre TG MIPA Landshut
             </button>
           )}
           <Link
             href="/foerderverein"
-            className="inline-flex items-center justify-center gap-2 bg-accent text-white font-bold text-sm uppercase tracking-wider px-6 py-3 rounded-lg hover:opacity-90 transition-opacity w-full sm:w-auto"
+            className="btn press bg-accent hover:bg-accent-deep w-full sm:w-auto"
           >
-            <Users size={16} className="shrink-0" />
+            <Users size={16} className="shrink-0" aria-hidden="true" />
             Förderverein TG MIPA Landshut
           </Link>
         </div>

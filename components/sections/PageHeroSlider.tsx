@@ -8,21 +8,45 @@ import type { SanityImage } from "@/types";
 
 interface PageHeroSliderProps {
   slides: SanityImage[];
-  children: React.ReactNode;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  /** Quiet label above the title. */
+  eyebrow?: string;
   /** Extra classes on the outer <section> (e.g. min-h-* flex items-end). */
   className?: string;
+  /** Background of the rounded sheet edge — must match the first section below. */
+  sheetClassName?: string;
 }
 
 const SLIDE_INTERVAL_MS = 5000;
 
+function makeFadeUp(reduced: boolean) {
+  return {
+    hidden: { opacity: 0, y: reduced ? 0 : 20 },
+    show: (delay: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: reduced
+        ? { duration: 0 }
+        : { type: "spring" as const, bounce: 0, duration: 0.8, delay },
+    }),
+  };
+}
+
+const DEFAULT_SHEET = "bg-background dark:bg-gray-900";
+
 export default function PageHeroSlider({
   slides,
-  children,
+  title,
+  subtitle,
+  eyebrow = "TG MIPA Landshut",
   className = "",
+  sheetClassName = DEFAULT_SHEET,
 }: PageHeroSliderProps) {
   const [current, setCurrent] = useState(0);
   const prefersReduced = useReducedMotion() ?? false;
   const hasSlides = slides.length > 0;
+  const fadeUp = makeFadeUp(prefersReduced);
 
   // Randomise the starting slide after hydration to avoid SSR mismatch.
   useEffect(() => {
@@ -73,32 +97,51 @@ export default function PageHeroSlider({
         <div className="absolute inset-0 bg-gradient-to-br from-accent via-accent to-accent-deep" />
       )}
 
-      {/* ── Gradient overlay ─────────────────────────────────────────────
-           Left  (0 → ~55%): strong accent-blue so text stays readable
-           Right (55% → 100%): fades to transparent so photo is fully visible */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(to right, rgba(0,79,159,0.93) 0%, rgba(0,79,159,0.82) 30%, rgba(0,79,159,0.45) 55%, rgba(0,0,0,0.08) 80%, transparent 100%)",
-        }}
-      />
+      {/* ── Gradient overlay: readable text on the left, photo stays visible ── */}
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-accent-dark/80 via-accent-dark/30 to-transparent" />
+      <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-accent-dark/70 via-accent-dark/25 to-transparent" />
 
       {/* ── Dark-mode dimming overlay ─────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none opacity-0 dark:opacity-100 bg-black/25 transition-opacity duration-300" />
 
-      {/* ── Subtle diagonal stripe texture (design continuity) ─────────── */}
+      {/* ── Title block ──────────────────────────────────────────────── */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-20 pt-[132px] lg:pt-[140px] w-full">
+        <motion.p
+          custom={0}
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+          className="text-xs font-semibold uppercase tracking-[0.12em] text-white/80 mb-3"
+        >
+          {eyebrow}
+        </motion.p>
+        <motion.h1
+          custom={0.08}
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+          className="font-display font-bold italic uppercase text-5xl md:text-6xl lg:text-7xl text-white tracking-[-0.03em] leading-[0.92] text-balance"
+        >
+          {title}
+        </motion.h1>
+        {subtitle && (
+          <motion.p
+            custom={0.2}
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            className="text-white/85 mt-4 text-base md:text-lg max-w-xl leading-relaxed"
+          >
+            {subtitle}
+          </motion.p>
+        )}
+      </div>
+
+      {/* ── Rounded sheet edge — same language as the landing page ───── */}
       <div
-        className="absolute inset-0 opacity-[0.06] pointer-events-none"
-        style={{
-          background:
-            "repeating-linear-gradient(-55deg,transparent,transparent 12px,rgba(255,255,255,0.15) 12px,rgba(255,255,255,0.15) 24px)",
-        }}
+        aria-hidden="true"
+        className={`absolute inset-x-0 bottom-0 h-8 md:h-12 sheet-top ${sheetClassName}`}
       />
-
-
-      {/* ── Page content (passed as children) ────────────────────────── */}
-      <div className="relative">{children}</div>
     </section>
   );
 }

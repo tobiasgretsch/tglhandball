@@ -71,11 +71,11 @@ export default async function Footer() {
             <div className="flex items-center gap-4 mb-7">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-400/35" />
               <div className="flex items-center gap-2.5">
-                <span className="text-amber-400/70 text-[9px] leading-none">★</span>
-                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-amber-400/80">
+                <span className="text-amber-400/70 text-xs leading-none">★</span>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-400/80">
                   Premium Partner
                 </p>
-                <span className="text-amber-400/70 text-[9px] leading-none">★</span>
+                <span className="text-amber-400/70 text-xs leading-none">★</span>
               </div>
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber-400/35" />
             </div>
@@ -95,7 +95,7 @@ export default async function Footer() {
             <div className="flex justify-center mt-6">
               <Link
                 href="/partner"
-                className="inline-flex items-center gap-2 border border-amber-400/40 text-amber-400/80 hover:text-amber-400 hover:border-amber-400/70 hover:bg-amber-400/5 text-[12px] font-bold uppercase tracking-widest px-6 py-2.5 rounded-sm transition-all duration-200"
+                className="inline-flex items-center gap-2 border border-amber-400/40 text-amber-400/80 hover:text-amber-400 hover:border-amber-400/70 hover:bg-amber-400/5 text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-full press"
               >
                 Alle Partner ansehen →
               </Link>
@@ -113,7 +113,7 @@ export default async function Footer() {
             {/* Section heading */}
             <div className="flex items-center gap-4 mb-5">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/15" />
-              <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/40">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
                 Partner
               </p>
               <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/15" />
@@ -164,7 +164,7 @@ export default async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
-                  className="w-9 h-9 rounded-sm bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white press"
                 >
                   <Instagram size={16} />
                 </a>
@@ -175,7 +175,7 @@ export default async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
-                  className="w-9 h-9 rounded-sm bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white press"
                 >
                   <Facebook size={16} />
                 </a>
@@ -186,7 +186,7 @@ export default async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
-                  className="w-9 h-9 rounded-sm bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white press"
                 >
                   <Youtube size={16} />
                 </a>
@@ -197,7 +197,7 @@ export default async function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="TikTok"
-                  className="w-9 h-9 rounded-sm bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                  className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white press"
                 >
                   <TikTokIcon size={16} />
                 </a>
@@ -207,7 +207,7 @@ export default async function Footer() {
 
           {/* Quick links */}
           <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45 mb-5">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-white/60 mb-5">
               Schnelllinks
             </h3>
             <ul className="space-y-2.5">
@@ -215,7 +215,7 @@ export default async function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-white/65 hover:text-white text-sm font-medium transition-colors"
+                    className="text-white/75 hover:text-white text-sm font-medium transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -226,14 +226,14 @@ export default async function Footer() {
 
           {/* Contact info */}
           <div>
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/45 mb-5">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-white/60 mb-5">
               Kontakt
             </h3>
             <div className="space-y-3">
               {settings?.contactEmail && (
                 <a
                   href={`mailto:${settings.contactEmail}`}
-                  className="flex items-center gap-2.5 text-white/65 hover:text-white text-sm transition-colors"
+                  className="flex items-center gap-2.5 text-white/75 hover:text-white text-sm transition-colors"
                 >
                   <Mail size={14} className="shrink-0" />
                   {settings.contactEmail}
@@ -264,13 +264,13 @@ export default async function Footer() {
           <div className="flex gap-5">
             <Link
               href="/impressum"
-              className="text-white/35 hover:text-white/65 text-xs transition-colors"
+              className="text-white/60 hover:text-white text-xs transition-colors"
             >
               Impressum
             </Link>
             <Link
               href="/datenschutz"
-              className="text-white/35 hover:text-white/65 text-xs transition-colors"
+              className="text-white/60 hover:text-white text-xs transition-colors"
             >
               Datenschutz
             </Link>

@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
 import { allTeamsQuery, pageHeroSlidesQuery } from "@/lib/queries";
 import type { Team, SanityImage, TeamCategory } from "@/types";
+import Reveal from "@/components/ui/Reveal";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 const TEAM_GROUPS: { key: TeamCategory; label: string }[] = [
@@ -40,19 +41,10 @@ export default async function TeamsPage() {
 
   return (
     <>
-      <PageHeroSlider slides={slides ?? []}>
-        <span className="absolute right-6 bottom-0 text-[120px] md:text-[200px] font-black text-white/5 leading-none select-none pointer-events-none">
-          TEAMS
-        </span>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-[132px] lg:pt-[140px]">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-3">
-            TG MIPA Landshut
-          </p>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight">
-            Unsere Teams
-          </h1>
-        </div>
-      </PageHeroSlider>
+      <PageHeroSlider
+        slides={slides ?? []}
+        title="Unsere Teams"
+      />
 
       {/* Team sections — grouped by category */}
       <div className="bg-background dark:bg-gray-900">
@@ -66,11 +58,13 @@ export default async function TeamsPage() {
               const groupTeams = teams.filter((t) => t.category === key);
               if (groupTeams.length === 0) return null;
               return (
-                <section key={key} id={key} className="py-12 md:py-16 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                <section key={key} id={key} className="py-12 md:py-16">
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-6">
-                      {label}
-                    </h2>
+                    <Reveal>
+                      <h2 className="font-display font-bold italic uppercase text-3xl md:text-4xl tracking-[-0.02em] text-text dark:text-gray-100 mb-6">
+                        {label}
+                      </h2>
+                    </Reveal>
                     <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                       {groupTeams.map((team) => (
                         <TeamCard key={team._id} team={team} />
@@ -85,7 +79,7 @@ export default async function TeamsPage() {
             {teams.filter((t) => !t.category).length > 0 && (
               <section className="py-12 md:py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <h2 className="text-xs font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-6">
+                  <h2 className="font-display font-bold italic uppercase text-3xl md:text-4xl tracking-[-0.02em] text-text dark:text-gray-100 mb-6">
                     Weitere
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
@@ -111,7 +105,7 @@ function TeamCard({ team }: { team: Team }) {
   return (
     <Link
       href={`/teams/${team.slug.current}`}
-      className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 flex flex-col"
+      className="group press-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 flex flex-col shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.25)] transition-shadow duration-300"
     >
       {/* Header image */}
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
@@ -121,31 +115,29 @@ function TeamCard({ team }: { team: Team }) {
             alt={team.name}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            className="object-cover motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/15 flex items-center justify-center">
-            <span className="text-5xl font-black text-accent/20 select-none">
+            <span className="font-display font-bold italic text-5xl text-accent/20 select-none">
               TG
             </span>
           </div>
         )}
-        {/* Red accent bar at bottom of image */}
-        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
       </div>
 
       {/* Card body */}
       <div className="p-4 flex flex-col flex-1">
-        <h2 className="font-black text-text dark:text-gray-100 text-sm md:text-base leading-tight">
+        <h3 className="font-semibold tracking-[-0.01em] text-text dark:text-gray-100 text-sm md:text-base leading-tight">
           {team.name}
-        </h2>
+        </h3>
         {team.league && (
           <p className="text-muted dark:text-gray-400 text-xs mt-1 leading-snug">{team.league}</p>
         )}
         <div className="mt-auto pt-4">
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-primary uppercase tracking-wider group-hover:gap-2 transition-all duration-200">
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider group-hover:gap-2 transition-all duration-200">
             Zum Team
-            <ArrowRight size={12} />
+            <ArrowRight size={12} aria-hidden="true" />
           </span>
         </div>
       </div>

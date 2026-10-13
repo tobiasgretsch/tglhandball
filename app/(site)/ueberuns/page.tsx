@@ -5,6 +5,7 @@ import { client, urlFor } from "@/lib/sanity";
 import { settingsQuery } from "@/lib/queries";
 import type { Settings } from "@/types";
 import PortableText from "@/components/ui/PortableText";
+import Reveal from "@/components/ui/Reveal";
 import VenueMap from "@/components/sections/VenueMap";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
@@ -37,28 +38,17 @@ export default async function UeberUnsPage() {
   return (
     <>
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <PageHeroSlider slides={settings?.pageHeroSlides ?? []}>
-        <span className="absolute right-6 bottom-0 text-[120px] md:text-[200px] font-black text-white/5 leading-none select-none pointer-events-none">
-          VEREIN
-        </span>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-[132px] lg:pt-[140px]">
-          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/50 mb-3">
-            TG MIPA Landshut
-          </p>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight">
-            Über uns
-          </h1>
-          <p className="text-white/55 mt-3 text-base max-w-lg">
-            Geschichte, Menschen und Werte des TG MIPA Landshut.
-          </p>
-        </div>
-      </PageHeroSlider>
+      <PageHeroSlider
+        slides={settings?.pageHeroSlides ?? []}
+        title="Über uns"
+        subtitle="Geschichte, Menschen und Werte des TG MIPA Landshut."
+      />
 
       <div className="bg-background dark:bg-gray-900">
 
         {/* ── Section 1: Club history ──────────────────────────────────── */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
-          <SectionHeading accent="bg-primary" label="Vereinsgeschichte" />
+          <Reveal><SectionHeading label="Vereinsgeschichte" /></Reveal>
 
           <div className="mt-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
             {/* Text */}
@@ -76,7 +66,7 @@ export default async function UeberUnsPage() {
             {/* Photo */}
             {settings?.aboutPhoto && (
               <div className="lg:sticky lg:top-[88px]">
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg">
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)]">
                   <Image
                     src={urlFor(settings.aboutPhoto).width(900).height(675).url()}
                     alt="TG MIPA Landshut"
@@ -98,7 +88,7 @@ export default async function UeberUnsPage() {
         {settings?.boardMembers && settings.boardMembers.length > 0 && (
           <>
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
-              <SectionHeading accent="bg-accent" label="Vorstand & Ansprechpartner" />
+              <Reveal><SectionHeading label="Vorstand & Ansprechpartner" /></Reveal>
 
               <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 {settings.boardMembers.map((member) => {
@@ -107,9 +97,9 @@ export default async function UeberUnsPage() {
                     : null;
 
                   return (
+                    <Reveal key={member._key}>
                     <div
-                      key={member._key}
-                      className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-5 flex flex-col items-center text-center gap-3"
+                      className="h-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] p-5 flex flex-col items-center text-center gap-3"
                     >
                       {/* Avatar */}
                       <div className="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-accent/10 to-primary/10 shrink-0 flex items-center justify-center">
@@ -134,7 +124,7 @@ export default async function UeberUnsPage() {
                           {member.name}
                         </p>
                         {member.role && (
-                          <p className="text-[11px] text-muted dark:text-gray-400 mt-0.5 leading-snug">
+                          <p className="text-xs text-muted dark:text-gray-400 mt-0.5 leading-snug">
                             {member.role}
                           </p>
                         )}
@@ -144,13 +134,14 @@ export default async function UeberUnsPage() {
                       {member.email && (
                         <a
                           href={`mailto:${member.email}`}
-                          className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:text-primary-light transition-colors truncate max-w-full"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-primary dark:text-primary-glow hover:text-primary-light transition-colors truncate max-w-full"
                         >
-                          <Mail size={11} className="shrink-0" />
+                          <Mail size={12} className="shrink-0" />
                           <span className="truncate">{member.email}</span>
                         </a>
                       )}
                     </div>
+                    </Reveal>
                   );
                 })}
               </div>
@@ -164,11 +155,11 @@ export default async function UeberUnsPage() {
         {hasMap && (
           <>
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
-              <SectionHeading accent="bg-primary" label="Unsere Halle" />
+              <Reveal><SectionHeading label="Unsere Halle" /></Reveal>
 
               <div className="mt-8 grid lg:grid-cols-[1fr_2fr] gap-8 lg:gap-12 items-start">
                 {/* Address block */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] p-6">
                   <div className="flex items-start gap-3 mb-4">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                       <MapPin size={15} className="text-primary" />
@@ -192,7 +183,7 @@ export default async function UeberUnsPage() {
                       href={`https://www.openstreetmap.org/?mlat=${settings.venueLat}&mlon=${settings.venueLng}&zoom=16`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-widest text-accent hover:text-primary transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-accent dark:text-accent-sky hover:text-primary transition-colors"
                     >
                       In OpenStreetMap öffnen →
                     </a>
@@ -218,14 +209,11 @@ export default async function UeberUnsPage() {
 
 // ─── Shared sub-components ────────────────────────────────────────────────────
 
-function SectionHeading({ accent, label }: { accent: string; label: string }) {
+function SectionHeading({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-4">
-      <span className={`block w-8 h-[3px] rounded-full shrink-0 ${accent}`} />
-      <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400">
-        {label}
-      </h2>
-    </div>
+    <h2 className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-[-0.02em] text-text dark:text-gray-100">
+      {label}
+    </h2>
   );
 }
 

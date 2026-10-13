@@ -1,4 +1,5 @@
 import type { PricingSection as PricingSectionData } from "@/types";
+import Reveal from "@/components/ui/Reveal";
 
 interface Props {
   data: PricingSectionData;
@@ -24,25 +25,24 @@ export default function PricingSection({ data }: Props) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Heading */}
-        <div className="flex items-center gap-4 mb-8">
-          <span className="block w-8 h-[3px] bg-primary rounded-full shrink-0" />
-          <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400">
+        <Reveal className="mb-8">
+          <h2 className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-[-0.02em] text-text dark:text-gray-100">
             {heading}
           </h2>
-        </div>
+        </Reveal>
 
         {/* Desktop table — hidden on mobile */}
-        <div className="hidden sm:block rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm">
+        <div className="hidden sm:block rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)]">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-primary text-white">
-                <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em]">
+                <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em]">
                   Ticket
                 </th>
-                <th className="text-right px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em]">
+                <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em]">
                   Normal
                 </th>
-                <th className="text-right px-5 py-3 text-[11px] font-bold uppercase tracking-[0.2em]">
+                <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em]">
                   Ermäßigt
                 </th>
               </tr>
@@ -77,14 +77,14 @@ export default function PricingSection({ data }: Props) {
           {rows.map((row) => (
             <div
               key={row._key}
-              className="bg-background dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700 px-4 py-4"
+              className="bg-background dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700 px-4 py-4"
             >
               <p className="font-bold text-text dark:text-gray-100 text-sm mb-3">
                 {row.label}
               </p>
               <div className="flex gap-6">
                 <div className="flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted dark:text-gray-500 mb-0.5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-0.5">
                     Normal
                   </p>
                   <p className="text-sm tabular-nums text-text dark:text-gray-100">
@@ -92,7 +92,7 @@ export default function PricingSection({ data }: Props) {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted dark:text-gray-500 mb-0.5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-0.5">
                     Ermäßigt
                   </p>
                   <p className="text-sm tabular-nums text-text dark:text-gray-100">
@@ -113,7 +113,7 @@ export default function PricingSection({ data }: Props) {
 
         {/* InfoBox */}
         {infoBox && (
-          <div className="mt-6 border-l-4 border-primary pl-4 py-3 bg-primary/5 dark:bg-primary/10 rounded-r-lg">
+          <div className="mt-6 border-l-4 border-primary pl-4 py-3 bg-primary-tint dark:bg-primary/10 rounded-r-2xl">
             <p className="text-sm text-text dark:text-gray-200 leading-relaxed">
               {infoBox}
             </p>

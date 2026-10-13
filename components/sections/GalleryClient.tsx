@@ -61,7 +61,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
   return (
     <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
       {/* ── Filter bar ──────────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-[54px] lg:top-[60px] z-40">
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border-b border-gray-100/80 dark:border-white/10 sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
             {FILTER_OPTIONS.map(({ value, label }) => (
@@ -72,7 +72,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
                 onClick={() => handleCategoryChange(value)}
               />
             ))}
-            <span className="ml-auto shrink-0 text-[11px] text-muted dark:text-gray-400 tabular-nums">
+            <span className="ml-auto shrink-0 text-xs text-muted dark:text-gray-400 tabular-nums">
               {filtered.length} Bild{filtered.length !== 1 ? "er" : ""}
             </span>
           </div>
@@ -124,10 +124,10 @@ function FilterPill({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wide transition-colors border ${
+      className={`press shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors border ${
         active
-          ? "bg-primary border-primary text-white shadow-sm shadow-primary/20"
-          : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary"
+          ? "bg-primary border-primary text-white shadow-[0_8px_24px_-8px_rgb(218_37_28/0.55)]"
+          : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
       }`}
     >
       {label}
@@ -152,7 +152,7 @@ function MasonryItem({
       type="button"
       aria-label={alt}
       onClick={onClick}
-      className="break-inside-avoid mb-3 md:mb-4 group relative overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700 w-full text-left appearance-none"
+      className="break-inside-avoid mb-3 md:mb-4 group press-card relative overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-700 w-full text-left appearance-none"
     >
       <Image
         src={src}
@@ -160,16 +160,16 @@ function MasonryItem({
         width={600}
         height={400}
         sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-        className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
+        className="w-full h-auto object-cover motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
         {item.caption && (
-          <p className="text-white text-[12px] font-medium leading-snug line-clamp-2">
+          <p className="text-white text-xs font-medium leading-snug line-clamp-2">
             {item.caption}
           </p>
         )}
         {item.category && (
-          <span className="inline-block mt-1.5 text-[10px] font-bold uppercase tracking-widest text-white/60">
+          <span className="inline-block mt-1.5 text-xs font-bold uppercase tracking-widest text-white/75">
             {CATEGORY_LABELS[item.category]}
           </span>
         )}
@@ -219,7 +219,7 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/90 z-50"
+            className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50"
             onClick={onClose}
           />
 
@@ -228,7 +228,7 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
             initial={{ opacity: 0, scale: prefersReduced ? 1 : 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: prefersReduced ? 1 : 0.92 }}
-            transition={{ duration: prefersReduced ? 0 : 0.22, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ type: "spring", bounce: 0, duration: prefersReduced ? 0 : 0.4 }}
             className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
           >
             <div
@@ -243,7 +243,7 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
                   width={1400}
                   height={900}
                   sizes="90vw"
-                  className="object-contain max-h-[75vh] w-auto rounded-sm shadow-2xl"
+                  className="object-contain max-h-[75vh] w-auto rounded-2xl shadow-2xl"
                   priority
                 />
               </div>
@@ -256,14 +256,14 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
                     </p>
                   )}
                   {item.category && (
-                    <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-white/40 border border-white/20 px-2 py-0.5 rounded">
+                    <span className="shrink-0 text-xs font-bold uppercase tracking-widest text-white/70 border border-white/25 px-2.5 py-0.5 rounded-full">
                       {CATEGORY_LABELS[item.category]}
                     </span>
                   )}
                 </div>
               )}
 
-              <p className="mt-2 text-[11px] text-white/30 tabular-nums">
+              <p className="mt-2 text-xs text-white/60 tabular-nums">
                 {index! + 1} / {items.length}
               </p>
             </div>
@@ -276,7 +276,7 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed top-4 right-4 z-[60] p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="fixed top-4 right-4 z-[60] press p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-colors"
             aria-label="Schließen"
           >
             <X size={22} />
@@ -290,7 +290,7 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
               exit={{ opacity: 0, x: prefersReduced ? 0 : -8 }}
               transition={{ duration: 0.2 }}
               onClick={onPrev}
-              className="fixed left-3 md:left-6 top-1/2 -translate-y-1/2 z-[60] p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="fixed left-3 md:left-6 top-1/2 -translate-y-1/2 z-[60] press p-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-colors"
               aria-label="Vorheriges Bild"
             >
               <ChevronLeft size={26} />
@@ -305,7 +305,7 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
               exit={{ opacity: 0, x: prefersReduced ? 0 : 8 }}
               transition={{ duration: 0.2 }}
               onClick={onNext}
-              className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-[60] p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="fixed right-3 md:right-6 top-1/2 -translate-y-1/2 z-[60] press p-2.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white transition-colors"
               aria-label="Nächstes Bild"
             >
               <ChevronRight size={26} />

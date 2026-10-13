@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { ArrowRight } from "lucide-react";
 import type { NewsArticle, NewsCategory } from "@/types";
+import Reveal from "@/components/ui/Reveal";
 import { NewsCard } from "@/components/sections/NewsCard";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -48,17 +49,17 @@ export default function NewsClient({ articles }: NewsClientProps) {
   return (
     <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
       {/* ── Filter bar ─────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-[54px] lg:top-[60px] z-40">
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border-b border-gray-100/80 dark:border-white/10 sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
             {FILTERS.map(({ value, label }) => (
               <button
                 key={value}
                 onClick={() => handleFilterChange(value)}
-                className={`shrink-0 px-4 py-2.5 rounded-full text-sm font-bold uppercase tracking-wide transition-colors border ${
+                className={`press shrink-0 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors border ${
                   activeCategory === value
-                    ? "bg-primary border-primary text-white shadow-sm shadow-primary/20"
-                    : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary"
+                    ? "bg-primary border-primary text-white shadow-[0_8px_24px_-8px_rgb(218_37_28/0.55)]"
+                    : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
                 }`}
               >
                 {label}
@@ -77,8 +78,10 @@ export default function NewsClient({ articles }: NewsClientProps) {
         ) : (
           <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visible.map((article) => (
-                <NewsCard key={article._id} article={article} />
+              {visible.map((article, i) => (
+                <Reveal key={article._id} className="h-full" delay={Math.min(i % 3, 2) * 0.06}>
+                  <NewsCard article={article} />
+                </Reveal>
               ))}
             </div>
 
@@ -86,15 +89,15 @@ export default function NewsClient({ articles }: NewsClientProps) {
               <div className="mt-10 flex justify-center">
                 <button
                   onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
-                  className="inline-flex items-center gap-2 border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold uppercase tracking-widest text-[12px] px-8 py-3 rounded-sm transition-colors"
+                  className="btn btn-primary"
                 >
                   Mehr laden
-                  <ArrowRight size={14} />
+                  <ArrowRight size={16} aria-hidden="true" />
                 </button>
               </div>
             )}
 
-            <p className="text-center text-muted dark:text-gray-400 text-[11px] mt-5">
+            <p className="text-center text-muted dark:text-gray-400 text-xs mt-5">
               {Math.min(visibleCount, filtered.length)} von {filtered.length} Artikeln
             </p>
           </>

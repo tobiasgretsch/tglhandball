@@ -4,25 +4,25 @@ import type { PortableTextBlock } from "@/types";
 const components = {
   block: {
     h1: ({ children }: { children?: React.ReactNode }) => (
-      <h1 className="text-3xl font-black text-text dark:text-gray-100 mb-4 mt-8 first:mt-0">
+      <h1 className="font-display font-bold italic uppercase text-4xl tracking-[-0.02em] leading-[1.05] text-text dark:text-gray-100 mb-4 mt-10 first:mt-0">
         {children}
       </h1>
     ),
     h2: ({ children }: { children?: React.ReactNode }) => (
-      <h2 className="text-2xl font-bold text-text dark:text-gray-100 mb-3 mt-7 first:mt-0">
+      <h2 className="font-display font-bold italic uppercase text-3xl tracking-[-0.02em] leading-[1.1] text-text dark:text-gray-100 mb-3 mt-9 first:mt-0">
         {children}
       </h2>
     ),
     h3: ({ children }: { children?: React.ReactNode }) => (
-      <h3 className="text-xl font-bold text-text dark:text-gray-100 mb-2 mt-6 first:mt-0">
+      <h3 className="text-xl font-semibold tracking-[-0.01em] leading-snug text-text dark:text-gray-100 mb-2 mt-7 first:mt-0">
         {children}
       </h3>
     ),
     normal: ({ children }: { children?: React.ReactNode }) => (
-      <p className="mb-4 text-text/75 dark:text-gray-300 leading-relaxed last:mb-0">{children}</p>
+      <p className="mb-5 text-text/80 dark:text-gray-300 leading-[1.7] max-w-[65ch] last:mb-0">{children}</p>
     ),
     blockquote: ({ children }: { children?: React.ReactNode }) => (
-      <blockquote className="border-l-4 border-primary pl-5 italic my-5 text-muted dark:text-gray-400">
+      <blockquote className="border-l-4 border-primary pl-5 italic my-6 text-lg leading-[1.6] text-muted dark:text-gray-400 max-w-[65ch]">
         {children}
       </blockquote>
     ),
@@ -45,7 +45,7 @@ const components = {
         href={value?.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-primary underline underline-offset-2 hover:text-primary-light transition-colors"
+        className="text-primary underline underline-offset-4 decoration-primary/40 hover:decoration-primary dark:text-primary-glow hover:text-primary-light transition-colors"
       >
         {children}
       </a>
@@ -53,22 +53,22 @@ const components = {
   },
   list: {
     bullet: ({ children }: { children?: React.ReactNode }) => (
-      <ul className="list-disc list-inside mb-4 space-y-1.5 text-text/75 dark:text-gray-300">
+      <ul className="list-disc list-outside pl-5 mb-5 space-y-2 max-w-[65ch] text-text/80 dark:text-gray-300">
         {children}
       </ul>
     ),
     number: ({ children }: { children?: React.ReactNode }) => (
-      <ol className="list-decimal list-inside mb-4 space-y-1.5 text-text/75 dark:text-gray-300">
+      <ol className="list-decimal list-outside pl-5 mb-5 space-y-2 max-w-[65ch] text-text/80 dark:text-gray-300">
         {children}
       </ol>
     ),
   },
   listItem: {
     bullet: ({ children }: { children?: React.ReactNode }) => (
-      <li className="leading-relaxed">{children}</li>
+      <li className="leading-[1.7]">{children}</li>
     ),
     number: ({ children }: { children?: React.ReactNode }) => (
-      <li className="leading-relaxed">{children}</li>
+      <li className="leading-[1.7]">{children}</li>
     ),
   },
 };

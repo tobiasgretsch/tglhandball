@@ -119,10 +119,10 @@ function SeasonAccordion({
   ).length;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_12px_32px_-16px_rgb(0_0_0/0.2)] overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50/60 dark:hover:bg-gray-700/60 transition-colors"
+        className="press-card w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50/60 dark:hover:bg-gray-700/60 transition-colors"
         aria-expanded={isOpen}
       >
         <div className="flex items-center gap-4">
@@ -132,22 +132,22 @@ function SeasonAccordion({
             }`}
           />
           <div className="text-left">
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400 mb-0.5">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-0.5">
               Saison
             </p>
-            <p className="text-lg font-black text-text dark:text-gray-100 leading-tight">
+            <p className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-gray-100 leading-tight">
               {group.season}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
-          <span className="hidden sm:block text-[11px] text-muted dark:text-gray-400 tabular-nums">
+          <span className="hidden sm:block text-xs text-muted dark:text-gray-400 tabular-nums">
             {availableCount}/{group.entries.length} verfügbar
           </span>
           <motion.span
             animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: prefersReduced ? 0 : 0.2, ease: "easeInOut" }}
+            transition={prefersReduced ? { duration: 0 } : { type: "spring", bounce: 0, duration: 0.4 }}
             className="text-muted dark:text-gray-400"
           >
             <ChevronDown size={18} />
@@ -162,7 +162,7 @@ function SeasonAccordion({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: prefersReduced ? 0 : 0.28, ease: [0.4, 0, 0.2, 1] }}
+            transition={prefersReduced ? { duration: 0 } : { type: "spring", bounce: 0, duration: 0.45 }}
             style={{ overflow: "hidden" }}
           >
             <div className="border-t border-gray-100 dark:border-gray-700">
@@ -182,7 +182,7 @@ function MagazineTable({ entries, onOpenPdf }: { entries: Magazine[]; onOpenPdf:
     <>
       <table className="hidden sm:table w-full text-sm border-collapse">
         <thead>
-          <tr className="text-[10px] font-bold uppercase tracking-widest text-muted dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+          <tr className="text-xs font-bold uppercase tracking-widest text-muted dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
             <th className="text-left px-5 py-3 w-[160px]">Spieltag</th>
             <th className="text-left px-3 py-3">Gegner</th>
             <th className="text-left px-3 py-3 w-[130px]">Datum</th>
@@ -239,14 +239,14 @@ function MagazineTableRow({
         {pdfUrl ? (
           <button
             onClick={() => onOpenPdf(pdfUrl)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-white text-[11px] font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
+            className="press inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent text-white text-xs font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
           >
-            <BookOpen size={11} />
+            <BookOpen size={12} aria-hidden="true" />
             Lesen
           </button>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted/60 dark:text-gray-500 cursor-default select-none">
-            <FileX size={11} />
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted dark:text-gray-400 cursor-default select-none">
+            <FileX size={12} aria-hidden="true" />
             Demnächst verfügbar
           </span>
         )}
@@ -266,7 +266,7 @@ function MagazineMobileRow({ magazine, onOpenPdf }: { magazine: Magazine; onOpen
         <p className="font-bold text-[13px] text-text dark:text-gray-100 truncate">
           {magazine.opponent ?? "Spieltagsheft"}
         </p>
-        <p className="text-[11px] text-muted dark:text-gray-400 mt-0.5">
+        <p className="text-xs text-muted dark:text-gray-400 mt-0.5">
           {magazine.matchday != null ? `${magazine.matchday}. Heimspieltag` : ""}
           {magazine.matchday != null && magazine.date ? " · " : ""}
           {magazine.date ? formatDate(magazine.date) : ""}
@@ -276,13 +276,13 @@ function MagazineMobileRow({ magazine, onOpenPdf }: { magazine: Magazine; onOpen
       {pdfUrl ? (
         <button
           onClick={() => onOpenPdf(pdfUrl)}
-          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent text-white text-[11px] font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
+          className="press shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent text-white text-xs font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
         >
-          <BookOpen size={13} />
+          <BookOpen size={14} aria-hidden="true" />
           Lesen
         </button>
       ) : (
-        <span className="shrink-0 text-[11px] text-muted/60 dark:text-gray-500 font-medium">
+        <span className="shrink-0 text-xs text-muted dark:text-gray-400 font-medium">
           Demnächst
         </span>
       )}

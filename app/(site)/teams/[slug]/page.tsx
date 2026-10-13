@@ -14,6 +14,8 @@ import {
 } from "@/lib/queries";
 import type { Team, Match, Betreuer } from "@/types";
 import PortableText from "@/components/ui/PortableText";
+import Reveal from "@/components/ui/Reveal";
+import { CLUB_TIME_ZONE } from "@/lib/dates";
 import PricingSection from "@/components/sections/PricingSection";
 import HandballWidget from "@/components/sections/HandballWidget";
 
@@ -107,6 +109,12 @@ export default async function TeamDetailPage({ params }: Props) {
     ? urlFor(team.headerImage).width(1600).height(700).url()
     : null;
 
+  // The sheet edge takes the colour of the first section below the hero.
+  const hasAbout = (team.description?.length ?? 0) > 0;
+  const heroSheet = hasAbout
+    ? "bg-white dark:bg-gray-800"
+    : "bg-background dark:bg-gray-900";
+
   return (
     <>
       {/* ── 1. Hero ────────────────────────────────────────────────────── */}
@@ -123,26 +131,34 @@ export default async function TeamDetailPage({ params }: Props) {
             blurDataURL={team.headerImage?.lqip ?? undefined}
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-accent to-[#003a7a]" />
+          <div className="absolute inset-0 bg-gradient-to-br from-accent to-accent-deep" />
         )}
         {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-accent-dark/85 via-black/25 to-black/10" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-32 w-full">
-          {team.league && (
-            <span className="inline-block text-[11px] font-bold uppercase tracking-[0.25em] text-white/60 mb-3">
-              {team.league}
-            </span>
-          )}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight">
-            {team.name}
-          </h1>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 md:pb-20 pt-32 w-full">
+          <Reveal>
+            {team.league && (
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/80 mb-3">
+                {team.league}
+              </p>
+            )}
+            <h1 className="font-display font-bold italic uppercase text-5xl md:text-6xl lg:text-7xl text-white tracking-[-0.03em] leading-[0.92] text-balance">
+              {team.name}
+            </h1>
+          </Reveal>
         </div>
+
+        {/* Rounded sheet edge — same language as PageHeroSlider */}
+        <div
+          aria-hidden="true"
+          className={`absolute inset-x-0 bottom-0 h-8 md:h-12 sheet-top ${heroSheet}`}
+        />
       </section>
 
       {/* ── 2. About ──────────────────────────────────────────────────── */}
       {team.description && team.description.length > 0 && (
-        <section className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+        <section className="bg-white dark:bg-gray-800">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
             <SectionHeading label="Über uns" />
             <PortableText value={team.description} className="mt-6" />
@@ -152,7 +168,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
       {/* ── 3. Tabelle (nuLiga) — shown directly after About ──────────── */}
       {team.nuligaTeamId && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Tabelle" />
             <WidgetCard>
@@ -164,7 +180,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
       {/* ── 4. Coaching staff ─────────────────────────────────────────── */}
       {team.coaches && team.coaches.length > 0 && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Trainerteam" />
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
@@ -175,7 +191,7 @@ export default async function TeamDetailPage({ params }: Props) {
                 return (
                   <div
                     key={coach._key}
-                    className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
+                    className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.25)] transition-shadow duration-300"
                   >
                     <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
                       {coachImageUrl ? (
@@ -184,7 +200,7 @@ export default async function TeamDetailPage({ params }: Props) {
                           alt={coach.name}
                           fill
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-cover object-top"
+                          className="object-cover object-top motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -193,11 +209,11 @@ export default async function TeamDetailPage({ params }: Props) {
                       )}
                     </div>
                     <div className="p-3 md:p-4">
-                      <p className="font-bold text-text dark:text-gray-100 text-xs md:text-sm leading-tight truncate">
+                      <p className="font-semibold text-text dark:text-gray-100 text-sm leading-tight truncate">
                         {coach.name}
                       </p>
                       {coach.role && (
-                        <p className="text-muted dark:text-gray-400 text-[10px] md:text-xs mt-0.5 truncate">
+                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5 truncate">
                           {coach.role}
                         </p>
                       )}
@@ -212,7 +228,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
       {/* ── 7. Squad ──────────────────────────────────────────────────── */}
       {team.squad && team.squad.length > 0 && (
-        <section className="bg-white dark:bg-gray-800 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+        <section className="bg-white dark:bg-gray-800 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Kader" />
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
@@ -223,7 +239,7 @@ export default async function TeamDetailPage({ params }: Props) {
                 return (
                   <div
                     key={player._key}
-                    className="group bg-background dark:bg-gray-700 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-600 hover:shadow-md transition-shadow"
+                    className="group bg-background dark:bg-gray-700 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-600 shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.25)] transition-shadow duration-300"
                   >
                     {/* Player image */}
                     <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
@@ -233,7 +249,7 @@ export default async function TeamDetailPage({ params }: Props) {
                           alt={player.name}
                           fill
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                          className="object-cover object-top"
+                          className="object-cover object-top motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -242,17 +258,17 @@ export default async function TeamDetailPage({ params }: Props) {
                       )}
                       {/* Jersey number badge */}
                       {player.number !== undefined && (
-                        <span className="absolute top-2 left-2 bg-primary text-white text-xs md:text-sm font-black w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center leading-none shadow-sm">
+                        <span className="absolute top-2 left-2 bg-primary text-white text-xs md:text-sm font-bold tabular-nums w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center leading-none shadow-sm">
                           {player.number}
                         </span>
                       )}
                     </div>
                     <div className="p-3 md:p-4">
-                      <p className="font-bold text-text dark:text-gray-100 text-xs md:text-sm leading-tight truncate">
+                      <p className="font-semibold text-text dark:text-gray-100 text-sm leading-tight truncate">
                         {player.name}
                       </p>
                       {player.position && (
-                        <p className="text-muted dark:text-gray-400 text-[10px] md:text-xs mt-0.5 truncate">
+                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5 truncate">
                           {player.position}
                         </p>
                       )}
@@ -267,7 +283,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
       {/* ── 8. Betreuer ───────────────────────────────────────────────── */}
       {team.betreuer && team.betreuer.length > 0 && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Betreuer" />
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
@@ -278,7 +294,7 @@ export default async function TeamDetailPage({ params }: Props) {
                 return (
                   <div
                     key={b._key}
-                    className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow"
+                    className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.25)] transition-shadow duration-300"
                   >
                     <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
                       {imageUrl ? (
@@ -287,7 +303,7 @@ export default async function TeamDetailPage({ params }: Props) {
                           alt={b.name}
                           fill
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-cover object-top"
+                          className="object-cover object-top motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -296,11 +312,11 @@ export default async function TeamDetailPage({ params }: Props) {
                       )}
                     </div>
                     <div className="p-3 md:p-4">
-                      <p className="font-bold text-text dark:text-gray-100 text-xs md:text-sm leading-tight truncate">
+                      <p className="font-semibold text-text dark:text-gray-100 text-sm leading-tight truncate">
                         {b.name}
                       </p>
                       {b.role && (
-                        <p className="text-muted dark:text-gray-400 text-[10px] md:text-xs mt-0.5 truncate">
+                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5 truncate">
                           {b.role}
                         </p>
                       )}
@@ -344,7 +360,7 @@ export default async function TeamDetailPage({ params }: Props) {
             </div>
             <Link
               href="/spielplan"
-              className="mt-10 inline-flex items-center gap-2 text-sm font-semibold text-accent dark:text-blue-400 hover:underline"
+              className="btn btn-primary press mt-10"
             >
               Gesamter Spielplan <ArrowRight size={14} aria-hidden="true" />
             </Link>
@@ -354,7 +370,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
       {/* ── 8: nuLiga Spielplan ────────────────────────────────────────── */}
       {team.nuligaTeamId && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20 border-b border-gray-100 dark:border-gray-700">
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Spielplan" />
             <WidgetCard>
@@ -381,7 +397,7 @@ export default async function TeamDetailPage({ params }: Props) {
  */
 function WidgetCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm bg-white p-4 md:p-6">
+    <div className="mt-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] bg-white p-4 md:p-6">
       {children}
     </div>
   );
@@ -389,12 +405,11 @@ function WidgetCard({ children }: { children: React.ReactNode }) {
 
 function SectionHeading({ label }: { label: string }) {
   return (
-    <div className="flex items-center gap-4">
-      <span className="block w-8 h-[3px] bg-primary rounded-full shrink-0" />
-      <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400">
+    <Reveal>
+      <h2 className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-[-0.02em] text-text dark:text-gray-100">
         {label}
       </h2>
-    </div>
+    </Reveal>
   );
 }
 
@@ -405,14 +420,16 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    timeZone: CLUB_TIME_ZONE,
   }).format(date);
   const timeStr = new Intl.DateTimeFormat("de-DE", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: CLUB_TIME_ZONE,
   }).format(date);
 
   return (
-    <li className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 px-4 py-4 shadow-sm">
+    <li className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 px-4 py-4 shadow-[0_1px_2px_rgb(0_0_0/0.05)]">
       {/* Teams */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -422,11 +439,11 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
           <p className="text-muted dark:text-gray-400 text-xs mt-0.5">vs. {match.awayTeam}</p>
         </div>
         {isResult && match.result ? (
-          <span className="text-lg font-black text-primary tabular-nums shrink-0">
+          <span className="text-lg font-bold text-primary dark:text-primary-glow tabular-nums shrink-0">
             {match.result}
           </span>
         ) : (
-          <span className="text-sm font-bold text-accent dark:text-blue-400 tabular-nums shrink-0">
+          <span className="text-sm font-bold text-accent dark:text-accent-sky tabular-nums shrink-0">
             {timeStr}
           </span>
         )}
@@ -434,21 +451,21 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
 
       {/* Meta */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3">
-        <span className="flex items-center gap-1 text-[11px] text-muted dark:text-gray-400">
-          <Calendar size={11} className="shrink-0" />
+        <span className="flex items-center gap-1 text-xs text-muted dark:text-gray-400">
+          <Calendar size={12} className="shrink-0" aria-hidden="true" />
           {dateStr}
         </span>
         {match.venue && (
-          <span className="flex items-center gap-1 text-[11px] text-muted dark:text-gray-400">
-            <MapPin size={11} className="shrink-0" />
+          <span className="flex items-center gap-1 text-xs text-muted dark:text-gray-400">
+            <MapPin size={12} className="shrink-0" aria-hidden="true" />
             {match.venue}
           </span>
         )}
         {match.isHomeGame !== undefined && (
           <span
-            className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${
+            className={`text-xs font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full ${
               match.isHomeGame
-                ? "bg-primary/10 text-primary"
+                ? "bg-primary/10 text-primary dark:text-primary-glow"
                 : "bg-gray-100 dark:bg-gray-700 text-muted dark:text-gray-400"
             }`}
           >

@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import { client } from "@/lib/sanity";
+import { pageHeroSlidesQuery } from "@/lib/queries";
+import type { SanityImage } from "@/types";
+import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
   title: "Datenschutz",
@@ -12,10 +16,15 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export default function DatenschutzPage() {
+export default async function DatenschutzPage() {
+  const slides = await client
+    .fetch<SanityImage[]>(pageHeroSlidesQuery, {}, { next: { revalidate: 3600 } })
+    .catch(() => [] as SanityImage[]);
   const isDevelopment = process.env.NODE_ENV === "development";
 
   return (
+    <>
+      <PageHeroSlider slides={slides ?? []} title="Datenschutz" subtitle="Wie wir mit deinen Daten umgehen." />
     <div className="bg-background dark:bg-gray-900">
       {/* Dev-only warning banner */}
       {isDevelopment && (
@@ -29,17 +38,17 @@ export default function DatenschutzPage() {
       )}
 
       {/* Main content */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-4">
         <h1 className="text-3xl md:text-4xl font-black text-text dark:text-white mb-8">
           Datenschutzerklärung
         </h1>
 
         {/* Datenschutzerklärung intro */}
         <section className="mb-8">
-          <h2 className="text-xl font-bold text-text dark:text-white mb-4">
+          <h2 className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-white mb-4">
             Allgemeine Hinweise
           </h2>
-          <div className="prose dark:prose-invert max-w-none text-text dark:text-gray-300">
+          <div className="prose dark:prose-invert max-w-[65ch] leading-[1.7] text-text dark:text-gray-300">
             <p className="mb-4">
               [PLACEHOLDER] Diese Datenschutzerklärung erläutert, wie [PLACEHOLDER] Vereinsname
               Ihre personenbezogenen Daten verarbeitet und welche Rechte Sie diesbezüglich haben.
@@ -51,10 +60,10 @@ export default function DatenschutzPage() {
 
         {/* Verantwortlicher */}
         <section className="mb-8">
-          <h2 className="text-xl font-bold text-text dark:text-white mb-4">
+          <h2 className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-white mb-4">
             Verantwortlicher
           </h2>
-          <div className="prose dark:prose-invert max-w-none text-text dark:text-gray-300">
+          <div className="prose dark:prose-invert max-w-[65ch] leading-[1.7] text-text dark:text-gray-300">
             <p className="mb-4">
               Verantwortlich für die Datenverarbeitung:
               <br />
@@ -71,10 +80,10 @@ export default function DatenschutzPage() {
 
         {/* Erhobene Daten */}
         <section className="mb-8">
-          <h2 className="text-xl font-bold text-text dark:text-white mb-4">
+          <h2 className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-white mb-4">
             Erhobene Daten
           </h2>
-          <div className="prose dark:prose-invert max-w-none text-text dark:text-gray-300">
+          <div className="prose dark:prose-invert max-w-[65ch] leading-[1.7] text-text dark:text-gray-300">
             <p className="mb-4">
               [PLACEHOLDER] Auf dieser Website erheben und verarbeiten wir folgende Daten:
             </p>
@@ -89,10 +98,10 @@ export default function DatenschutzPage() {
 
         {/* Rechtliche Grundlagen */}
         <section className="mb-8">
-          <h2 className="text-xl font-bold text-text dark:text-white mb-4">
+          <h2 className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-white mb-4">
             Rechtliche Grundlagen
           </h2>
-          <div className="prose dark:prose-invert max-w-none text-text dark:text-gray-300">
+          <div className="prose dark:prose-invert max-w-[65ch] leading-[1.7] text-text dark:text-gray-300">
             <p>
               [PLACEHOLDER] Die Verarbeitung personenbezogener Daten erfolgt auf Grundlage der
               Datenschutz-Grundverordnung (DSGVO) sowie der geltenden Datenschutzgesetze. Insbesondere:
@@ -107,10 +116,10 @@ export default function DatenschutzPage() {
 
         {/* Ihre Rechte */}
         <section className="mb-8">
-          <h2 className="text-xl font-bold text-text dark:text-white mb-4">
+          <h2 className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-white mb-4">
             Ihre Rechte
           </h2>
-          <div className="prose dark:prose-invert max-w-none text-text dark:text-gray-300">
+          <div className="prose dark:prose-invert max-w-[65ch] leading-[1.7] text-text dark:text-gray-300">
             <p className="mb-4">
               [PLACEHOLDER] Nach der Datenschutz-Grundverordnung (DSGVO) haben Sie folgende Rechte:
             </p>
@@ -146,10 +155,10 @@ export default function DatenschutzPage() {
 
         {/* Datensicherheit */}
         <section className="mb-8">
-          <h2 className="text-xl font-bold text-text dark:text-white mb-4">
+          <h2 className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-white mb-4">
             Datensicherheit
           </h2>
-          <div className="prose dark:prose-invert max-w-none text-text dark:text-gray-300 text-sm">
+          <div className="prose dark:prose-invert max-w-[65ch] leading-[1.7] text-text dark:text-gray-300 text-sm">
             <p>
               [PLACEHOLDER] Wir setzen angemessene technische und organisatorische Maßnahmen ein,
               um Ihre personenbezogenen Daten vor unbefugtem Zugriff, Verlust, Missbrauch und
@@ -161,10 +170,10 @@ export default function DatenschutzPage() {
 
         {/* Kontakt Datenschutzbeauftragter */}
         <section>
-          <h2 className="text-xl font-bold text-text dark:text-white mb-4">
+          <h2 className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-white mb-4">
             Kontakt zur Datenschutzerklärung
           </h2>
-          <div className="prose dark:prose-invert max-w-none text-text dark:text-gray-300 text-sm">
+          <div className="prose dark:prose-invert max-w-[65ch] leading-[1.7] text-text dark:text-gray-300 text-sm">
             <p>
               Für Fragen zur Datenschutzerklärung oder zur Verarbeitung Ihrer Daten wenden Sie
               sich bitte an:
@@ -177,5 +186,6 @@ export default function DatenschutzPage() {
         </section>
       </div>
     </div>
+    </>
   );
 }

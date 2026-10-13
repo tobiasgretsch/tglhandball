@@ -1,5 +1,6 @@
 "use client";
 
+import Reveal from "@/components/ui/Reveal";
 import { ExternalLink, Trophy, ShoppingBag, Wind, Layers, Shirt } from "lucide-react";
 
 const SHOP_BASE = "https://tengo.de/webshop/TG-Landshut-1861-eV";
@@ -60,23 +61,20 @@ function openCategory(categoryHref: string) {
 export default function FanshopCategories() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {CATEGORIES.map(({ title, description, href, Icon }) => (
+      {CATEGORIES.map(({ title, description, href, Icon }, i) => (
+        <Reveal key={href} delay={0.06 * i} className="flex">
         <button
-          key={href}
           onClick={() => openCategory(href)}
-          className="group bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col text-left cursor-pointer"
+          className="group press-card w-full bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] overflow-hidden flex flex-col text-left cursor-pointer"
         >
-          {/* Top accent bar */}
-          <div className="h-1 bg-primary" />
-
           <div className="p-5 flex flex-col flex-1">
             {/* Icon */}
-            <div className="w-11 h-11 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-4 shrink-0">
-              <Icon size={22} className="text-primary" />
+            <div className="w-11 h-11 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mb-4 shrink-0">
+              <Icon size={22} className="text-primary dark:text-primary-glow" aria-hidden="true" />
             </div>
 
             {/* Text */}
-            <h2 className="font-black text-text dark:text-gray-100 text-base leading-snug mb-2">
+            <h2 className="font-bold text-text dark:text-gray-100 text-base leading-snug tracking-[-0.01em] mb-2">
               {title}
             </h2>
             <p className="text-muted dark:text-gray-400 text-sm leading-relaxed flex-1">
@@ -84,12 +82,13 @@ export default function FanshopCategories() {
             </p>
 
             {/* CTA */}
-            <span className="inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-widest text-primary group-hover:text-primary-light transition-colors mt-5">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-primary dark:text-primary-glow group-hover:text-primary-light transition-colors mt-5">
               Jetzt shoppen
-              <ExternalLink size={11} />
+              <ExternalLink size={12} aria-hidden="true" />
             </span>
           </div>
         </button>
+        </Reveal>
       ))}
     </div>
   );

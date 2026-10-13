@@ -65,7 +65,7 @@ export default function SpielplanClient({ matches, teams }: SpielplanClientProps
   return (
     <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
       {/* ── Filter bar ───────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-[54px] lg:top-[60px] z-40">
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 border-b border-gray-100/80 dark:border-white/10 sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
             <FilterPill
@@ -121,10 +121,10 @@ function FilterPill({
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 px-4 py-2.5 rounded-full text-sm font-bold uppercase tracking-wide transition-colors border ${
+      className={`press shrink-0 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors border ${
         active
-          ? "bg-primary border-primary text-white shadow-sm shadow-primary/20"
-          : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary"
+          ? "bg-primary border-primary text-white shadow-[0_8px_24px_-8px_rgb(218_37_28/0.55)]"
+          : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
       }`}
     >
       {label}
@@ -149,11 +149,12 @@ function MatchSection({
     <section>
       <div className="flex items-center gap-4 mb-6">
         <span
-          className={`block w-8 h-[3px] rounded-full shrink-0 ${
+          aria-hidden="true"
+          className={`block w-2 h-2 rounded-full shrink-0 ${
             isResult ? "bg-accent" : "bg-primary"
           }`}
         />
-        <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted dark:text-gray-400">
+        <h2 className="font-display font-bold italic uppercase text-2xl md:text-3xl tracking-[-0.02em] text-text dark:text-gray-100">
           {title}
         </h2>
       </div>
@@ -162,7 +163,7 @@ function MatchSection({
         <p className="text-muted dark:text-gray-400 text-sm py-6">{emptyText}</p>
       ) : (
         <>
-          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-20px_rgb(0_0_0/0.2)] overflow-hidden">
             <MatchTable matches={matches} isResult={isResult} />
           </div>
           <div className="md:hidden space-y-3">
@@ -188,7 +189,7 @@ function MatchTable({
   return (
     <table className="w-full text-sm border-collapse">
       <thead>
-        <tr className="border-b border-gray-100 dark:border-gray-700 text-[10px] font-bold uppercase tracking-widest text-muted dark:text-gray-400">
+        <tr className="border-b border-gray-100 dark:border-gray-700 text-xs font-bold uppercase tracking-widest text-muted dark:text-gray-400">
           <th className="text-left px-5 py-3 w-[220px]">Datum &amp; Zeit</th>
           <th className="text-right px-3 py-3">Heim</th>
           <th className="text-center px-3 py-3 w-[80px]">
@@ -236,9 +237,9 @@ function MatchTableRow({
     >
       <td className="px-5 py-4 text-text/70 dark:text-gray-300 text-[13px] leading-tight">
         <span className="block">{date}</span>
-        <span className="block text-muted dark:text-gray-400 text-[11px] mt-0.5">{time} Uhr</span>
+        <span className="block text-muted dark:text-gray-400 text-xs mt-0.5">{time} Uhr</span>
         {match.team?.name && (
-          <span className="block text-[11px] font-bold text-primary mt-0.5">{match.team.name}</span>
+          <span className="block text-xs font-bold text-primary dark:text-primary-glow mt-0.5">{match.team.name}</span>
         )}
       </td>
       <td className="px-3 py-4 text-right">
@@ -256,7 +257,7 @@ function MatchTableRow({
             {match.result ?? "–:–"}
           </span>
         ) : (
-          <span className="text-[13px] font-black text-primary tabular-nums">
+          <span className="text-[13px] font-black text-primary dark:text-primary-glow tabular-nums">
             {time}
           </span>
         )}
@@ -272,8 +273,8 @@ function MatchTableRow({
       </td>
       <td className="px-3 py-4 hidden lg:table-cell">
         {match.venue && (
-          <span className="flex items-center gap-1.5 text-[12px] text-muted dark:text-gray-400">
-            <MapPin size={11} className="shrink-0" />
+          <span className="flex items-center gap-1.5 text-xs text-muted dark:text-gray-400">
+            <MapPin size={12} className="shrink-0" aria-hidden="true" />
             {match.venue}
           </span>
         )}
@@ -296,11 +297,11 @@ function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
   const tglIsAway = match.isHomeGame === false;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_12px_32px_-16px_rgb(0_0_0/0.2)] overflow-hidden">
       <div className={`h-[3px] ${isResult ? "bg-accent" : "bg-primary"}`} />
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[11px] text-muted dark:text-gray-400 leading-tight">
+          <span className="text-xs text-muted dark:text-gray-400 leading-tight">
             {date}
             {match.team?.name && (
               <>
@@ -326,10 +327,10 @@ function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
               </span>
             ) : (
               <div>
-                <span className="text-base font-black text-primary tabular-nums block">
+                <span className="text-base font-black text-primary dark:text-primary-glow tabular-nums block">
                   {time}
                 </span>
-                <span className="text-[10px] text-muted dark:text-gray-400">Uhr</span>
+                <span className="text-xs text-muted dark:text-gray-400">Uhr</span>
               </div>
             )}
           </div>
@@ -345,8 +346,8 @@ function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
           <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             {match.venue && (
               <span className="flex items-center gap-1.5 min-w-0">
-                <MapPin size={11} className="text-muted dark:text-gray-400 shrink-0" />
-                <span className="text-[11px] text-muted dark:text-gray-400">{match.venue}</span>
+                <MapPin size={12} className="text-muted dark:text-gray-400 shrink-0" aria-hidden="true" />
+                <span className="text-xs text-muted dark:text-gray-400">{match.venue}</span>
               </span>
             )}
             {isResult && match.meetingId && (
@@ -366,13 +367,13 @@ function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
 function HomeAwayBadge({ isHomeGame }: { isHomeGame?: boolean }) {
   if (isHomeGame === undefined) return null;
   return isHomeGame ? (
-    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded">
-      <Home size={9} />
+    <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-primary dark:text-primary-glow bg-primary/10 px-2.5 py-0.5 rounded-full">
+      <Home size={11} aria-hidden="true" />
       Heim
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-muted dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
-      <Plane size={9} />
+    <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-muted dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 rounded-full">
+      <Plane size={11} aria-hidden="true" />
       Auswärts
     </span>
   );
