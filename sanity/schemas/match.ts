@@ -46,6 +46,21 @@ export default defineType({
       type: "boolean",
       initialValue: true,
     }),
+    defineField({
+      name: "manualOverride",
+      title: "Manuell gepflegt",
+      type: "boolean",
+      initialValue: false,
+      description:
+        "Wenn aktiv, überschreibt die automatische nuLiga-Synchronisierung dieses Spiel nicht mehr.",
+    }),
+    defineField({
+      name: "nuligaKey",
+      title: "nuLiga-Schlüssel",
+      type: "string",
+      readOnly: true,
+      description: "Wird von der nuLiga-Synchronisierung gesetzt. Nicht ändern.",
+    }),
   ],
   orderings: [
     {

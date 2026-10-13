@@ -131,6 +131,14 @@ export default defineType({
         'Team-ID aus handball.net, z.B. "nuliga.bhv.1678219". Wird für die eingebetteten Tabellen- und Spielplan-Widgets verwendet.',
     }),
     defineField({
+      name: "nuligaLeagues",
+      title: "nuLiga-Ligakürzel (Spielplan-Sync)",
+      type: "array",
+      of: [{ type: "string" }],
+      description:
+        'Ligakürzel so wie auf liga.nu angezeigt, z.B. "BOL WC" oder "RL M". Spiele dieser Liga werden automatisch dieser Mannschaft zugeordnet.',
+    }),
+    defineField({
       name: "order",
       title: "Reihenfolge",
       type: "number",
