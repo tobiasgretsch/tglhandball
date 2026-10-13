@@ -234,6 +234,9 @@ function MatchTableRow({
       <td className="px-5 py-4 text-text/70 dark:text-gray-300 text-[13px] leading-tight">
         <span className="block">{date}</span>
         <span className="block text-muted dark:text-gray-400 text-[11px] mt-0.5">{time} Uhr</span>
+        {match.team?.name && (
+          <span className="block text-[11px] font-bold text-primary mt-0.5">{match.team.name}</span>
+        )}
       </td>
       <td className="px-3 py-4 text-right">
         <span
@@ -296,6 +299,12 @@ function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
         <div className="flex items-center justify-between mb-3">
           <span className="text-[11px] text-muted dark:text-gray-400 leading-tight">
             {date}
+            {match.team?.name && (
+              <>
+                {" · "}
+                <span className="font-bold text-text dark:text-gray-100">{match.team.name}</span>
+              </>
+            )}
           </span>
           <HomeAwayBadge isHomeGame={match.isHomeGame} />
         </div>
