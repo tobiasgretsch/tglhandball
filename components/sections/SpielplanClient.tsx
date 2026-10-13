@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { MapPin, Home, Plane } from "lucide-react";
 import type { Match } from "@/types";
+import MatchReportButton from "@/components/ui/MatchReportButton";
 
 interface TeamOption {
   _id: string;
@@ -272,7 +273,10 @@ function MatchTableRow({
         )}
       </td>
       <td className="px-5 py-4 text-center">
-        <HomeAwayBadge isHomeGame={match.isHomeGame} />
+        <div className="flex items-center justify-center gap-2">
+          <HomeAwayBadge isHomeGame={match.isHomeGame} />
+          {isResult && match.meetingId && <MatchReportButton meetingId={match.meetingId} />}
+        </div>
       </td>
     </tr>
   );
@@ -325,10 +329,19 @@ function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
             {match.awayTeam}
           </p>
         </div>
-        {match.venue && (
-          <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-            <MapPin size={11} className="text-muted dark:text-gray-400 shrink-0" />
-            <span className="text-[11px] text-muted dark:text-gray-400">{match.venue}</span>
+        {(match.venue || (isResult && match.meetingId)) && (
+          <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+            {match.venue && (
+              <span className="flex items-center gap-1.5 min-w-0">
+                <MapPin size={11} className="text-muted dark:text-gray-400 shrink-0" />
+                <span className="text-[11px] text-muted dark:text-gray-400">{match.venue}</span>
+              </span>
+            )}
+            {isResult && match.meetingId && (
+              <span className="ml-auto shrink-0">
+                <MatchReportButton meetingId={match.meetingId} />
+              </span>
+            )}
           </div>
         )}
       </div>

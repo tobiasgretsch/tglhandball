@@ -79,6 +79,10 @@ export default async function HomePage() {
         .catch(() => null),
     ]);
 
+  // The Spieltag section covers the flagship men's team; all other teams get a link.
+  const flagshipTeamId = teams.find((t) => t.category === "herren")?._id;
+  const otherTeams = teams.filter((t) => t._id !== flagshipTeamId);
+
   const heroImageUrl = settings?.heroImage
     ? urlFor(settings.heroImage).width(1920).height(1080).url()
     : null;
@@ -93,7 +97,11 @@ export default async function HomePage() {
       />
 
       {/* ── Section 2: Spieltag — nächstes Spiel + letztes Ergebnis ── */}
-      <MatchdaySection upcoming={upcomingMatches} lastResult={lastResult} />
+      <MatchdaySection
+        upcoming={upcomingMatches}
+        lastResult={lastResult}
+        otherTeams={otherTeams}
+      />
 
       {/* ── Section 3: Neuigkeiten ───────────────────────────────────── */}
       <section className="bg-background dark:bg-gray-900 py-16 md:py-20" aria-labelledby="news-heading">

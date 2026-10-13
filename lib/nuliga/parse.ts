@@ -14,6 +14,8 @@ export interface NuligaMatch {
   venue?: string;
   /** "28:24" — only set once the game was actually played. */
   result?: string;
+  /** nuLiga meeting id of the PDF match report; only exists for played games. */
+  meetingId?: string;
   isHomeGame: boolean;
 }
 
@@ -24,6 +26,7 @@ const UNPLAYED_SCORE = "0:0";
 const DATE_PATTERN = /^(\d{2})\.(\d{2})\.(\d{4})$/;
 const TIME_PATTERN = /^(\d{2}):(\d{2})/;
 const MEETING_REPORT_MARKER = "clubMeetingReport";
+const MEETING_REPORT_LINK = /dokument=meetingReportHB&(?:amp;)?meeting=(\d+)/;
 const OPEN_DATE_COLSPAN = /colspan="2"/;
 
 /** Column positions once the two date cells are normalised (see `readCells`). */
@@ -167,6 +170,7 @@ export function parseClubPage(html: string): NuligaMatch[] {
       awayTeam,
       venue: readVenue(cells[COL.venue]),
       result: readResult(cells[COL.score]),
+      meetingId: MEETING_REPORT_LINK.exec(row)?.[1],
       isHomeGame: isClubHome(homeTeam, awayTeam),
     });
   }

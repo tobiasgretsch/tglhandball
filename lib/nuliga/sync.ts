@@ -19,6 +19,7 @@ interface ExistingMatch {
   homeTeam?: string;
   awayTeam?: string;
   result?: string;
+  meetingId?: string;
   venue?: string;
   isHomeGame?: boolean;
   teamRef?: string;
@@ -36,7 +37,7 @@ export interface SyncSummary {
 
 const teamsQuery = groq`*[_type == "team" && count(nuligaLeagues) > 0]{ _id, nuligaLeagues }`;
 const existingQuery = groq`*[_type == "match" && defined(nuligaKey)]{
-  _id, manualOverride, date, homeTeam, awayTeam, result, venue, isHomeGame, "teamRef": team._ref
+  _id, manualOverride, date, homeTeam, awayTeam, result, meetingId, venue, isHomeGame, "teamRef": team._ref
 }`;
 
 async function fetchClubPage(): Promise<string> {
@@ -67,6 +68,7 @@ function toFields(match: NuligaMatch, teamId: string) {
     team: { _type: "reference" as const, _ref: teamId },
     // Never blank out a result that was already stored.
     ...(match.result ? { result: match.result } : {}),
+    ...(match.meetingId ? { meetingId: match.meetingId } : {}),
   };
 }
 
@@ -78,7 +80,8 @@ function hasChanges(existing: ExistingMatch, fields: ReturnType<typeof toFields>
     existing.venue !== fields.venue ||
     existing.isHomeGame !== fields.isHomeGame ||
     existing.teamRef !== fields.team._ref ||
-    ("result" in fields && existing.result !== fields.result)
+    ("result" in fields && existing.result !== fields.result) ||
+    ("meetingId" in fields && existing.meetingId !== fields.meetingId)
   );
 }
 

@@ -91,6 +91,7 @@ export const spielplanQuery = groq`
     homeTeam,
     awayTeam,
     result,
+    meetingId,
     team->{ _id, name, slug },
     venue,
     isHomeGame,
@@ -104,6 +105,7 @@ export const spielplanByTeamQuery = groq`
     homeTeam,
     awayTeam,
     result,
+    meetingId,
     team->{ _id, name, slug },
     venue,
     isHomeGame,
@@ -207,8 +209,11 @@ export const relatedNewsQuery = groq`
 
 // ─── Homepage queries ─────────────────────────────────────────────────────────
 
+/** The club's flagship men's team: first "herren" team in the Studio ordering. */
+const FLAGSHIP_TEAM_ID = `(*[_type == "team" && category == "herren"] | order(order asc)[0]._id)`;
+
 export const homeUpcomingMatchesQuery = groq`
-  *[_type == "match" && date > $now && !defined(result)] | order(date asc) [0...2] {
+  *[_type == "match" && team._ref == ${FLAGSHIP_TEAM_ID} && date > $now && !defined(result)] | order(date asc) [0...2] {
     _id,
     date,
     homeTeam,
@@ -220,12 +225,13 @@ export const homeUpcomingMatchesQuery = groq`
 `;
 
 export const latestResultQuery = groq`
-  *[_type == "match" && defined(result)] | order(date desc) [0] {
+  *[_type == "match" && team._ref == ${FLAGSHIP_TEAM_ID} && defined(result)] | order(date desc) [0] {
     _id,
     date,
     homeTeam,
     awayTeam,
     result,
+    meetingId,
     venue,
     isHomeGame,
     team->{ _id, name, slug },
@@ -261,7 +267,7 @@ export const homeMagazineQuery = groq`
 
 export const teamUpcomingMatchesQuery = groq`
   *[_type == "match" && team._ref == $teamId && date > $now && !defined(result)]
-  | order(date asc) [0...5] {
+  | order(date asc) [0...10] {
     _id,
     date,
     homeTeam,
@@ -273,12 +279,13 @@ export const teamUpcomingMatchesQuery = groq`
 
 export const teamRecentResultsQuery = groq`
   *[_type == "match" && team._ref == $teamId && defined(result)]
-  | order(date desc) [0...5] {
+  | order(date desc) [0...10] {
     _id,
     date,
     homeTeam,
     awayTeam,
     result,
+    meetingId,
     isHomeGame,
   }
 `;

@@ -111,6 +111,8 @@ export interface Match {
   homeTeam: string;
   awayTeam: string;
   result?: string;
+  /** nuLiga meeting id — present when a PDF match report is available. */
+  meetingId?: string;
   team?: Pick<Team, "_id" | "name" | "slug">;
   venue?: string;
   isHomeGame?: boolean;

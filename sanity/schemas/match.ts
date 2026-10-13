@@ -47,6 +47,12 @@ export default defineType({
       initialValue: true,
     }),
     defineField({
+      name: "meetingId",
+      title: "nuLiga-Spielbericht-ID",
+      type: "string",
+      description: "Wird von der nuLiga-Synchronisierung gesetzt und verlinkt den PDF-Spielbericht.",
+    }),
+    defineField({
       name: "manualOverride",
       title: "Manuell gepflegt",
       type: "boolean",

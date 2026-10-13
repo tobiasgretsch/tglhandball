@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { groq } from "next-sanity";
-import { Calendar, MapPin, Shield, User } from "lucide-react";
+import MatchReportButton from "@/components/ui/MatchReportButton";
+import { ArrowRight, Calendar, MapPin, Shield, User } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
 import {
   teamDetailQuery,
@@ -340,6 +342,12 @@ export default async function TeamDetailPage({ params }: Props) {
                 </div>
               )}
             </div>
+            <Link
+              href="/spielplan"
+              className="mt-10 inline-flex items-center gap-2 text-sm font-semibold text-accent dark:text-blue-400 hover:underline"
+            >
+              Gesamter Spielplan <ArrowRight size={14} aria-hidden="true" />
+            </Link>
           </div>
         </section>
       )}
@@ -445,6 +453,11 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
             }`}
           >
             {match.isHomeGame ? "Heim" : "Auswärts"}
+          </span>
+        )}
+        {isResult && match.meetingId && (
+          <span className="ml-auto">
+            <MatchReportButton meetingId={match.meetingId} />
           </span>
         )}
       </div>

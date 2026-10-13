@@ -9,11 +9,14 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
-import type { Match } from "@/types";
+import type { Match, Team } from "@/types";
+import MatchReportButton from "@/components/ui/MatchReportButton";
 
 interface MatchdaySectionProps {
   upcoming: Match[];
   lastResult: Match | null;
+  /** Teams not covered by the section — linked to their own result pages. */
+  otherTeams: Pick<Team, "_id" | "name" | "slug">[];
 }
 
 /** Critically damped: settles without overshoot, can be re-targeted mid-flight. */
@@ -143,12 +146,12 @@ function AnimatedScore({ value }: { value: number }) {
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
-export default function MatchdaySection({ upcoming, lastResult }: MatchdaySectionProps) {
+export default function MatchdaySection({ upcoming, lastResult, otherTeams }: MatchdaySectionProps) {
   const reduced = useReducedMotion() ?? false;
   const nextMatch = upcoming[0] ?? null;
   const followingMatch = upcoming[1] ?? null;
 
-  if (!nextMatch && !lastResult) return null;
+  if (!nextMatch && !lastResult && otherTeams.length === 0) return null;
 
   const outcome = lastResult ? tgOutcome(lastResult) : null;
   const score = lastResult?.result ? parseResult(lastResult.result) : null;
@@ -294,9 +297,38 @@ export default function MatchdaySection({ upcoming, lastResult }: MatchdaySectio
                 {formatMatchDate(lastResult.date)} Uhr
                 {lastResult.team?.name ? ` · ${lastResult.team.name}` : ""}
               </p>
+              {lastResult.meetingId && (
+                <div className="mt-5">
+                  <MatchReportButton meetingId={lastResult.meetingId} tone="glass" />
+                </div>
+              )}
             </motion.div>
           )}
         </div>
+
+        {/* ── Ergebnisse der anderen Teams ───────────────────────────── */}
+        {otherTeams.length > 0 && (
+          <nav aria-labelledby="other-teams-heading" className="mt-12">
+            <h3
+              id="other-teams-heading"
+              className="text-xs font-semibold uppercase tracking-[0.12em] text-accent-sky"
+            >
+              Spiele &amp; Ergebnisse unserer Teams
+            </h3>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {otherTeams.map((team) => (
+                <li key={team._id}>
+                  <Link
+                    href={`/teams/${team.slug.current}`}
+                    className="btn btn-glass px-4! py-2! text-sm"
+                  >
+                    {team.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
 
         {/* ── Links ──────────────────────────────────────────────────── */}
         <div className="mt-12 flex flex-wrap gap-4">
