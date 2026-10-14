@@ -12,6 +12,7 @@ import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import type { Match, Team } from "@/types";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import MatchReportButton from "@/components/ui/MatchReportButton";
+import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
 
 interface MatchdaySectionProps {
   upcoming: Match[];
@@ -235,6 +236,10 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
                 <Countdown date={nextMatch.date} />
               </div>
 
+              <div className="mt-5">
+                <AddToCalendarButton match={nextMatch} tone="glass" />
+              </div>
+
               {followingMatch && (
                 <div className="mt-8 pt-6 border-t border-white/15">
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-accent-sky mb-1.5">
@@ -249,6 +254,9 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
                     {formatMatchDate(followingMatch.date)} Uhr
                     {followingMatch.venue ? ` · ${followingMatch.venue}` : ""}
                   </p>
+                  <div className="mt-3">
+                    <AddToCalendarButton match={followingMatch} tone="glass" />
+                  </div>
                 </div>
               )}
             </motion.div>
