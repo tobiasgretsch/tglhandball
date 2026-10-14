@@ -52,7 +52,7 @@ export function organizationJsonLd(settings: Settings | null, logoUrl: string | 
     sport: "Handball",
     areaServed: "Landshut",
     ...(logoUrl && { logo: logoUrl, image: logoUrl }),
-    sameAs: [settings?.instagramUrl, settings?.facebookUrl, settings?.youtubeUrl, settings?.tiktokUrl].filter(Boolean),
+    sameAs: [settings?.instagramUrl, settings?.facebookUrl, settings?.youtubeUrl].filter(Boolean),
     ...(settings?.contactEmail && { email: settings.contactEmail }),
     ...(venuePlace(settings) && { location: venuePlace(settings) }),
   };
