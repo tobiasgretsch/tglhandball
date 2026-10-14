@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Facebook, Youtube, Mail, MapPin } from "lucide-react";
-import PartnerBanner from "@/components/sections/PremiumPartnerBanner";
+import PartnerBand, { type PartnerBandItem } from "@/components/sections/PartnerBand";
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
   return (
@@ -20,6 +20,20 @@ const QUICK_LINKS = [
   { label: "Partner", href: "/partner" },
   { label: "Abteilung", href: "/ueberuns" },
 ];
+
+const PARTNER_LOGO_WIDTH = 352; // 2x the 176px premium logo box, sharp on retina
+const PARTNER_LOGO_HEIGHT = 128;
+
+function toBandItem(p: Partner): PartnerBandItem {
+  return {
+    _id: p._id,
+    name: p.name,
+    logoUrl: p.logo
+      ? urlFor(p.logo).width(PARTNER_LOGO_WIDTH).height(PARTNER_LOGO_HEIGHT).fit("max").url()
+      : null,
+    websiteUrl: p.websiteUrl,
+  };
+}
 
 export default async function Footer() {
   const [settings, premiumPartners, standardPartners] = await Promise.all([
@@ -59,79 +73,10 @@ export default async function Footer() {
         </div>
       )}
 
-      {/* Premium partner strip */}
-      {premiumPartners && premiumPartners.length > 0 && (
-        <div className="relative border-b border-white/10 bg-black/25 dark:bg-black/40">
-          {/* Gold shimmer lines */}
-          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
-          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent" />
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {/* Section heading with decorative rule */}
-            <div className="flex items-center gap-4 mb-7">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-400/35" />
-              <div className="flex items-center gap-2.5">
-                <span className="text-amber-400/70 text-xs leading-none">★</span>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-400/80">
-                  Premium Partner
-                </p>
-                <span className="text-amber-400/70 text-xs leading-none">★</span>
-              </div>
-              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber-400/35" />
-            </div>
-
-            {/* Auto-rotating partner banner */}
-            <PartnerBanner
-              variant="premium"
-              partners={premiumPartners.map((p) => ({
-                _id: p._id,
-                name: p.name,
-                logoUrl: p.logo ? urlFor(p.logo).width(440).height(248).fit("max").url() : null,
-                websiteUrl: p.websiteUrl,
-              }))}
-            />
-
-            {/* Link to partner page */}
-            <div className="flex justify-center mt-6">
-              <Link
-                href="/partner"
-                className="inline-flex items-center gap-2 border border-amber-400/40 text-amber-400/80 hover:text-amber-400 hover:border-amber-400/70 hover:bg-amber-400/5 text-xs font-bold uppercase tracking-[0.12em] px-6 py-3 rounded-full press"
-              >
-                Alle Partner ansehen →
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Standard partner strip */}
-      {standardPartners && standardPartners.length > 0 && (
-        <div className="relative border-b border-white/10 bg-black/15 dark:bg-black/25">
-          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            {/* Section heading */}
-            <div className="flex items-center gap-4 mb-5">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-white/15" />
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white/60">
-                Partner
-              </p>
-              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-white/15" />
-            </div>
-
-            {/* Auto-rotating standard partner banner */}
-            <PartnerBanner
-              variant="standard"
-              partners={standardPartners.map((p) => ({
-                _id: p._id,
-                name: p.name,
-                logoUrl: p.logo ? urlFor(p.logo).width(256).height(144).fit("max").url() : null,
-                websiteUrl: p.websiteUrl,
-              }))}
-            />
-          </div>
-        </div>
-      )}
+      <PartnerBand
+        premium={premiumPartners.map(toBandItem)}
+        standard={standardPartners.map(toBandItem)}
+      />
 
       {/* Main footer grid */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
