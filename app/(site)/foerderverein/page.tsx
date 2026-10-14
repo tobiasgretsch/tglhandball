@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { client } from "@/lib/sanity";
 import { pageHeroSlidesQuery } from "@/lib/queries";
 import type { SanityImage } from "@/types";
@@ -8,6 +9,7 @@ import FoerdervereinForm from "@/components/sections/FoerdervereinForm";
 import { Users, Heart, Trophy } from "lucide-react";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/foerderverein" },
   title: "Förderverein",
   description:
     "Der Förderverein des TG MIPA Landshut – gemeinsam für den Handball in Landshut.",
@@ -16,8 +18,9 @@ export const metadata: Metadata = {
     description:
       "Der Förderverein des TG MIPA Landshut – gemeinsam für den Handball in Landshut.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export const revalidate = 3600;

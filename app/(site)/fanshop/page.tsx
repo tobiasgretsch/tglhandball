@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import Image from "next/image";
 import { client } from "@/lib/sanity";
 import { pageHeroSlidesQuery } from "@/lib/queries";
@@ -15,6 +16,7 @@ import Reveal from "@/components/ui/Reveal";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/fanshop" },
   title: "Fanshop",
   description:
     "Offizieller Fanshop des TG MIPA Landshut — neue Trikots 26/27, Teamwear, Hallenschuhe und Equipment von uhlsport.",
@@ -22,8 +24,9 @@ export const metadata: Metadata = {
     title: "Fanshop | TG MIPA Landshut",
     description: "Neue Trikotkollektion 26/27 und mehr — zeig deine Vereinsfarben.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export const revalidate = 3600;

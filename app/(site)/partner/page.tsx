@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
@@ -13,6 +14,7 @@ import PageHeroSlider from "@/components/sections/PageHeroSlider";
 import PartnerInfoBlock from "@/components/sections/PartnerInfoBlock";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/partner" },
   title: "Unsere Partner",
   description:
     "Die Partner und Sponsoren des TG MIPA Landshut – ein herzliches Dankeschön für eure Unterstützung.",
@@ -21,8 +23,9 @@ export const metadata: Metadata = {
     description:
       "Die Partner und Sponsoren des TG MIPA Landshut – ein herzliches Dankeschön für eure Unterstützung.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export const revalidate = 3600;
@@ -410,7 +413,7 @@ function StandardTile({ partner }: { partner: Partner }) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center px-4">
-            <span className="text-sm font-black text-gray-400 text-center leading-tight uppercase tracking-[-0.02em]">
+            <span className="text-sm font-black text-gray-600 text-center leading-tight uppercase tracking-[-0.02em]">
               {partner.name}
             </span>
           </div>

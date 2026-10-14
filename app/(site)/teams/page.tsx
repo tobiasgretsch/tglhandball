@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -16,6 +17,7 @@ const TEAM_GROUPS: { key: TeamCategory; label: string }[] = [
 ];
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/teams" },
   title: "Unsere Teams",
   description:
     "Alle Mannschaften des TG MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
@@ -23,8 +25,9 @@ export const metadata: Metadata = {
     title: "Unsere Teams | TG MIPA Landshut",
     description: "Alle Mannschaften des TG MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export const revalidate = 3600;

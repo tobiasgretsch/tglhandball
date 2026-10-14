@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { permanentRedirect } from "next/navigation";
 
 export default function KontaktPage() {
-  redirect("/ueberuns");
+  permanentRedirect("/ueberuns#kontakt");
 }

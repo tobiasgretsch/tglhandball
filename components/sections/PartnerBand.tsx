@@ -98,7 +98,7 @@ export default function PartnerBand({ premium, standard }: Props) {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <h2
           id="partner-heading"
-          className="mb-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400"
+          className="mb-10 text-center text-sm font-semibold text-gray-600 dark:text-gray-300"
         >
           Unsere Partner
         </h2>

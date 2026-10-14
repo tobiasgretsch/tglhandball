@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import Image from "next/image";
 import { MapPin, Mail } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
@@ -11,6 +12,7 @@ import VenueMap from "@/components/sections/VenueMap";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/ueberuns" },
   title: "Über uns",
   description:
     "Geschichte, Vorstand, Ansprechpartner und Kontakt des TG MIPA Landshut.",
@@ -18,8 +20,9 @@ export const metadata: Metadata = {
     title: "Über uns | TG MIPA Landshut",
     description: "Geschichte, Vorstand, Ansprechpartner und Kontakt des TG MIPA Landshut.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export const revalidate = 3600;
@@ -192,7 +195,15 @@ export default async function UeberUnsPage() {
                 </div>
 
                 {/* Interactive map */}
-                <ConsentGate label="Die Karte" provider="OpenStreetMap" className="h-[400px] md:h-[460px]">
+                <ConsentGate
+                  label="Die Karte"
+                  provider="OpenStreetMap"
+                  className="h-[400px] md:h-[460px]"
+                  fallbackLink={{
+                    href: `https://www.openstreetmap.org/?mlat=${settings!.venueLat}&mlon=${settings!.venueLng}#map=17/${settings!.venueLat}/${settings!.venueLng}`,
+                    label: "Standort auf openstreetmap.org öffnen",
+                  }}
+                >
                   <VenueMap
                     lat={settings!.venueLat!}
                     lng={settings!.venueLng!}

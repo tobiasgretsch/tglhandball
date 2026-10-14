@@ -9,6 +9,8 @@ import { newsDetailQuery, relatedNewsQuery } from "@/lib/queries";
 import type { NewsArticle } from "@/types";
 import Reveal from "@/components/ui/Reveal";
 import PortableText from "@/components/ui/PortableText";
+import JsonLd from "@/components/ui/JsonLd";
+import { breadcrumbJsonLd, newsArticleJsonLd } from "@/lib/seo";
 import { NewsCard, CATEGORY_STYLES, formatPublishedDate } from "@/components/sections/NewsCard";
 
 // ─── Static params + metadata ─────────────────────────────────────────────────
@@ -44,6 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: article.title,
     description: article.teaser,
+    alternates: { canonical: `/news/${slug}` },
     openGraph: {
       title: article.title,
       description: article.teaser,
@@ -91,8 +94,25 @@ export default async function NewsDetailPage({ params }: Props) {
     ? formatPublishedDate(article.publishedAt)
     : null;
 
+  const structuredData = [
+    newsArticleJsonLd({
+      title: article.title,
+      path: `/news/${slug}`,
+      teaser: article.teaser,
+      publishedAt: article.publishedAt,
+      author: article.author,
+      imageUrl: article.mainImage ? urlFor(article.mainImage).width(1200).height(630).url() : undefined,
+    }),
+    breadcrumbJsonLd([
+      { name: "Startseite", path: "/" },
+      { name: "Neuigkeiten", path: "/news" },
+      { name: article.title, path: `/news/${slug}` },
+    ]),
+  ];
+
   return (
     <>
+      <JsonLd data={structuredData} />
       {/* ── Hero image ─────────────────────────────────────────────── */}
       <div className="relative w-full h-[300px] md:h-[440px] lg:h-[520px] bg-gradient-to-br from-accent to-accent-dark overflow-hidden">
         {heroUrl && (

@@ -96,10 +96,10 @@ export default async function Footer() {
               )}
               <span className="font-black text-white text-xl uppercase tracking-tight leading-none">
                 TG{" "}
-                <span className="text-white/55 font-bold">MIPA</span>
+                <span className="text-white/95 font-bold">MIPA</span>
               </span>
             </div>
-            <p className="text-white/55 text-sm leading-relaxed mb-6 max-w-[240px]">
+            <p className="text-white/95 text-sm leading-relaxed mb-6 max-w-[240px]">
               Handball in Landshut — Leidenschaft, Teamgeist und Sport auf
               höchstem Niveau.
             </p>
@@ -153,7 +153,7 @@ export default async function Footer() {
 
           {/* Quick links */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-white/60 mb-5">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-white/95 mb-5">
               Schnelllinks
             </h3>
             <ul className="space-y-2.5">
@@ -161,7 +161,7 @@ export default async function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-white/75 hover:text-white text-sm font-medium transition-colors"
+                    className="text-white/95 hover:text-white text-sm font-medium transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -172,27 +172,27 @@ export default async function Footer() {
 
           {/* Contact info */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-white/60 mb-5">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-white/95 mb-5">
               Kontakt
             </h3>
             <div className="space-y-3">
               {settings?.contactEmail && (
                 <a
                   href={`mailto:${settings.contactEmail}`}
-                  className="flex items-center gap-2.5 text-white/75 hover:text-white text-sm transition-colors"
+                  className="flex items-center gap-2.5 text-white/95 hover:text-white text-sm transition-colors"
                 >
                   <Mail size={14} className="shrink-0" />
                   {settings.contactEmail}
                 </a>
               )}
               {settings?.venueAddress && (
-                <div className="flex items-start gap-2.5 text-white/65 text-sm">
+                <div className="flex items-start gap-2.5 text-white/95 text-sm">
                   <MapPin size={14} className="shrink-0 mt-0.5" />
                   <span>{settings.venueAddress}</span>
                 </div>
               )}
               {!settings?.contactEmail && !settings?.venueAddress && (
-                <p className="text-white/35 text-sm">
+                <p className="text-white/95 text-sm">
                   Kontaktdaten werden im CMS konfiguriert.
                 </p>
               )}
@@ -204,23 +204,23 @@ export default async function Footer() {
       {/* Bottom bar */}
       <div className="relative border-t border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-white/35 text-xs">
+          <p className="text-white/95 text-xs">
             © {year} TG MIPA Landshut
           </p>
           <div className="flex gap-5">
             <Link
               href="/impressum"
-              className="text-white/60 hover:text-white text-xs transition-colors"
+              className="text-white/95 hover:text-white text-xs transition-colors"
             >
               Impressum
             </Link>
             <Link
               href="/datenschutz"
-              className="text-white/60 hover:text-white text-xs transition-colors"
+              className="text-white/95 hover:text-white text-xs transition-colors"
             >
               Datenschutz
             </Link>
-            <CookieSettingsButton className="text-white/60 hover:text-white text-xs transition-colors" />
+            <CookieSettingsButton className="text-white/95 hover:text-white text-xs transition-colors" />
           </div>
         </div>
       </div>

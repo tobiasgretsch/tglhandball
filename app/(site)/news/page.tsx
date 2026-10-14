@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { client } from "@/lib/sanity";
 import { allNewsQuery, pageHeroSlidesQuery } from "@/lib/queries";
 import type { NewsArticle, SanityImage } from "@/types";
@@ -6,6 +7,7 @@ import NewsClient from "@/components/sections/NewsClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/news" },
   title: "Neuigkeiten",
   description:
     "Aktuelle Nachrichten, Spielberichte und Vereinsnews von TG MIPA Landshut.",
@@ -13,8 +15,9 @@ export const metadata: Metadata = {
     title: "Neuigkeiten | TG MIPA Landshut",
     description: "Aktuelle Nachrichten, Spielberichte und Vereinsnews von TG MIPA Landshut.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export const revalidate = 1800;

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { client } from "@/lib/sanity";
 import { allGalleryQuery, pageHeroSlidesQuery } from "@/lib/queries";
 import type { GalleryItem, SanityImage } from "@/types";
@@ -6,6 +7,7 @@ import GalleryClient from "@/components/sections/GalleryClient";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/impressionen" },
   title: "Impressionen",
   description:
     "Fotos und Eindrücke von Spielen, Training und Events des TG MIPA Landshut.",
@@ -13,8 +15,9 @@ export const metadata: Metadata = {
     title: "Impressionen | TG MIPA Landshut",
     description: "Fotos und Eindrücke von Spielen, Training und Events des TG MIPA Landshut.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export const revalidate = 3600;

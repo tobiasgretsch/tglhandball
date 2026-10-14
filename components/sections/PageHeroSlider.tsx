@@ -22,7 +22,8 @@ const SLIDE_INTERVAL_MS = 5000;
 
 function makeFadeUp(reduced: boolean) {
   return {
-    hidden: { opacity: 0, y: reduced ? 0 : 20 },
+    // Opacity stays 1 so the h1 is visible in server HTML and before hydration.
+    hidden: { opacity: 1, y: reduced ? 0 : 20 },
     show: (delay: number) => ({
       opacity: 1,
       y: 0,

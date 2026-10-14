@@ -4,6 +4,8 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { groq } from "next-sanity";
+import JsonLd from "@/components/ui/JsonLd";
+import { breadcrumbJsonLd, fixturesJsonLd, sportsTeamJsonLd } from "@/lib/seo";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 import { ArrowRight, Calendar, MapPin, Shield, User } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
@@ -11,8 +13,9 @@ import {
   teamDetailQuery,
   teamUpcomingMatchesQuery,
   teamRecentResultsQuery,
+  settingsQuery,
 } from "@/lib/queries";
-import type { Team, Match, Betreuer } from "@/types";
+import type { Team, Match, Betreuer, Settings } from "@/types";
 import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
@@ -60,6 +63,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: team.league ? `${team.name} – ${team.league}` : team.name,
     description,
+    alternates: { canonical: `/teams/${slug}` },
     openGraph: {
       title: team.name,
       description,
@@ -89,7 +93,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
   if (!team) notFound();
 
-  const [upcoming, results] = await Promise.all([
+  const [upcoming, results, settings] = await Promise.all([
     client
       .fetch<Match[]>(
         teamUpcomingMatchesQuery,
@@ -104,6 +108,9 @@ export default async function TeamDetailPage({ params }: Props) {
         { next: { revalidate: 3600 } }
       )
       .catch(() => [] as Match[]),
+    client
+      .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
+      .catch(() => null),
   ]);
 
   const heroUrl = team.headerImage
@@ -116,8 +123,24 @@ export default async function TeamDetailPage({ params }: Props) {
     ? "bg-white dark:bg-gray-800"
     : "bg-background dark:bg-gray-900";
 
+  const structuredData = [
+    sportsTeamJsonLd({
+      name: team.name,
+      path: `/teams/${slug}`,
+      league: team.league,
+      imageUrl: heroUrl ?? undefined,
+    }),
+    breadcrumbJsonLd([
+      { name: "Startseite", path: "/" },
+      { name: "Teams", path: "/teams" },
+      { name: team.name, path: `/teams/${slug}` },
+    ]),
+    fixturesJsonLd([...results, ...upcoming], settings),
+  ].filter((entry): entry is Record<string, unknown> => entry !== null);
+
   return (
     <>
+      <JsonLd data={structuredData} />
       {/* ── 1. Hero ────────────────────────────────────────────────────── */}
       <section className="relative min-h-[50vh] md:min-h-[60vh] flex items-end overflow-hidden bg-accent">
         {heroUrl ? (

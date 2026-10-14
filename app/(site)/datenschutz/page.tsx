@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { client } from "@/lib/sanity";
 import { pageHeroSlidesQuery } from "@/lib/queries";
 import type { SanityImage } from "@/types";
@@ -7,6 +8,7 @@ import PageHeroSlider from "@/components/sections/PageHeroSlider";
 import { DATENSCHUTZ_BLOCKS } from "./content";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/datenschutz" },
   title: "Datenschutz",
   description: "Datenschutzerklärung und Informationen zur Datenverarbeitung des TG MIPA Landshut.",
   robots: { index: false, follow: false },
@@ -14,8 +16,9 @@ export const metadata: Metadata = {
     title: "Datenschutz | TG MIPA Landshut",
     description: "Datenschutzerklärung und Informationen zur Datenverarbeitung des TG MIPA Landshut.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export default async function DatenschutzPage() {
