@@ -9,8 +9,6 @@ Offizielle Website des TG MIPA Landshut e.V. – Handball mit Leidenschaft seit 
 | Framework | Next.js 16 (App Router, Turbopack) |
 | UI | React 19, Tailwind CSS 4, Framer Motion |
 | CMS | Sanity v5 (eingebettetes Studio unter `/studio`) |
-| Auth | Clerk (Trainer- und Spieler-Dashboards) |
-| E-Mail | Resend (Kontaktformular) |
 | Analytics | Vercel Speed Insights |
 | Sitemap | next-sitemap (wird nach jedem Build generiert) |
 
@@ -45,11 +43,6 @@ Dann `.env.local` ausfüllen:
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | Sanity-Projekt-ID (aus dem Sanity-Dashboard) |
 | `NEXT_PUBLIC_SANITY_DATASET` | Sanity-Dataset, Standard: `production` |
 | `SANITY_API_TOKEN` | Sanity API-Token mit Schreibrechten |
-| `RESEND_API_KEY` | API-Key von [resend.com](https://resend.com) |
-| `RESEND_FROM_EMAIL` | Absender-Adresse (muss in Resend verifiziert sein) |
-| `NEXT_PUBLIC_APP_URL` | App-URL für Clerk-Einladungslinks |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk Publishable Key |
-| `CLERK_SECRET_KEY` | Clerk Secret Key |
 
 ### 4. Entwicklungsserver starten
 
@@ -129,14 +122,6 @@ Das Sanity Studio ist direkt in die Website eingebettet und unter `/studio` erre
 4. Optional: Titelbild für die Vorschau hochladen
 5. **„Veröffentlichen"**
 
-### Trainer einem Team zuweisen (Dashboard-Zugriff)
-
-Damit ein Trainer nur die Spieler und Pläne seines Teams sieht:
-
-1. Studio → **„Mannschaften"** → gewünschtes Team öffnen
-2. Feld **„Trainer Clerk ID"** ausfüllen – die ID findet sich im [Clerk-Dashboard](https://dashboard.clerk.com) unter Users → User-Details → User ID (beginnt mit `user_`)
-3. **„Veröffentlichen"**
-
 ---
 
 ## Projektstruktur (vereinfacht)
@@ -144,8 +129,7 @@ Damit ein Trainer nur die Spieler und Pläne seines Teams sieht:
 ```
 app/
   (site)/          # Öffentliche Website (News, Teams, Spielplan, …)
-  (dashboard)/     # Trainer- und Spieler-Dashboards (Clerk-geschützt)
-  api/             # API-Routen (Spieler, Trainingspläne, Uploads, …)
+  api/             # API-Routen (nuLiga-Sync, Cron)
   studio/          # Eingebettetes Sanity Studio
 components/
   layout/          # Header, Footer, Navigation

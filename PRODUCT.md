@@ -8,8 +8,6 @@ brand
 
 **Primary — fans, parents, and the local community** browsing on mobile during or after match day. They want to find current news, upcoming fixtures, and team rosters quickly. Most visits are short and goal-directed (check the score, read a report, find the venue).
 
-**Secondary — players and trainers** who use the protected dashboard to manage training plans, player profiles, and team assignments. Their context is desktop or tablet, workflow-oriented, time-pressured before or after training sessions.
-
 **Tertiary — prospective members and sponsors** who arrive from a search or recommendation and need to understand who the club is and how to get involved.
 
 ## Product Purpose

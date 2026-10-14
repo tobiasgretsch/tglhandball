@@ -45,7 +45,6 @@ const ABTEILUNG_ITEMS: StaticDropdownItem[] = [
   { label: "Über uns", href: "/ueberuns" },
   { label: "Förderverein", href: "/foerderverein" },
   { label: "Impressionen", href: "/impressionen" },
-  { label: "Mitgliederbereich", href: "/dashboard" },
 ];
 
 const NAV_LINKS: NavLink[] = [

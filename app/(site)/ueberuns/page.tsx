@@ -6,6 +6,7 @@ import { settingsQuery } from "@/lib/queries";
 import type { Settings } from "@/types";
 import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
+import ConsentGate from "@/components/ui/ConsentGate";
 import VenueMap from "@/components/sections/VenueMap";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 
@@ -191,12 +192,14 @@ export default async function UeberUnsPage() {
                 </div>
 
                 {/* Interactive map */}
-                <VenueMap
-                  lat={settings!.venueLat!}
-                  lng={settings!.venueLng!}
-                  venueName={settings?.venueName}
-                  venueAddress={settings?.venueAddress}
-                />
+                <ConsentGate label="Die Karte" provider="OpenStreetMap" className="h-[400px] md:h-[460px]">
+                  <VenueMap
+                    lat={settings!.venueLat!}
+                    lng={settings!.venueLng!}
+                    venueName={settings?.venueName}
+                    venueAddress={settings?.venueAddress}
+                  />
+                </ConsentGate>
               </div>
             </section>
           </>

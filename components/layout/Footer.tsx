@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Facebook, Youtube, Mail, MapPin } from "lucide-react";
+import CookieSettingsButton from "@/components/ui/CookieSettingsButton";
 import PartnerBand, { type PartnerBandItem } from "@/components/sections/PartnerBand";
 
 function TikTokIcon({ size = 16 }: { size?: number }) {
@@ -219,6 +220,7 @@ export default async function Footer() {
             >
               Datenschutz
             </Link>
+            <CookieSettingsButton className="text-white/60 hover:text-white text-xs transition-colors" />
           </div>
         </div>
       </div>

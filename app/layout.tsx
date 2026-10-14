@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Barlow_Condensed } from "next/font/google";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/next";
-import { ClerkProvider } from "@clerk/nextjs";
+import ConsentBanner from "@/components/ui/ConsentBanner";
+import ConsentGatedAnalytics from "@/components/ui/ConsentGatedAnalytics";
 import "./globals.css";
 import { client, urlFor } from "@/lib/sanity";
 import { settingsQuery } from "@/lib/queries";
@@ -111,26 +110,19 @@ export default async function RootLayout({
   };
 
   return (
-    <ClerkProvider
-      signInUrl="/sign-in"
-      signUpUrl="/sign-up"
-      signInFallbackRedirectUrl="/dashboard"
-      signUpFallbackRedirectUrl="/onboarding"
-    >
-      <html lang="de" suppressHydrationWarning>
-        <head>
-          <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-        </head>
-        <body className={`${inter.variable} ${barlowCondensed.variable} ${inter.className}`}>
-          {children}
-          <SpeedInsights />
-          <Analytics />
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="de" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className={`${inter.variable} ${barlowCondensed.variable} ${inter.className}`}>
+        {children}
+        <ConsentBanner />
+        <ConsentGatedAnalytics />
+      </body>
+    </html>
   );
 }
