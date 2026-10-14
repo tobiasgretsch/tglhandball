@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { MapPin, Home, Plane } from "lucide-react";
+import { MapPin } from "lucide-react";
 import type { Match } from "@/types";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
+import { OUTCOME_LABEL, tgOutcome, type Outcome } from "@/lib/match";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
 
@@ -17,23 +18,45 @@ interface SpielplanClientProps {
   teams: TeamOption[];
 }
 
+interface DayGroup {
+  /** Calendar day in club time zone, e.g. "2026-10-17" — stable grouping key. */
+  key: string;
+  label: string;
+  matches: Match[];
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatDateTime(dateStr: string): { date: string; time: string } {
-  const d = new Date(dateStr);
-  const date = new Intl.DateTimeFormat("de-DE", {
-    weekday: "short",
-    day: "2-digit",
-    month: "long",
-    timeZone: CLUB_TIME_ZONE,
-    year: "numeric",
-  }).format(d);
-  const time = new Intl.DateTimeFormat("de-DE", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: CLUB_TIME_ZONE,
-  }).format(d);
-  return { date, time };
+const dayKeyFormat = new Intl.DateTimeFormat("en-CA", { timeZone: CLUB_TIME_ZONE });
+
+const dayLabelFormat = new Intl.DateTimeFormat("de-DE", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: CLUB_TIME_ZONE,
+});
+
+const timeFormat = new Intl.DateTimeFormat("de-DE", {
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: CLUB_TIME_ZONE,
+});
+
+/** Groups already-sorted matches by calendar day, preserving order. */
+function groupByDay(matches: Match[]): DayGroup[] {
+  const groups: DayGroup[] = [];
+  for (const match of matches) {
+    const date = new Date(match.date);
+    const key = dayKeyFormat.format(date);
+    const last = groups[groups.length - 1];
+    if (last?.key === key) {
+      last.matches.push(match);
+    } else {
+      groups.push({ key, label: dayLabelFormat.format(date), matches: [match] });
+    }
+  }
+  return groups;
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -146,9 +169,11 @@ function MatchSection({
   emptyText: string;
   isResult: boolean;
 }) {
+  const groups = useMemo(() => groupByDay(matches), [matches]);
+
   return (
-    <section>
-      <div className="flex items-center gap-4 mb-6">
+    <section aria-label={title}>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-6">
         <span
           aria-hidden="true"
           className={`block w-2 h-2 rounded-full shrink-0 ${
@@ -158,230 +183,120 @@ function MatchSection({
         <h2 className="font-display font-bold italic uppercase text-2xl md:text-3xl tracking-[-0.02em] text-text dark:text-gray-100">
           {title}
         </h2>
+        {matches.length > 0 && (
+          <span className="inline-flex items-center gap-2 text-xs text-muted dark:text-gray-400 sm:ml-auto">
+            <span aria-hidden="true" className="block w-1 h-4 rounded-full bg-primary" />
+            Heimspiel
+          </span>
+        )}
       </div>
 
-      {matches.length === 0 ? (
+      {groups.length === 0 ? (
         <p className="text-muted dark:text-gray-400 text-sm py-6">{emptyText}</p>
       ) : (
-        <>
-          <div className="hidden md:block bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-20px_rgb(0_0_0/0.2)] overflow-hidden">
-            <MatchTable matches={matches} isResult={isResult} />
-          </div>
-          <div className="md:hidden space-y-3">
-            {matches.map((match) => (
-              <MatchCard key={match._id} match={match} isResult={isResult} />
-            ))}
-          </div>
-        </>
+        <div className="space-y-6">
+          {groups.map((group) => (
+            <div key={group.key}>
+              <h3 className="px-1 mb-2 text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400">
+                {group.label}
+              </h3>
+              <ul className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-20px_rgb(0_0_0/0.2)] overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
+                {group.matches.map((match) => (
+                  <MatchRow key={match._id} match={match} isResult={isResult} />
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       )}
     </section>
   );
 }
 
-// ─── Desktop table ────────────────────────────────────────────────────────────
+// ─── Match row ────────────────────────────────────────────────────────────────
 
-function MatchTable({
-  matches,
-  isResult,
-}: {
-  matches: Match[];
-  isResult: boolean;
-}) {
-  return (
-    <table className="w-full text-sm border-collapse">
-      <thead>
-        <tr className="border-b border-gray-100 dark:border-gray-700 text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400">
-          <th className="text-left px-5 py-3 w-[220px]">Datum &amp; Zeit</th>
-          <th className="text-right px-3 py-3">Heim</th>
-          <th className="text-center px-3 py-3 w-[80px]">
-            {isResult ? "Ergebnis" : "Uhrzeit"}
-          </th>
-          <th className="text-left px-3 py-3">Auswärts</th>
-          <th className="text-left px-3 py-3 hidden lg:table-cell">Spielstätte</th>
-          <th className="text-center px-5 py-3 w-[80px]">Typ</th>
-        </tr>
-      </thead>
-      <tbody>
-        {matches.map((match, i) => (
-          <MatchTableRow
-            key={match._id}
-            match={match}
-            isResult={isResult}
-            striped={i % 2 === 1}
-          />
-        ))}
-      </tbody>
-    </table>
-  );
-}
+const OUTCOME_CLASS: Record<Outcome, string> = {
+  sieg: "text-primary dark:text-primary-glow",
+  niederlage: "text-muted dark:text-gray-400",
+  unentschieden: "text-text dark:text-gray-100",
+};
 
-function MatchTableRow({
-  match,
-  isResult,
-  striped,
-}: {
-  match: Match;
-  isResult: boolean;
-  striped: boolean;
-}) {
-  const { date, time } = formatDateTime(match.date);
-  const tglIsHome = match.isHomeGame === true;
-  const tglIsAway = match.isHomeGame === false;
+/** One layout for all breakpoints: lead (time/score) · matchup · venue · actions. */
+function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
+  const outcome = isResult ? tgOutcome(match) : null;
+  const tgIsHome = match.isHomeGame === true;
+  const tgIsAway = match.isHomeGame === false;
+  const sideClass = (isTg: boolean) =>
+    isTg
+      ? "font-bold text-text dark:text-gray-100"
+      : "font-medium text-text/70 dark:text-gray-300";
 
   return (
-    <tr
-      className={`border-b border-gray-100 dark:border-gray-700 last:border-0 transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-700/50 ${
-        striped
-          ? "bg-gray-50/40 dark:bg-gray-700/20"
-          : "bg-white dark:bg-gray-800"
+    <li
+      className={`grid grid-cols-[3.75rem_minmax(0,1fr)_auto] md:grid-cols-[5rem_minmax(0,1fr)_15rem_auto] items-center gap-x-3 md:gap-x-5 gap-y-1 py-3.5 pr-3 md:pr-5 border-l-4 hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition-colors ${
+        tgIsHome ? "border-primary pl-3 md:pl-4" : "border-transparent pl-3 md:pl-4"
       }`}
     >
-      <td className="px-5 py-4 text-text/70 dark:text-gray-300 text-[13px] leading-tight">
-        <span className="block">{date}</span>
-        <span className="block text-muted dark:text-gray-400 text-xs mt-0.5">{time} Uhr</span>
-        {match.team?.name && (
-          <span className="block text-xs font-bold text-primary dark:text-primary-glow mt-0.5">{match.team.name}</span>
-        )}
-      </td>
-      <td className="px-3 py-4 text-right">
-        <span
-          className={`font-bold text-[13px] leading-tight ${
-            tglIsHome ? "text-accent" : "text-text dark:text-gray-100"
-          }`}
-        >
-          {match.homeTeam}
-        </span>
-      </td>
-      <td className="px-3 py-4 text-center">
+      {/* Lead: kick-off time, or the score for results */}
+      <div className="row-span-2 md:row-span-1 text-center">
         {isResult ? (
-          <span className="text-base font-black text-text dark:text-gray-100 tabular-nums">
-            {match.result ?? "–:–"}
-          </span>
+          <>
+            <span
+              className={`text-lg font-black tabular-nums ${
+                outcome ? OUTCOME_CLASS[outcome] : "text-text dark:text-gray-100"
+              }`}
+            >
+              {match.result ?? "–:–"}
+            </span>
+            {outcome && <span className="sr-only"> {OUTCOME_LABEL[outcome]}</span>}
+          </>
         ) : (
-          <span className="text-[13px] font-black text-primary dark:text-primary-glow tabular-nums">
-            {time}
-          </span>
+          <>
+            <span className="text-lg font-black tabular-nums text-text dark:text-gray-100">
+              {timeFormat.format(new Date(match.date))}
+            </span>
+            <span className="block text-[11px] leading-none text-muted dark:text-gray-400">
+              Uhr
+            </span>
+          </>
         )}
-      </td>
-      <td className="px-3 py-4">
-        <span
-          className={`font-bold text-[13px] leading-tight ${
-            tglIsAway ? "text-accent" : "text-text dark:text-gray-100"
-          }`}
-        >
-          {match.awayTeam}
-        </span>
-      </td>
-      <td className="px-3 py-4 hidden lg:table-cell">
+      </div>
+
+      {/* Matchup */}
+      <div className="min-w-0">
+        {match.team?.name && (
+          <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-primary dark:text-primary-glow leading-tight mb-0.5">
+            {match.team.name}
+            {match.isHomeGame !== undefined && (
+              <span className="sr-only">{tgIsHome ? ", Heimspiel" : ", Auswärtsspiel"}</span>
+            )}
+          </p>
+        )}
+        <p className="text-sm leading-snug text-balance">
+          <span className={sideClass(tgIsHome)}>{match.homeTeam}</span>
+          <span className="mx-1.5 text-muted dark:text-gray-500" aria-hidden="true">
+            –
+          </span>
+          <span className="sr-only"> gegen </span>
+          <span className={sideClass(tgIsAway)}>{match.awayTeam}</span>
+        </p>
+      </div>
+
+      {/* Venue — below the matchup on mobile, own column on desktop */}
+      <div className="col-start-2 md:col-start-3 md:row-start-1 min-w-0">
         {match.venue && (
           <span className="flex items-center gap-1.5 text-xs text-muted dark:text-gray-400">
             <MapPin size={12} className="shrink-0" aria-hidden="true" />
-            {match.venue}
+            <span className="truncate">{match.venue}</span>
           </span>
-        )}
-      </td>
-      <td className="px-5 py-4 text-center">
-        <div className="flex items-center justify-center gap-2">
-          <HomeAwayBadge isHomeGame={match.isHomeGame} />
-          {isResult && match.meetingId && <MatchReportButton meetingId={match.meetingId} />}
-          {!isResult && <AddToCalendarButton match={match} compact />}
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-// ─── Mobile card ─────────────────────────────────────────────────────────────
-
-function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
-  const { date, time } = formatDateTime(match.date);
-  const tglIsHome = match.isHomeGame === true;
-  const tglIsAway = match.isHomeGame === false;
-
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_12px_32px_-16px_rgb(0_0_0/0.2)] overflow-hidden">
-      <div className={`h-[3px] ${isResult ? "bg-accent" : "bg-primary"}`} />
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs text-muted dark:text-gray-400 leading-tight">
-            {date}
-            {match.team?.name && (
-              <>
-                {" · "}
-                <span className="font-bold text-text dark:text-gray-100">{match.team.name}</span>
-              </>
-            )}
-          </span>
-          <HomeAwayBadge isHomeGame={match.isHomeGame} />
-        </div>
-        <div className="flex items-center gap-3">
-          <p
-            className={`flex-1 text-right font-bold text-sm leading-tight ${
-              tglIsHome ? "text-accent" : "text-text dark:text-gray-100"
-            }`}
-          >
-            {match.homeTeam}
-          </p>
-          <div className="shrink-0 text-center w-16">
-            {isResult ? (
-              <span className="text-lg font-black text-text dark:text-gray-100 tabular-nums">
-                {match.result ?? "–:–"}
-              </span>
-            ) : (
-              <div>
-                <span className="text-base font-black text-primary dark:text-primary-glow tabular-nums block">
-                  {time}
-                </span>
-                <span className="text-xs text-muted dark:text-gray-400">Uhr</span>
-              </div>
-            )}
-          </div>
-          <p
-            className={`flex-1 font-bold text-sm leading-tight ${
-              tglIsAway ? "text-accent" : "text-text dark:text-gray-100"
-            }`}
-          >
-            {match.awayTeam}
-          </p>
-        </div>
-        {(match.venue || (isResult && match.meetingId) || !isResult) && (
-          <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-            {match.venue && (
-              <span className="flex items-center gap-1.5 min-w-0">
-                <MapPin size={12} className="text-muted dark:text-gray-400 shrink-0" aria-hidden="true" />
-                <span className="text-xs text-muted dark:text-gray-400">{match.venue}</span>
-              </span>
-            )}
-            {isResult && match.meetingId && (
-              <span className="ml-auto shrink-0">
-                <MatchReportButton meetingId={match.meetingId} />
-              </span>
-            )}
-            {!isResult && (
-              <span className="ml-auto shrink-0">
-                <AddToCalendarButton match={match} compact />
-              </span>
-            )}
-          </div>
         )}
       </div>
-    </div>
-  );
-}
 
-// ─── Shared badge ─────────────────────────────────────────────────────────────
-
-function HomeAwayBadge({ isHomeGame }: { isHomeGame?: boolean }) {
-  if (isHomeGame === undefined) return null;
-  return isHomeGame ? (
-    <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-primary dark:text-primary-glow bg-primary/10 px-2.5 py-0.5 rounded-full">
-      <Home size={11} aria-hidden="true" />
-      Heim
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wide text-muted dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 rounded-full">
-      <Plane size={11} aria-hidden="true" />
-      Auswärts
-    </span>
+      {/* Actions */}
+      <div className="col-start-3 row-start-1 row-span-2 md:col-start-4 md:row-span-1 flex items-center justify-end">
+        {isResult && match.meetingId && <MatchReportButton meetingId={match.meetingId} />}
+        {!isResult && <AddToCalendarButton match={match} compact />}
+      </div>
+    </li>
   );
 }
