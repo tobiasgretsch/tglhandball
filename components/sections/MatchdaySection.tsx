@@ -11,6 +11,7 @@ import {
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import type { Match, Team } from "@/types";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
+import { OUTCOME_LABEL, parseResult, tgOutcome } from "@/lib/match";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
 
@@ -56,31 +57,6 @@ function formatMatchDate(date: string): string {
     timeZone: CLUB_TIME_ZONE,
   }).format(new Date(date));
 }
-
-/** Parses "28:24" → [28, 24]; null when the string isn't a score. */
-function parseResult(result: string): [number, number] | null {
-  const match = result.trim().match(/^(\d+)\s*:\s*(\d+)$/);
-  if (!match) return null;
-  return [Number(match[1]), Number(match[2])];
-}
-
-type Outcome = "sieg" | "niederlage" | "unentschieden";
-
-function tgOutcome(match: Match): Outcome | null {
-  if (!match.result) return null;
-  const score = parseResult(match.result);
-  if (!score) return null;
-  const [home, away] = score;
-  if (home === away) return "unentschieden";
-  const tgWon = match.isHomeGame ? home > away : away > home;
-  return tgWon ? "sieg" : "niederlage";
-}
-
-const OUTCOME_LABEL: Record<Outcome, string> = {
-  sieg: "Sieg",
-  niederlage: "Niederlage",
-  unentschieden: "Unentschieden",
-};
 
 // ─── Countdown ────────────────────────────────────────────────────────────────
 
