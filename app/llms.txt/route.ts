@@ -36,6 +36,7 @@ export async function GET() {
     `- [Über uns](${absoluteUrl("/ueberuns")}): Verein, Vorstand, Kontakt und Anfahrt`,
     `- [Spieltagsmagazin](${absoluteUrl("/spieltagsmagazin")}): Magazine zum Download`,
     `- [Partner](${absoluteUrl("/partner")}): Sponsoren und Unterstützer`,
+    `- [Fanshop](${absoluteUrl("/fanshop")}): Trikots, Teamwear und Equipment im uhlsport Club-Shop`,
     `- [Förderverein](${absoluteUrl("/foerderverein")}): Handball in Landshut unterstützen`,
     "",
   ];

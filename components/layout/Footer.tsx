@@ -11,6 +11,7 @@ const QUICK_LINKS = [
   { label: "News", href: "/news" },
   { label: "Teams", href: "/teams" },
   { label: "Partner", href: "/partner" },
+  { label: "Fanshop", href: "/fanshop" },
   { label: "Abteilung", href: "/ueberuns" },
 ];
 
