@@ -4,6 +4,7 @@ import Image from "next/image";
 import { client } from "@/lib/sanity";
 import { pageHeroSlidesQuery } from "@/lib/queries";
 import {
+  PRICES_CHECKED_AT,
   SHOP_CATEGORIES,
   SHOP_HOME_URL,
   SHOP_SECTIONS,
@@ -72,7 +73,7 @@ function ProductCard({ product }: { product: ShopProduct }) {
 }
 
 function ProductSection({ section }: { section: ShopSection }) {
-  const { id, eyebrow, title, description, href, linkLabel, products } = section;
+  const { id, eyebrow, title, description, links, products } = section;
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24 py-10 md:py-14">
       <Reveal className="mb-6 flex flex-col gap-4 md:mb-8 md:flex-row md:items-end md:justify-between">
@@ -90,14 +91,20 @@ function ProductSection({ section }: { section: ShopSection }) {
             {description}
           </p>
         </div>
-        <a
-          href={href}
-          {...SHOP_LINK_PROPS}
-          className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-primary transition-colors hover:text-primary-light dark:text-primary-glow"
-        >
-          {linkLabel}
-          <ArrowUpRight size={14} aria-hidden="true" />
-        </a>
+        <ul className="flex shrink-0 flex-wrap gap-x-5 gap-y-2">
+          {links.map(({ label, href }) => (
+            <li key={href}>
+              <a
+                href={href}
+                {...SHOP_LINK_PROPS}
+                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-primary transition-colors hover:text-primary-light dark:text-primary-glow"
+              >
+                {label}
+                <ArrowUpRight size={14} aria-hidden="true" />
+              </a>
+            </li>
+          ))}
+        </ul>
       </Reveal>
 
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
@@ -156,7 +163,7 @@ export default async function FanshopPage() {
                   </Reveal>
                 </li>
               ))}
-              <li className="col-span-2 sm:col-span-1">
+              <li className="col-span-2 sm:col-span-3 lg:col-span-2">
                 <Reveal delay={0.04 * SHOP_CATEGORIES.length} className="h-full">
                   <a
                     href={SHOP_HOME_URL}
@@ -182,6 +189,10 @@ export default async function FanshopPage() {
               <ProductSection key={section.id} section={section} />
             ))}
           </div>
+
+          <p className="mt-2 text-xs text-muted dark:text-gray-400">
+            Preise laut Club-Shop, Stand {PRICES_CHECKED_AT}. Verbindlich sind die Angaben im Shop.
+          </p>
 
           {/* Closing CTA */}
           <Reveal
