@@ -18,8 +18,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Animation | Framer Motion |
 | Icons | lucide-react |
 | CMS | Sanity v5 — next-sanity@12, @sanity/client@7, @sanity/image-url@2, @sanity/vision@5 |
-| Auth | Clerk (`@clerk/nextjs`) — roles: `trainer` / `spieler` stored in `publicMetadata.role` |
-| Email | Resend — contact form + player invitation emails |
 | Sitemap | next-sitemap@4 — runs as `postbuild`, generates `public/sitemap.xml` + `public/robots.txt` |
 | Analytics | `@vercel/speed-insights` |
 | Runtime | Node.js 24.14.0 LTS · npm |
@@ -27,7 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Key package versions:**
 - `next@16` · `react@19` · `tailwindcss@4` · `eslint@10`
 - `next-sanity@12` · `sanity@5` · `@sanity/client@7` · `@sanity/image-url@2`
-- `@clerk/nextjs` · `resend` · `next-sitemap@4`
+- `next-sitemap@4`
 
 ---
 
@@ -48,7 +46,7 @@ npm run lint      # ESLint check
 
 ```
 app/
-  layout.tsx                    # Root layout — ClerkProvider, Inter font, lang="de",
+  layout.tsx                    # Root layout — Inter font, lang="de",
                                 #   metadataBase, title template, JSON-LD SportsOrganization
   globals.css                   # Tailwind v4 @import + @theme color tokens + focus-visible
                                 #   ring + .skip-link accessibility class
@@ -70,31 +68,8 @@ app/
     kontakt/page.tsx            # Redirects → /ueberuns#kontakt
     verein/page.tsx             # Redirects → /ueberuns
 
-  (dashboard)/                  # Protected member area — Clerk auth required
-    layout.tsx                  # Auth + role check → DashboardSidebar + <main>
-    DashboardSidebar.tsx        # Mobile drawer (hamburger) + desktop sidebar, club colors
-    dashboard/
-      page.tsx                  # Root redirect by role
-      trainer/
-        page.tsx                # Trainer overview — team/player/plan counts
-        spieler/page.tsx        # Manage players — card list on mobile, table on desktop
-        trainingsplan/page.tsx  # Manage training plans — create/edit/delete, PDF upload,
-                                #   inline PDF viewer (iframe modal)
-      spieler/
-        page.tsx                # Player dashboard — profile link, assigned plans,
-                                #   inline PDF viewer (iframe modal)
 
   api/
-    players/route.ts            # GET/POST — scoped to trainer's teams
-    players/[id]/route.ts       # PATCH/DELETE — ownership check
-    training-plans/route.ts     # GET/POST — scoped to trainerClerkUserId
-    training-plans/[id]/route.ts # PATCH/DELETE
-    teams/route.ts              # GET — trainers see only their assigned teams
-    spieler/profile/route.ts    # GET — player profile + assigned plans
-    claim-profile/route.ts      # POST — link Clerk account to spielerProfil by email
-    upload-pdf/route.ts         # POST — upload PDF to Sanity asset store
-    set-role/route.ts           # POST — set Clerk publicMetadata.role
-    contact/route.ts            # POST — send contact form email via Resend
 
   studio/[[...tool]]/
     page.tsx                    # Server component — metadata/viewport only
@@ -119,14 +94,12 @@ lib/
 sanity/
   schemas/
     news.ts                     # News article
-    team.ts                     # Team — includes trainerClerkUserId field for dashboard scoping
+    team.ts                     # Team
     match.ts                    # Match / fixture
     magazine.ts                 # Spieltagsmagazin
     partner.ts                  # Sponsor/partner (tier: premium | standard)
     gallery.ts                  # Gallery item
     settings.ts                 # Singleton — clubName, logo, heroImage, social URLs, venue, board
-    spielerProfil.ts            # Player profile — clerkUserId + trainerClerkUserId
-    trainingsplan.ts            # Training plan — PDF, team/player assignment
     index.ts                    # Schema registry
 
 sanity.config.ts                # Studio config — basePath "/studio", singleton settings doc
@@ -145,16 +118,7 @@ Sanity CMS
        └─ Server Components (app/(site)/**/page.tsx)
             └─ Rendered via components/sections/
 
-Clerk auth
-  └─ publicMetadata.role ("trainer" | "spieler")
-       ├─ trainer → /dashboard/trainer/** (manage players + plans)
-       └─ spieler → /dashboard/spieler (view assigned plans + PDF viewer)
 
-Trainer–Team scoping (dashboard)
-  └─ team.trainerClerkUserId (set in Sanity Studio by admin)
-       ├─ /api/teams → returns only trainer's teams
-       ├─ /api/players → returns players in trainer's teams
-       └─ /api/training-plans → returns plans created by trainer
 ```
 
 ---
@@ -172,7 +136,6 @@ Defined via `@theme` in `app/globals.css` (Tailwind v4 CSS-first, no `tailwind.c
 | `text` | `text-text` | `#1A1A1A` |
 | `muted` | `text-muted` | `#6B7280` |
 
-The dashboard uses `#1a1a1a` sidebar + `bg-background` content area. Active nav items use `bg-primary text-white`.
 
 ---
 
@@ -185,12 +148,7 @@ Copy `.env.local.example` → `.env.local`:
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL — used for `metadataBase`, sitemap, OG tags |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | Sanity project ID |
 | `NEXT_PUBLIC_SANITY_DATASET` | Sanity dataset (default: `production`) |
-| `SANITY_API_TOKEN` | Sanity write token — required for dashboard mutations |
-| `RESEND_API_KEY` | Resend API key for contact form + player invitations |
-| `RESEND_FROM_EMAIL` | Verified sender address in Resend |
-| `NEXT_PUBLIC_APP_URL` | App URL used in Clerk invitation redirect URLs |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key |
-| `CLERK_SECRET_KEY` | Clerk secret key |
+| `SANITY_API_TOKEN` | Sanity write token — required for the NuLiga match sync |
 
 ---
 
@@ -201,7 +159,7 @@ Copy `.env.local.example` → `.env.local`:
 - **JSON-LD** `SportsOrganization` schema injected in root layout `<head>` — populated from Sanity settings.
 - **Twitter cards** `summary_large_image` set on all pages including dynamic news/team slugs.
 - **Sitemap** auto-generated post-build at `public/sitemap.xml` — includes static routes + dynamic news/team slugs fetched from Sanity.
-- **robots.txt** auto-generated — disallows `/studio`, `/dashboard`, `/api`, `/sign-in`, `/sign-up`, `/onboarding`.
+- **robots.txt** auto-generated — disallows `/studio`, `/api`.
 - **Skip-to-content** link on site layout; `:focus-visible` ring in club red on all interactive elements.
 - **Aria labels** on header nav elements, dropdown buttons (`aria-haspopup`, `aria-expanded`), and all partner links.
 - All `<Image>` components have meaningful `alt` text; decorative watermarks use `aria-hidden`.
@@ -221,17 +179,10 @@ Copy `.env.local.example` → `.env.local`:
 - Import: `@import "tailwindcss"` (not `@tailwind base/components/utilities`)
 - Custom color tokens: `--color-primary`, `--color-accent`, `--color-background`, etc.
 
-### Trainer–Team scoping (PERMANENT)
-Trainers are linked to teams via `team.trainerClerkUserId` (set by admin in Sanity Studio).
-- `GET /api/teams` returns only teams where `trainerClerkUserId == userId`
-- `GET /api/players` returns players where `team->trainerClerkUserId == userId` OR `trainerClerkUserId == userId` (legacy)
-- `GET /api/training-plans` returns plans where `trainerClerkUserId == userId`
 
 ### `@sanity/image-url` v2 import path
 `SanityImageSource` is exported from `"@sanity/image-url"` (package root). Do **not** use the v1 path `"@sanity/image-url/lib/types/types"`.
 
-### Mobile dashboard layout
-`app/(dashboard)/layout.tsx` has `pt-14 md:pt-0` on `<main>` to offset the fixed 56px mobile top bar rendered by `DashboardSidebar.tsx`. Do not remove this offset.
 
 ---
 
@@ -293,14 +244,13 @@ Claude must treat every mistake as a learning event and record it in this file.
 | 2026-03-06 | Mobile layout | Dashboard sidebar was a fixed-width `w-60` block with no mobile handling — rendered as an unusable column on narrow screens. | Dashboard layouts must be mobile-first. Sidebar needs a hamburger/drawer pattern on `< md` breakpoints. Always add `pt-14 md:pt-0` to `<main>` when using a fixed mobile top bar. |
 | 2026-03-06 | Trainer scoping | `trainerClerkUserId` on `spielerProfil` only captured "who created this player", not "which team does this trainer manage". A trainer assigning to a team could pick any team in the system. | Trainer–team ownership must be stored on the `team` document (`team.trainerClerkUserId`). API queries must JOIN through `team->trainerClerkUserId` for correct scoping. |
 | 2026-10-13 | Hydration / theme | Dark mode reset to light on `/` and `/spielplan` only in production. Client components formatted match times with `Intl.DateTimeFormat` without `timeZone`; Vercel server (UTC) ≠ browser (Berlin) → hydration mismatch → React client-rendered the root and wiped the `dark` class that the inline script put on `<html>`. | Always pass `timeZone: CLUB_TIME_ZONE` (`lib/dates.ts`) to date/time formatters in client-rendered code. Dev never reproduces this (server TZ = browser TZ); test with `TZ=UTC next start`. |
+| 2026-10-14 | Scope | Member area (Clerk auth, dashboard, player/plan APIs, related Sanity schemas) was removed at the owner's request; the 2026-03-06 rows above describe code that no longer exists. | Do not reintroduce auth or dashboard code without an explicit request. |
 
 ### Active Rules Derived from Past Mistakes
 
 1. Always `Read` before `Write` — even for full rewrites.
-2. Dashboard `<main>` must use `pt-14 md:pt-0` when a fixed mobile top bar is present.
-3. Trainer API routes must filter via `team->trainerClerkUserId == $id`, not only `trainerClerkUserId == $id` on child documents.
-4. `@sanity/image-url` v2 imports from package root — never from `/lib/types/types`.
-5. Sanity Studio always uses the Server + `'use client'` child split — never render `<NextStudio />` directly in a Server Component.
+2. `@sanity/image-url` v2 imports from package root — never from `/lib/types/types`.
+3. Sanity Studio always uses the Server + `'use client'` child split — never render `<NextStudio />` directly in a Server Component.
 
 ---
 

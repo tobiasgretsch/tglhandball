@@ -5,9 +5,6 @@ import magazine from "./magazine";
 import partner from "./partner";
 import gallery from "./gallery";
 import settings from "./settings";
-import spielerProfil from "./spielerProfil";
-import trainerProfil from "./trainerProfil";
-import trainingsplan from "./trainingsplan";
 import ticketPriceRow from "./ticketPriceRow";
 import pricingSection from "./pricingSection";
 
@@ -19,9 +16,6 @@ export const schemaTypes = [
   partner,
   gallery,
   settings,
-  spielerProfil,
-  trainerProfil,
-  trainingsplan,
   ticketPriceRow,
   pricingSection,
 ];

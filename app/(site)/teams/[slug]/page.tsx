@@ -17,6 +17,7 @@ import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import PricingSection from "@/components/sections/PricingSection";
+import ConsentGate from "@/components/ui/ConsentGate";
 import HandballWidget from "@/components/sections/HandballWidget";
 
 // ─── Static params + metadata ─────────────────────────────────────────────────
@@ -172,7 +173,9 @@ export default async function TeamDetailPage({ params }: Props) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Tabelle" />
             <WidgetCard>
-              <HandballWidget teamId={team.nuligaTeamId} type="tabelle" />
+              <ConsentGate label="Die Tabelle" provider="handball.net">
+                <HandballWidget teamId={team.nuligaTeamId} type="tabelle" />
+              </ConsentGate>
             </WidgetCard>
           </div>
         </section>
@@ -374,7 +377,9 @@ export default async function TeamDetailPage({ params }: Props) {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Spielplan" />
             <WidgetCard>
-              <HandballWidget teamId={team.nuligaTeamId} type="spielplan" />
+              <ConsentGate label="Der Spielplan" provider="handball.net">
+                <HandballWidget teamId={team.nuligaTeamId} type="spielplan" />
+              </ConsentGate>
             </WidgetCard>
           </div>
         </section>

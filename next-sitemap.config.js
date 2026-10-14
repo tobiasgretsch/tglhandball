@@ -5,20 +5,13 @@ module.exports = {
   robotsTxtOptions: {
     policies: [
       { userAgent: "*", allow: "/" },
-      { userAgent: "*", disallow: ["/studio", "/sign-in", "/sign-up", "/onboarding", "/dashboard", "/api"] },
+      { userAgent: "*", disallow: ["/studio", "/api"] },
     ],
   },
   // Exclude internal/private routes from the sitemap
   exclude: [
     "/studio",
     "/studio/*",
-    "/sign-in",
-    "/sign-in/*",
-    "/sign-up",
-    "/sign-up/*",
-    "/onboarding",
-    "/dashboard",
-    "/dashboard/*",
     "/api/*",
   ],
   // Dynamic routes are handled by generateStaticParams in each page file.

@@ -6,7 +6,11 @@ import * as pdfjsLib from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { X, ChevronLeft, Loader2, AlertCircle, ZoomIn, ZoomOut } from "lucide-react";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+// Bundled with the site: no third-party CDN request (DSGVO — no IP transfer to a CDN).
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url,
+).toString();
 
 const TOP_BAR_HEIGHT = 48;
 const MIN_ZOOM = 1;
