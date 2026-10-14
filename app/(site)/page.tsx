@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ExternalLink, FileText } from "lucide-react";
@@ -32,15 +33,17 @@ import MatchdaySection from "@/components/sections/MatchdaySection";
 // Metadata is enhanced at runtime by the root layout's metadataBase.
 // The hero image is fetched in the page body; here we set static defaults.
 export const metadata: Metadata = {
-  title: "TG MIPA Landshut Handball – Leidenschaft seit Jahrzehnten",
+  title: { absolute: "TG MIPA Landshut Handball – Spielplan, Teams & News aus Landshut" },
   description:
-    "Offizielle Website des TG MIPA Landshut. Aktuelle News, Spielplan, Mannschaften und mehr.",
+    "Offizielle Website des TG MIPA Landshut: Handball in Landshut mit Herren-, Damen- und Jugendmannschaften. Aktueller Spielplan, Ergebnisse, News und Hallenadresse.",
+  alternates: { canonical: "/" },
   openGraph: {
     title: "TG MIPA Landshut Handball",
-    description: "Handball in Landshut – Leidenschaft seit Jahrzehnten.",
+    description: "Handball in Landshut – Spielplan, Teams und News des TG MIPA Landshut.",
     type: "website",
+    images: [DEFAULT_OG_IMAGE],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: [DEFAULT_OG_IMAGE.url] },
 };
 
 export const revalidate = 300;

@@ -6,6 +6,8 @@ import "./globals.css";
 import { client, urlFor } from "@/lib/sanity";
 import { settingsQuery } from "@/lib/queries";
 import type { Settings } from "@/types";
+import JsonLd from "@/components/ui/JsonLd";
+import { SITE_URL, organizationJsonLd } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -15,8 +17,6 @@ const barlowCondensed = Barlow_Condensed({
   style: ["normal", "italic"],
   variable: "--font-barlow-condensed",
 });
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://tglhandball.de";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await client
@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | TG MIPA Landshut",
     },
     description:
-      "Offizieller Internetauftritt des TG MIPA Landshut – Handball mit Leidenschaft seit Jahrzehnten. Aktuelle News, Spielplan, Mannschaften und mehr.",
+      "Offizielle Website des TG MIPA Landshut: Handball in Landshut mit Herren-, Damen- und Jugendmannschaften. Spielplan, Ergebnisse, News und Hallenadresse.",
     openGraph: {
       type: "website",
       locale: "de_DE",
@@ -87,36 +87,17 @@ export default async function RootLayout({
     ? urlFor(settings.logo).width(256).height(256).format("png").url()
     : null;
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "SportsOrganization",
-    name: settings?.clubName ?? "TG MIPA Landshut",
-    url: SITE_URL,
-    sport: "Handball",
-    ...(logoUrl && { logo: logoUrl }),
-    sameAs: [
-      settings?.instagramUrl,
-      settings?.facebookUrl,
-      settings?.youtubeUrl,
-    ].filter(Boolean),
-    ...(settings?.contactEmail && { email: settings.contactEmail }),
-    ...(settings?.venueName && settings?.venueAddress && {
-      location: {
-        "@type": "Place",
-        name: settings.venueName,
-        address: settings.venueAddress,
-      },
-    }),
-  };
+  const jsonLd = organizationJsonLd(settings, logoUrl);
 
   return (
     <html lang="de" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <noscript>
+          {/* Scroll-reveal content starts hidden; without JS it must stay visible. */}
+          <style>{"[style*='opacity:0'],[style*='opacity: 0']{opacity:1!important;transform:none!important}"}</style>
+        </noscript>
+        <JsonLd data={jsonLd} />
       </head>
       <body className={`${inter.variable} ${barlowCondensed.variable} ${inter.className}`}>
         {children}

@@ -1,14 +1,7 @@
 # *
 User-agent: *
 Allow: /
-
-# *
-User-agent: *
 Disallow: /studio
-Disallow: /sign-in
-Disallow: /sign-up
-Disallow: /onboarding
-Disallow: /dashboard
 Disallow: /api
 
 # Host

@@ -10,10 +10,12 @@ interface ConsentGateProps {
   provider: string;
   children: ReactNode;
   className?: string;
+  /** Optional link that works without consent (user-initiated navigation), e.g. open the map on the provider site. */
+  fallbackLink?: { href: string; label: string };
 }
 
 /** Renders `children` only after opt-in to "Externe Inhalte"; otherwise a click-to-load placeholder. */
-export default function ConsentGate({ label, provider, children, className }: ConsentGateProps) {
+export default function ConsentGate({ label, provider, children, className, fallbackLink }: ConsentGateProps) {
   const allowed = useHasConsent("external");
   const consent = useConsent();
 
@@ -49,6 +51,16 @@ export default function ConsentGate({ label, provider, children, className }: Co
           Einstellungen
         </button>
       </div>
+      {fallbackLink && (
+        <a
+          href={fallbackLink.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-accent underline underline-offset-2 dark:text-accent-sky"
+        >
+          {fallbackLink.label}
+        </a>
+      )}
     </div>
   );
 }

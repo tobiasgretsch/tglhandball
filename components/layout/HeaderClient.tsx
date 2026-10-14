@@ -473,7 +473,7 @@ export default function HeaderClient({
                               <div key={key}>
                                 <button
                                   onClick={() => toggleMobileSection(groupKey)}
-                                  className="w-full flex items-center justify-between pl-10 pr-6 py-2.5 text-[12px] font-bold uppercase tracking-[0.12em] text-gray-500 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-red-50 dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                                  className="w-full flex items-center justify-between pl-10 pr-6 py-2.5 text-[12px] font-bold uppercase tracking-[0.12em] text-gray-700 dark:text-white/75 hover:text-gray-900 dark:hover:text-white hover:bg-red-50 dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                                 >
                                   {label}
                                   <motion.span
@@ -523,7 +523,7 @@ export default function HeaderClient({
                           <Link
                             href="/teams"
                             onClick={() => setMobileOpen(false)}
-                            className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-400 hover:text-gray-900 hover:bg-red-50 dark:text-white/40 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-t border-gray-200 dark:border-white/10"
+                            className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-t border-gray-200 dark:border-white/10"
                           >
                             Alle Teams →
                           </Link>

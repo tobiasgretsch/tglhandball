@@ -13,7 +13,9 @@ interface HeroSectionProps {
 
 function makeFadeUp(reduced: boolean) {
   return {
-    hidden: { opacity: 0, y: reduced ? 0 : 28 },
+    // Opacity stays 1: the headline is the LCP element and must be visible
+    // in the server HTML and before hydration; only the rise is animated.
+    hidden: { opacity: 1, y: reduced ? 0 : 28 },
     show: (delay: number) => ({
       opacity: 1,
       y: 0,
@@ -74,6 +76,7 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
           animate="show"
           className="font-display font-bold italic text-6xl sm:text-7xl md:text-8xl text-white uppercase tracking-[-0.03em] leading-[0.88] mb-6"
         >
+          <span className="sr-only">TG MIPA Landshut: </span>
           Handball
           <br />
           <span className="text-primary-glow">in Landshut</span>
