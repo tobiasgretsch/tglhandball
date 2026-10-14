@@ -7,7 +7,8 @@ import { groq } from "next-sanity";
 import JsonLd from "@/components/ui/JsonLd";
 import { breadcrumbJsonLd, fixturesJsonLd, sportsTeamJsonLd } from "@/lib/seo";
 import MatchReportButton from "@/components/ui/MatchReportButton";
-import { ArrowRight, Calendar, MapPin, Shield, User } from "lucide-react";
+import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
+import { ArrowRight, Calendar, Clock, MapPin, Shield, User } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
 import {
   teamDetailQuery,
@@ -15,7 +16,7 @@ import {
   teamRecentResultsQuery,
   settingsQuery,
 } from "@/lib/queries";
-import type { Team, Match, Betreuer, Settings } from "@/types";
+import type { Team, Match, Betreuer, Settings, TrainingDay, TrainingTime } from "@/types";
 import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
@@ -200,6 +201,20 @@ export default async function TeamDetailPage({ params }: Props) {
                 <HandballWidget teamId={team.nuligaTeamId} type="tabelle" />
               </ConsentGate>
             </WidgetCard>
+          </div>
+        </section>
+      )}
+
+      {/* ── 3b. Trainingszeiten ───────────────────────────────────────── */}
+      {team.trainingTimes && team.trainingTimes.length > 0 && (
+        <section className="bg-white dark:bg-gray-800 py-14 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Trainingszeiten" />
+            <ul className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sortTrainingTimes(team.trainingTimes).map((slot) => (
+                <TrainingSlot key={slot._key} slot={slot} />
+              ))}
+            </ul>
           </div>
         </section>
       )}
@@ -441,6 +456,52 @@ function SectionHeading({ label }: { label: string }) {
   );
 }
 
+const TRAINING_DAYS: readonly TrainingDay[] = ["mo", "di", "mi", "do", "fr", "sa", "so"];
+
+const TRAINING_DAY_LABEL: Record<TrainingDay, string> = {
+  mo: "Montag",
+  di: "Dienstag",
+  mi: "Mittwoch",
+  do: "Donnerstag",
+  fr: "Freitag",
+  sa: "Samstag",
+  so: "Sonntag",
+};
+
+function sortTrainingTimes(slots: TrainingTime[]): TrainingTime[] {
+  return [...slots].sort(
+    (a, b) =>
+      TRAINING_DAYS.indexOf(a.day) - TRAINING_DAYS.indexOf(b.day) ||
+      a.startTime.localeCompare(b.startTime)
+  );
+}
+
+function TrainingSlot({ slot }: { slot: TrainingTime }) {
+  return (
+    <li className="bg-background dark:bg-gray-700 rounded-2xl border border-gray-100 dark:border-gray-600 px-5 py-4 shadow-[0_1px_2px_rgb(0_0_0/0.05)]">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary dark:text-primary-glow">
+        {TRAINING_DAY_LABEL[slot.day]}
+      </p>
+      <p className="mt-1 font-display font-bold text-2xl text-text dark:text-gray-100 tabular-nums">
+        {slot.startTime}
+        {slot.endTime ? `–${slot.endTime}` : ""} Uhr
+      </p>
+      {slot.location && (
+        <p className="mt-2 flex items-center gap-1.5 text-sm text-muted dark:text-gray-300">
+          <MapPin size={13} className="shrink-0" aria-hidden="true" />
+          {slot.location}
+        </p>
+      )}
+      {slot.note && (
+        <p className="mt-1 flex items-center gap-1.5 text-sm text-muted dark:text-gray-300">
+          <Clock size={13} className="shrink-0" aria-hidden="true" />
+          {slot.note}
+        </p>
+      )}
+    </li>
+  );
+}
+
 function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
   const date = new Date(match.date);
   const dateStr = new Intl.DateTimeFormat("de-DE", {
@@ -503,6 +564,11 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
         {isResult && match.meetingId && (
           <span className="ml-auto">
             <MatchReportButton meetingId={match.meetingId} />
+          </span>
+        )}
+        {!isResult && (
+          <span className="ml-auto">
+            <AddToCalendarButton match={match} compact />
           </span>
         )}
       </div>

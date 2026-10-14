@@ -5,6 +5,7 @@ import { MapPin, Home, Plane } from "lucide-react";
 import type { Match } from "@/types";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import MatchReportButton from "@/components/ui/MatchReportButton";
+import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
 
 interface TeamOption {
   _id: string;
@@ -283,6 +284,7 @@ function MatchTableRow({
         <div className="flex items-center justify-center gap-2">
           <HomeAwayBadge isHomeGame={match.isHomeGame} />
           {isResult && match.meetingId && <MatchReportButton meetingId={match.meetingId} />}
+          {!isResult && <AddToCalendarButton match={match} compact />}
         </div>
       </td>
     </tr>
@@ -342,7 +344,7 @@ function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
             {match.awayTeam}
           </p>
         </div>
-        {(match.venue || (isResult && match.meetingId)) && (
+        {(match.venue || (isResult && match.meetingId) || !isResult) && (
           <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             {match.venue && (
               <span className="flex items-center gap-1.5 min-w-0">
@@ -353,6 +355,11 @@ function MatchCard({ match, isResult }: { match: Match; isResult: boolean }) {
             {isResult && match.meetingId && (
               <span className="ml-auto shrink-0">
                 <MatchReportButton meetingId={match.meetingId} />
+              </span>
+            )}
+            {!isResult && (
+              <span className="ml-auto shrink-0">
+                <AddToCalendarButton match={match} compact />
               </span>
             )}
           </div>

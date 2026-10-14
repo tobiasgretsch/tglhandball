@@ -87,6 +87,18 @@ export interface Player {
   image?: SanityImage;
 }
 
+export type TrainingDay = "mo" | "di" | "mi" | "do" | "fr" | "sa" | "so";
+
+export interface TrainingTime {
+  _key: string;
+  day: TrainingDay;
+  /** "HH:MM" */
+  startTime: string;
+  endTime?: string;
+  location?: string;
+  note?: string;
+}
+
 export interface Team {
   _id: string;
   name: string;
@@ -98,6 +110,7 @@ export interface Team {
   coaches?: Coach[];
   betreuer?: Betreuer[];
   squad?: Player[];
+  trainingTimes?: TrainingTime[];
   pricingSection?: PricingSection;
   nuligaTeamId?: string;
   order?: number;

@@ -105,6 +105,72 @@ export default defineType({
       ],
     }),
     defineField({
+      name: "trainingTimes",
+      title: "Trainingszeiten",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({
+              name: "day",
+              title: "Wochentag",
+              type: "string",
+              options: {
+                list: [
+                  { title: "Montag", value: "mo" },
+                  { title: "Dienstag", value: "di" },
+                  { title: "Mittwoch", value: "mi" },
+                  { title: "Donnerstag", value: "do" },
+                  { title: "Freitag", value: "fr" },
+                  { title: "Samstag", value: "sa" },
+                  { title: "Sonntag", value: "so" },
+                ],
+              },
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "startTime",
+              title: "Beginn",
+              type: "string",
+              description: 'Format HH:MM, z.B. "18:00"',
+              validation: (Rule) =>
+                Rule.required().regex(/^([01]\d|2[0-3]):[0-5]\d$/, { name: "HH:MM" }),
+            }),
+            defineField({
+              name: "endTime",
+              title: "Ende",
+              type: "string",
+              description: 'Format HH:MM, z.B. "19:30"',
+              validation: (Rule) =>
+                Rule.regex(/^([01]\d|2[0-3]):[0-5]\d$/, { name: "HH:MM" }),
+            }),
+            defineField({
+              name: "location",
+              title: "Ort",
+              type: "string",
+              description: 'z.B. "Elektro-Ecker-Halle"',
+            }),
+            defineField({
+              name: "note",
+              title: "Hinweis",
+              type: "string",
+              description: 'z.B. "Torwarttraining" oder "Probetraining willkommen"',
+            }),
+          ],
+          preview: {
+            select: { day: "day", start: "startTime", end: "endTime", subtitle: "location" },
+            prepare({ day, start, end, subtitle }) {
+              return {
+                title: `${(day ?? "").toUpperCase()} ${start ?? ""}${end ? `–${end}` : ""}`,
+                subtitle,
+              };
+            },
+          },
+        }),
+      ],
+    }),
+    defineField({
       name: "pricingSection",
       title: "Eintrittspreise",
       type: "pricingSection",

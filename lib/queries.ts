@@ -67,6 +67,7 @@ export const teamDetailQuery = groq`
     coaches,
     betreuer,
     squad,
+    trainingTimes,
     pricingSection {
       heading,
       rows[] {
