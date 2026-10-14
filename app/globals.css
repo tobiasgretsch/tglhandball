@@ -213,6 +213,20 @@ body {
   }
 }
 
+/* Dark mode: brand colours would vanish on the dark surface, so logos
+   become white silhouettes that brighten on hover. */
+.dark .partner-logo {
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+}
+@media (hover: hover) {
+  .dark .partner-link:hover .partner-logo,
+  .dark .partner-link:focus-visible .partner-logo {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+  }
+}
+
 /* CSS-only infinite marquee. The track holds two identical sets, so
    translating by -50% loops seamlessly. */
 .partner-marquee {

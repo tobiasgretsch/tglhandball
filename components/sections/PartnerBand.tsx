@@ -37,7 +37,7 @@ function PartnerLogo({ partner, tier }: { partner: PartnerBandItem; tier: Tier }
     </span>
   ) : (
     <span
-      className={`partner-logo flex items-center justify-center text-center font-semibold text-gray-500 ${LOGO_BOX[tier]} ${
+      className={`partner-logo flex items-center justify-center text-center font-semibold text-gray-500 dark:text-gray-400 ${LOGO_BOX[tier]} ${
         tier === "premium" ? "text-base" : "text-xs"
       }`}
     >
@@ -94,11 +94,11 @@ export default function PartnerBand({ premium, standard }: Props) {
   if (premium.length === 0 && standard.length === 0) return null;
 
   return (
-    <section aria-labelledby="partner-heading" className="bg-white">
+    <section aria-labelledby="partner-heading" className="border-b border-transparent bg-white dark:border-white/10 dark:bg-gray-950">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <h2
           id="partner-heading"
-          className="mb-10 text-center text-sm font-semibold text-gray-500"
+          className="mb-10 text-center text-sm font-semibold text-gray-500 dark:text-gray-400"
         >
           Unsere Partner
         </h2>
@@ -106,7 +106,7 @@ export default function PartnerBand({ premium, standard }: Props) {
         {premium.length > 0 && <StaticRow partners={premium} tier="premium" />}
 
         {premium.length > 0 && standard.length > 0 && (
-          <div className="mx-auto my-10 h-px max-w-xs bg-gray-200" />
+          <div className="mx-auto my-10 h-px max-w-xs bg-gray-200 dark:bg-white/10" />
         )}
 
         {standard.length > 0 &&
@@ -119,7 +119,7 @@ export default function PartnerBand({ premium, standard }: Props) {
         <div className="mt-10 flex justify-center">
           <Link
             href="/partner"
-            className="press text-sm font-semibold text-accent hover:underline"
+            className="press text-sm font-semibold text-accent hover:underline dark:text-accent-sky"
           >
             Alle Partner ansehen →
           </Link>
