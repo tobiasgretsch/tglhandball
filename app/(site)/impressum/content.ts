@@ -5,7 +5,7 @@ const CLUB_ADDRESS =
 
 // Übernommen von der bisherigen Website tglhandball.de (Stand: Oktober 2026).
 export const IMPRESSUM_BLOCKS: LegalBlock[] = [
-  { type: "h2", text: "Angaben gemäß § 5 TMG" },
+  { type: "h2", text: "Angaben gemäß § 5 DDG" },
   { type: "address", text: CLUB_ADDRESS },
   { type: "h2", text: "Vertreten durch" },
   { type: "p", text: "1. Vorsitzender Dr. Christian Kraus" },
@@ -15,7 +15,7 @@ export const IMPRESSUM_BLOCKS: LegalBlock[] = [
   { type: "address", text: "Sitz des Vereins: Landshut\nRegistergericht: Amtsgericht Landshut\nRegisternummer: VR201130" },
   { type: "h2", text: "Umsatzsteuer-ID" },
   { type: "p", text: "Umsatzsteuer-Identifikationsnummer gemäß §27 a Umsatzsteuergesetz: DE359904473" },
-  { type: "h2", text: "Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV" },
+  { type: "h2", text: "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV" },
   { type: "address", text: CLUB_ADDRESS },
   { type: "h2", text: "Bilder" },
   {
