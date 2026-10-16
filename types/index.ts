@@ -112,7 +112,7 @@ export interface Team {
   squad?: Player[];
   trainingTimes?: TrainingTime[];
   pricingSection?: PricingSection;
-  nuligaTeamId?: string;
+  nuligaTableUrl?: string;
   order?: number;
 }
 
