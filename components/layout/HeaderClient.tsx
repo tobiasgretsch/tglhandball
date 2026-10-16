@@ -142,7 +142,7 @@ export default function HeaderClient({
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,box-shadow] duration-300 motion-reduce:transition-none ${
         scrolled
-          ? "bg-primary/80 dark:bg-gray-900/90 backdrop-blur-xl backdrop-saturate-150 [@media(prefers-reduced-transparency:reduce)]:backdrop-blur-none [@media(prefers-reduced-transparency:reduce)]:bg-primary shadow-[0_1px_0_rgb(255_255_255/0.12),0_8px_32px_-8px_rgba(0,0,0,0.3)]"
+          ? "bg-primary dark:bg-gray-900 shadow-[0_1px_0_rgb(255_255_255/0.12),0_8px_32px_-8px_rgba(0,0,0,0.3)]"
           : "bg-primary dark:bg-gray-900"
       }`}
     >
