@@ -7,6 +7,7 @@ import { CLUB_TIME_ZONE } from "@/lib/dates";
 import { OUTCOME_LABEL, tgOutcome, type Outcome } from "@/lib/match";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
+import { LiveMatchBadge } from "@/components/live/LiveBadge";
 
 interface TeamOption {
   _id: string;
@@ -293,7 +294,8 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
       </div>
 
       {/* Actions */}
-      <div className="col-start-3 row-start-1 row-span-2 md:col-start-4 md:row-span-1 flex items-center justify-end">
+      <div className="col-start-3 row-start-1 row-span-2 md:col-start-4 md:row-span-1 flex items-center justify-end gap-2">
+        <LiveMatchBadge match={match} />
         {isResult && match.meetingId && <MatchReportButton meetingId={match.meetingId} />}
         {!isResult && <AddToCalendarButton match={match} compact />}
       </div>

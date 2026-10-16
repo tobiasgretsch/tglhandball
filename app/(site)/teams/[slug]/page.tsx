@@ -22,6 +22,7 @@ import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import PricingSection from "@/components/sections/PricingSection";
 import StandingsTable from "@/components/sections/StandingsTable";
+import { LiveMatchBadge } from "@/components/live/LiveBadge";
 import { fetchStandings } from "@/lib/nuliga/standings";
 
 // ─── Static params + metadata ─────────────────────────────────────────────────
@@ -510,6 +511,7 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
 
       {/* Meta */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3">
+        <LiveMatchBadge match={match} />
         <span className="flex items-center gap-1 text-xs text-muted dark:text-gray-400">
           <Calendar size={12} className="shrink-0" aria-hidden="true" />
           {dateStr}

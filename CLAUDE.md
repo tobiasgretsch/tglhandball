@@ -61,6 +61,8 @@ app/
       page.tsx                  # Teams overview grid
       [slug]/page.tsx           # Team detail (squad, coaches, fixtures, results)
     spielplan/page.tsx          # Fixture & results listing with team filter
+    live/page.tsx               # Live overview: running / next / last TG games
+    live/[meetingId]/page.tsx   # Live ticker for one game (noindex, polls /api/live/[id])
     spieltagsmagazin/page.tsx   # Magazine PDF archive
     impressionen/page.tsx       # Photo gallery
     ueberuns/page.tsx           # Club history, board, venue map, contact form
@@ -70,6 +72,8 @@ app/
 
 
   api/
+    live/route.ts               # TG games ±days + live flags + pollAfterMs (CDN-cached 10 s)
+    live/[meetingId]/route.ts   # Full ticker snapshot (CDN-cached 4 s); only ids from our own game list
 
   studio/[[...tool]]/
     page.tsx                    # Server component — metadata/viewport only
@@ -86,6 +90,10 @@ components/
   ui/                           # Primitive components (PortableText, ScrollToTop, …)
 
 lib/
+  live/                         # nuLiga live ticker: parse.ts (defensive parsers), events.ts (feed/status/score),
+                                #   fixture.ts (Sanity match ↔ live game), upstream.ts (REST client, 15 s time buckets),
+                                #   schedule.ts (two-tier polling), ticker.ts (snapshot), stats.ts (per-team match stats from the feed),
+                                #   table.ts (league position from the nuLiga group page), coalesce.ts (dedupe + stale fallback)
   sanity.ts                     # Read-only Sanity client + urlFor() helper
   sanity-write.ts               # Write client (uses SANITY_API_TOKEN)
   queries.ts                    # All GROQ queries (allNewsQuery, teamDetailQuery,
@@ -149,6 +157,7 @@ Copy `.env.local.example` → `.env.local`:
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | Sanity project ID |
 | `NEXT_PUBLIC_SANITY_DATASET` | Sanity dataset (default: `production`) |
 | `SANITY_API_TOKEN` | Sanity write token — required for the NuLiga match sync |
+| `NULIGA_LIVE_REST_BASE`, `NULIGA_CLUB_TEAMS_URL` | Optional. Point the live ticker at a mock nuLiga for testing; defaults are the real endpoints |
 
 ---
 
@@ -247,6 +256,7 @@ Claude must treat every mistake as a learning event and record it in this file.
 | 2026-10-14 | Scope | Member area (Clerk auth, dashboard, player/plan APIs, related Sanity schemas) was removed at the owner's request; the 2026-03-06 rows above describe code that no longer exists. | Do not reintroduce auth or dashboard code without an explicit request. |
 | 2026-10-14 | SEO | Page-level `openGraph` replaces the root layout's whole `openGraph` object, so pages silently lost the share image; the file-based `opengraph-image` is also not merged in. Root-level `alternates.canonical` would be inherited by every child page. | Give every page-level `openGraph` an explicit `images` entry (`DEFAULT_OG_IMAGE` in `lib/seo.ts`, served at `/og`) and set `alternates.canonical` per page, never in the root layout. `next lint` no longer exists in Next 16 and the repo has no ESLint config. |
 | 2026-10-14 | Fanshop data | `lib/fanshop.ts` was built from whatever variant the shop listing linked to: links opened on 5XL/kids' sizes, and the Promo T-Shirt showed its kids' price (8,39 €) as a fixed price although adult sizes cost 9,59 €. The shop's "Jugend" category also turned out to be a copy of "Herren". | uhlsport variant URLs encode the size (`…/SW10009.M`, `…-M-A`). Link apparel to size M, and check a product's price in at least two sizes before marking it `priceFrom: false`. Verify shop categories by their contents, not their names. |
+| 2026-10-16 | nuLiga live API | `/time/<unix>` on the nuScoreLive REST API only accepts multiples of 15 s; anything else answers 204 (`meeting`) or 500 (`meetings`). Responses are CDN-cached for an hour, so the value also *is* the cache key — a 10 s bucket would have broken the live badge silently during a real game, and a fixed value serves hour-old scores. | Probe an undocumented API with fresh, non-round parameters before building on it; bucket the time to 15 s. Test live features against a mock that enforces the real constraints (`NULIGA_LIVE_REST_BASE` / `NULIGA_CLUB_TEAMS_URL` point the code at one). |
 
 ### Active Rules Derived from Past Mistakes
 

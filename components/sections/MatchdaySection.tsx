@@ -14,6 +14,7 @@ import { CLUB_TIME_ZONE } from "@/lib/dates";
 import { OUTCOME_LABEL, parseResult, tgOutcome } from "@/lib/match";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
+import { LiveMatchBadge } from "@/components/live/LiveBadge";
 
 interface MatchdaySectionProps {
   upcoming: Match[];
@@ -183,9 +184,12 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
               viewport={{ once: true, margin: "-60px" }}
               transition={reduced ? { duration: 0 } : SPRING}
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent-sky">
-                Nächstes Spiel
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent-sky">
+                  Nächstes Spiel
+                </p>
+                <LiveMatchBadge match={nextMatch} />
+              </div>
 
               <p className="mt-6 font-display font-bold uppercase leading-[0.95] text-3xl sm:text-4xl md:text-5xl text-balance">
                 {nextMatch.homeTeam}
