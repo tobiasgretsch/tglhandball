@@ -15,6 +15,9 @@ module.exports = {
     // Redirects and noindex pages do not belong in the sitemap.
     "/kontakt",
     "/verein",
+    // Live pages are real-time views, not indexable content.
+    "/live",
+    "/live/*",
     "/impressum",
     "/datenschutz",
   ],

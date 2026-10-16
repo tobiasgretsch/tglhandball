@@ -1,6 +1,7 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import { LiveProvider } from "@/components/live/LiveProvider";
 
 export default function SiteLayout({
   children,
@@ -8,7 +9,7 @@ export default function SiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <LiveProvider>
       {/* Skip-to-content link — invisible until focused by keyboard */}
       <a href="#main-content" className="skip-link">
         Zum Inhalt springen
@@ -19,6 +20,6 @@ export default function SiteLayout({
       </main>
       <Footer />
       <ScrollToTop />
-    </>
+    </LiveProvider>
   );
 }

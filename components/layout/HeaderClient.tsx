@@ -7,6 +7,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import type { TeamCategory } from "@/types";
+import { LiveNavBadge } from "@/components/live/LiveBadge";
 
 interface TeamItem {
   _id: string;
@@ -326,6 +327,8 @@ export default function HeaderClient({
             )
           )}
 
+          <LiveNavBadge className="ml-3" />
+
           {/* Theme toggle — desktop */}
           <button
             onClick={toggleTheme}
@@ -338,6 +341,7 @@ export default function HeaderClient({
 
         {/* Mobile: theme toggle + hamburger */}
         <div className="lg:hidden flex items-center gap-1">
+          <LiveNavBadge className="mr-1" />
           <button
             onClick={toggleTheme}
             aria-label={isDark ? "Helles Design aktivieren" : "Dunkles Design aktivieren"}
