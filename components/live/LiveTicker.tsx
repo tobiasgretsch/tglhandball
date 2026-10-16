@@ -260,7 +260,7 @@ function Scoreboard({ snapshot }: { snapshot: TickerSnapshot }) {
       <div className="mt-6 flex items-center gap-3 sm:gap-6">
         <TeamColumn name={game.homeTeam} isClub={isClubTeam(game.homeTeam)} align="left" standing={snapshot.table?.home} />
         <p
-          className="shrink-0 font-display text-4xl font-bold tabular-nums text-text dark:text-gray-100 sm:text-6xl"
+          className="shrink-0 font-display text-4xl font-bold tracking-tight tabular-nums text-text dark:text-gray-100 sm:text-6xl"
           aria-live="polite"
           aria-atomic="true"
         >
@@ -395,8 +395,8 @@ function EntryRow({ entry, snapshot, fresh }: { entry: TickerEntry; snapshot: Ti
   const isPeriod = entry.kind === "period";
   return (
     <li
-      className={`grid grid-cols-[3.5rem_1fr_auto] items-center gap-3 rounded-xl border border-gray-100 px-3 py-2.5 dark:border-gray-700 ${rowTone(entry, snapshot.game)} ${
-        fresh ? "ring-2 ring-primary/50 motion-safe:animate-pulse" : ""
+      className={`grid grid-cols-[3.5rem_1fr_auto] items-center gap-3 rounded-xl border border-gray-100 px-3 py-2.5 transition-shadow duration-1000 motion-reduce:transition-none dark:border-gray-700 ${rowTone(entry, snapshot.game)} ${
+        fresh ? "ring-2 ring-primary/50" : "ring-2 ring-transparent"
       }`}
     >
       <span className="font-mono text-xs tabular-nums text-muted dark:text-gray-400">
@@ -451,7 +451,7 @@ export default function LiveTicker({ meetingId, initial }: LiveTickerProps) {
             <button
               type="button"
               onClick={retry}
-              className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-bold text-white hover:bg-primary-light"
+              className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-bold text-white transition-transform duration-100 hover:bg-primary-light active:scale-[0.97] motion-reduce:active:scale-100"
             >
               Seite neu laden
             </button>

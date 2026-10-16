@@ -23,7 +23,7 @@ function GameRow({ game, timeZone }: { game: LiveGame; timeZone: string }) {
     <li>
       <Link
         href={`/live/${game.meetingId}`}
-        className="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgb(0_0_0/0.05)] transition-colors hover:border-primary/40 dark:border-gray-700 dark:bg-gray-800"
+        className="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white px-4 py-4 shadow-[0_1px_2px_rgb(0_0_0/0.05)] transition-[colors,transform] duration-100 active:scale-[0.99] motion-reduce:active:scale-100 hover:border-primary/40 dark:border-gray-700 dark:bg-gray-800"
       >
         <div className="min-w-0">
           {game.league && (

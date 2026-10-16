@@ -29,7 +29,7 @@ function LivePill({ href, label, tone, ariaLabel }: PillProps) {
     <Link
       href={href}
       aria-label={ariaLabel}
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black uppercase leading-none tracking-[0.12em] tabular-nums transition-colors ${TONE_CLASS[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black uppercase leading-none tracking-[0.12em] tabular-nums transition-[colors,transform] duration-100 active:scale-[0.97] motion-reduce:active:scale-100 ${TONE_CLASS[tone]}`}
     >
       <span className="relative flex size-2" aria-hidden="true">
         <span
