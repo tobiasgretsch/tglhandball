@@ -190,11 +190,17 @@ export default defineType({
       },
     }),
     defineField({
-      name: "nuligaTeamId",
-      title: "nuLiga Team-ID (Tabelle & Spielplan Widget)",
-      type: "string",
+      name: "nuligaTableUrl",
+      title: "nuLiga Ligatabelle (Link)",
+      type: "url",
       description:
-        'Team-ID aus handball.net, z.B. "nuliga.bhv.1678219". Wird für die eingebetteten Tabellen- und Spielplan-Widgets verwendet.',
+        "Link zur Tabellenseite der Liga auf bhv-handball.liga.nu (groupPage?championship=…&group=…). Die Tabelle erscheint automatisch auf der Mannschaftsseite.",
+      validation: (rule) =>
+        rule.uri({ scheme: ["https"] }).custom((value) =>
+          !value || new URL(value).hostname === "bhv-handball.liga.nu"
+            ? true
+            : "Nur Links von bhv-handball.liga.nu sind erlaubt."
+        ),
     }),
     defineField({
       name: "nuligaLeagues",

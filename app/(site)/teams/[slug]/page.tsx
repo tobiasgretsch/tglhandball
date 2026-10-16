@@ -21,8 +21,8 @@ import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import PricingSection from "@/components/sections/PricingSection";
-import ConsentGate from "@/components/ui/ConsentGate";
-import HandballWidget from "@/components/sections/HandballWidget";
+import StandingsTable from "@/components/sections/StandingsTable";
+import { fetchStandings } from "@/lib/nuliga/standings";
 
 // ─── Static params + metadata ─────────────────────────────────────────────────
 
@@ -94,7 +94,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
   if (!team) notFound();
 
-  const [upcoming, results, settings] = await Promise.all([
+  const [upcoming, results, settings, standings] = await Promise.all([
     client
       .fetch<Match[]>(
         teamUpcomingMatchesQuery,
@@ -112,6 +112,7 @@ export default async function TeamDetailPage({ params }: Props) {
     client
       .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
       .catch(() => null),
+    team.nuligaTableUrl ? fetchStandings(team.nuligaTableUrl) : Promise.resolve([]),
   ]);
 
   const heroUrl = team.headerImage
@@ -192,15 +193,11 @@ export default async function TeamDetailPage({ params }: Props) {
       )}
 
       {/* ── 3. Tabelle (nuLiga) — shown directly after About ──────────── */}
-      {team.nuligaTeamId && (
+      {team.nuligaTableUrl && standings.length > 0 && (
         <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Tabelle" />
-            <WidgetCard>
-              <ConsentGate label="Die Tabelle" provider="handball.net">
-                <HandballWidget teamId={team.nuligaTeamId} type="tabelle" />
-              </ConsentGate>
-            </WidgetCard>
+            <StandingsTable rows={standings} sourceUrl={team.nuligaTableUrl} />
           </div>
         </section>
       )}
@@ -409,20 +406,6 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 8: nuLiga Spielplan ────────────────────────────────────────── */}
-      {team.nuligaTeamId && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading label="Spielplan" />
-            <WidgetCard>
-              <ConsentGate label="Der Spielplan" provider="handball.net">
-                <HandballWidget teamId={team.nuligaTeamId} type="spielplan" />
-              </ConsentGate>
-            </WidgetCard>
-          </div>
-        </section>
-      )}
-
       {/* ── 9. Pricing ────────────────────────────────────────────────── */}
       {team.pricingSection && (team.pricingSection.rows?.length ?? 0) > 0 && (
         <PricingSection data={team.pricingSection} />
@@ -432,19 +415,6 @@ export default async function TeamDetailPage({ params }: Props) {
 }
 
 // ─── Shared sub-components ───────────────────────────────────────────────────
-
-/**
- * Modern card wrapper for nuLiga widgets.
- * On mobile: full-width, scrollable with a subtle right-fade hint.
- * On desktop: rounded card with shadow.
- */
-function WidgetCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mt-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] bg-white p-4 md:p-6">
-      {children}
-    </div>
-  );
-}
 
 function SectionHeading({ label }: { label: string }) {
   return (
