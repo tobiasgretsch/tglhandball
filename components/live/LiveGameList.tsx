@@ -32,9 +32,9 @@ function GameRow({ game, timeZone }: { game: LiveGame; timeZone: string }) {
             </p>
           )}
           <p className="mt-0.5 text-sm font-bold leading-snug text-text dark:text-gray-100">
-            {game.homeTeam} <span className="font-normal text-muted dark:text-gray-400">–</span> {game.awayTeam}
+            {game.homeTeam} <span className="font-normal text-muted">–</span> {game.awayTeam}
           </p>
-          <p className="mt-0.5 text-xs text-muted dark:text-gray-400">{when} Uhr</p>
+          <p className="mt-0.5 text-xs text-muted">{when} Uhr</p>
         </div>
         <div className="shrink-0 text-right">
           {game.live && (

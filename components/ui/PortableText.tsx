@@ -22,7 +22,7 @@ const components = {
       <p className="mb-5 text-text/80 dark:text-gray-300 leading-[1.7] max-w-[65ch] last:mb-0">{children}</p>
     ),
     blockquote: ({ children }: { children?: React.ReactNode }) => (
-      <blockquote className="border-l-4 border-primary pl-5 italic my-6 text-lg leading-[1.6] text-muted dark:text-gray-400 max-w-[65ch]">
+      <blockquote className="border-l-4 border-primary pl-5 italic my-6 text-lg leading-[1.6] text-muted max-w-[65ch]">
         {children}
       </blockquote>
     ),

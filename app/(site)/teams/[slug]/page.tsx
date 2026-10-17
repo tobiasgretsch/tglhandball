@@ -243,7 +243,7 @@ export default async function TeamDetailPage({ params }: Props) {
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <User size={32} className="text-muted/30 dark:text-gray-400/30" />
+                          <User size={32} className="text-muted/30" />
                         </div>
                       )}
                     </div>
@@ -252,7 +252,7 @@ export default async function TeamDetailPage({ params }: Props) {
                         {coach.name}
                       </p>
                       {coach.role && (
-                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5 truncate">
+                        <p className="text-muted text-xs mt-0.5 truncate">
                           {coach.role}
                         </p>
                       )}
@@ -292,7 +292,7 @@ export default async function TeamDetailPage({ params }: Props) {
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Shield size={32} className="text-muted/30 dark:text-gray-400/30" />
+                          <Shield size={32} className="text-muted/30" />
                         </div>
                       )}
                       {/* Jersey number badge */}
@@ -307,7 +307,7 @@ export default async function TeamDetailPage({ params }: Props) {
                         {player.name}
                       </p>
                       {player.position && (
-                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5 truncate">
+                        <p className="text-muted text-xs mt-0.5 truncate">
                           {player.position}
                         </p>
                       )}
@@ -346,7 +346,7 @@ export default async function TeamDetailPage({ params }: Props) {
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <User size={32} className="text-muted/30 dark:text-gray-400/30" />
+                          <User size={32} className="text-muted/30" />
                         </div>
                       )}
                     </div>
@@ -355,7 +355,7 @@ export default async function TeamDetailPage({ params }: Props) {
                         {b.name}
                       </p>
                       {b.role && (
-                        <p className="text-muted dark:text-gray-400 text-xs mt-0.5 truncate">
+                        <p className="text-muted text-xs mt-0.5 truncate">
                           {b.role}
                         </p>
                       )}
@@ -496,7 +496,7 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
           <p className="font-bold text-text dark:text-gray-100 text-sm leading-tight truncate">
             {match.homeTeam}
           </p>
-          <p className="text-muted dark:text-gray-400 text-xs mt-0.5">vs. {match.awayTeam}</p>
+          <p className="text-muted text-xs mt-0.5">vs. {match.awayTeam}</p>
         </div>
         {isResult && match.result ? (
           <span className="text-lg font-bold text-primary dark:text-primary-glow tabular-nums shrink-0">
@@ -512,12 +512,12 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
       {/* Meta */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3">
         <LiveMatchBadge match={match} />
-        <span className="flex items-center gap-1 text-xs text-muted dark:text-gray-400">
+        <span className="flex items-center gap-1 text-xs text-muted">
           <Calendar size={12} className="shrink-0" aria-hidden="true" />
           {dateStr}
         </span>
         {match.venue && (
-          <span className="flex items-center gap-1 text-xs text-muted dark:text-gray-400">
+          <span className="flex items-center gap-1 text-xs text-muted">
             <MapPin size={12} className="shrink-0" aria-hidden="true" />
             {match.venue}
           </span>
@@ -527,7 +527,7 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
             className={`text-xs font-bold uppercase tracking-wide px-2.5 py-0.5 rounded-full ${
               match.isHomeGame
                 ? "bg-primary/10 text-primary dark:text-primary-glow"
-                : "bg-gray-100 dark:bg-gray-700 text-muted dark:text-gray-400"
+                : "bg-gray-100 dark:bg-gray-700 text-muted"
             }`}
           >
             {match.isHomeGame ? "Heim" : "Auswärts"}

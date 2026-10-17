@@ -76,7 +76,7 @@ export function NewsCard({ article }: { article: NewsArticle }) {
             </span>
           )}
           {dateStr && (
-            <span className="flex items-center gap-1 text-xs text-muted dark:text-gray-400 ml-auto">
+            <span className="flex items-center gap-1 text-xs text-muted ml-auto">
               <CalendarDays size={12} className="shrink-0" aria-hidden="true" />
               {dateStr}
             </span>
@@ -90,7 +90,7 @@ export function NewsCard({ article }: { article: NewsArticle }) {
         </Link>
 
         {article.teaser && (
-          <p className="text-muted dark:text-gray-400 text-sm leading-relaxed line-clamp-2 flex-1">
+          <p className="text-muted text-sm leading-relaxed line-clamp-2 flex-1">
             {article.teaser}
           </p>
         )}

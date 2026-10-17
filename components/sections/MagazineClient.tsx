@@ -67,7 +67,7 @@ export default function MagazineClient({ magazines }: { magazines: Magazine[] })
   if (seasons.length === 0) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <p className="text-muted dark:text-gray-400 text-sm">
+        <p className="text-muted text-sm">
           Noch keine Spieltagsmagazine verfügbar.
         </p>
       </div>
@@ -132,7 +132,7 @@ function SeasonAccordion({
             }`}
           />
           <div className="text-left">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-0.5">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted mb-0.5">
               Saison
             </p>
             <p className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-gray-100 leading-tight">
@@ -142,13 +142,13 @@ function SeasonAccordion({
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
-          <span className="hidden sm:block text-xs text-muted dark:text-gray-400 tabular-nums">
+          <span className="hidden sm:block text-xs text-muted tabular-nums">
             {availableCount}/{group.entries.length} verfügbar
           </span>
           <motion.span
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={prefersReduced ? { duration: 0 } : { type: "spring", bounce: 0, duration: 0.4 }}
-            className="text-muted dark:text-gray-400"
+            className="text-muted"
           >
             <ChevronDown size={18} />
           </motion.span>
@@ -182,7 +182,7 @@ function MagazineTable({ entries, onOpenPdf }: { entries: Magazine[]; onOpenPdf:
     <>
       <table className="hidden sm:table w-full text-sm border-collapse">
         <thead>
-          <tr className="text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
+          <tr className="text-xs font-bold uppercase tracking-[0.12em] text-muted border-b border-gray-100 dark:border-gray-700">
             <th className="text-left px-5 py-3 w-[160px]">Spieltag</th>
             <th className="text-left px-3 py-3">Gegner</th>
             <th className="text-left px-3 py-3 w-[130px]">Datum</th>
@@ -232,7 +232,7 @@ function MagazineTableRow({
       <td className="px-3 py-4 text-[13px] text-text dark:text-gray-100">
         {magazine.opponent ?? "–"}
       </td>
-      <td className="px-3 py-4 text-[13px] text-muted dark:text-gray-400 tabular-nums">
+      <td className="px-3 py-4 text-[13px] text-muted tabular-nums">
         {magazine.date ? formatDate(magazine.date) : "–"}
       </td>
       <td className="px-5 py-4 text-right">
@@ -245,7 +245,7 @@ function MagazineTableRow({
             Lesen
           </button>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted dark:text-gray-400 cursor-default select-none">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted cursor-default select-none">
             <FileX size={12} aria-hidden="true" />
             Demnächst verfügbar
           </span>
@@ -266,7 +266,7 @@ function MagazineMobileRow({ magazine, onOpenPdf }: { magazine: Magazine; onOpen
         <p className="font-bold text-[13px] text-text dark:text-gray-100 truncate">
           {magazine.opponent ?? "Spieltagsheft"}
         </p>
-        <p className="text-xs text-muted dark:text-gray-400 mt-0.5">
+        <p className="text-xs text-muted mt-0.5">
           {magazine.matchday != null ? `${magazine.matchday}. Heimspieltag` : ""}
           {magazine.matchday != null && magazine.date ? " · " : ""}
           {magazine.date ? formatDate(magazine.date) : ""}
@@ -282,7 +282,7 @@ function MagazineMobileRow({ magazine, onOpenPdf }: { magazine: Magazine; onOpen
           Lesen
         </button>
       ) : (
-        <span className="shrink-0 text-xs text-muted dark:text-gray-400 font-medium">
+        <span className="shrink-0 text-xs text-muted font-medium">
           Demnächst
         </span>
       )}

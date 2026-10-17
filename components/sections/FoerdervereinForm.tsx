@@ -199,11 +199,11 @@ export default function FoerdervereinForm() {
         >
           Vielen Dank, {values.vorname.trim()}!
         </h3>
-        <p className="text-muted dark:text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
+        <p className="text-muted text-sm max-w-md mx-auto leading-relaxed">
           Deine Anmeldung ist eingegangen. Eine Bestätigung senden wir an{" "}
           <strong className="font-semibold text-text dark:text-gray-200">{values.email.trim()}</strong>.
         </p>
-        <p className="mt-4 text-xs text-muted dark:text-gray-400">
+        <p className="mt-4 text-xs text-muted">
           Abbuchung per SEPA-Lastschrift von{" "}
           <span className="font-mono">{maskIban(values.iban)}</span>
         </p>
@@ -218,7 +218,7 @@ export default function FoerdervereinForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="relative text-left space-y-10">
-      <p className="text-xs text-muted dark:text-gray-400">* Pflichtfeld</p>
+      <p className="text-xs text-muted">* Pflichtfeld</p>
 
       <Fieldset legend="Persönliche Daten">
         <Field name="anrede" label="Anrede" error={errors.anrede}>

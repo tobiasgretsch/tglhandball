@@ -60,7 +60,7 @@ export default async function UeberUnsPage() {
               {settings?.aboutText && settings.aboutText.length > 0 ? (
                 <PortableText value={settings.aboutText} />
               ) : (
-                <p className="text-muted dark:text-gray-400 text-sm">
+                <p className="text-muted text-sm">
                   Noch kein Text hinterlegt. Bitte den Text im CMS unter{" "}
                   <em>Einstellungen → Vereinsgeschichte</em> pflegen.
                 </p>
@@ -128,7 +128,7 @@ export default async function UeberUnsPage() {
                           {member.name}
                         </p>
                         {member.role && (
-                          <p className="text-xs text-muted dark:text-gray-400 mt-0.5 leading-snug">
+                          <p className="text-xs text-muted mt-0.5 leading-snug">
                             {member.role}
                           </p>
                         )}
@@ -166,7 +166,7 @@ export default async function UeberUnsPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] p-6">
                   <div className="flex items-start gap-3 mb-4">
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <MapPin size={15} className="text-primary" />
+                      <MapPin size={15} className="text-brand-red" />
                     </div>
                     <div>
                       {settings?.venueName && (
@@ -175,7 +175,7 @@ export default async function UeberUnsPage() {
                         </p>
                       )}
                       {settings?.venueAddress && (
-                        <p className="text-muted dark:text-gray-400 text-sm mt-1 whitespace-pre-line leading-relaxed">
+                        <p className="text-muted text-sm mt-1 whitespace-pre-line leading-relaxed">
                           {settings.venueAddress}
                         </p>
                       )}

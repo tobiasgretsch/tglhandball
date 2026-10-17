@@ -223,7 +223,7 @@ export default function HeaderClient({
                       transition={{ duration: prefersReduced ? 0 : 0.16, ease: "easeOut" }}
                       onMouseEnter={() => openMenu(link.dropdown!)}
                       onMouseLeave={scheduleClose}
-                      className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-primary rounded-sm shadow-2xl overflow-hidden"
+                      className="absolute top-full left-0 mt-1 w-60 bg-white dark:bg-gray-900/95 dark:backdrop-blur-xl dark:saturate-150 rounded-lg shadow-2xl ring-1 ring-black/5 dark:ring-white/15 overflow-hidden"
                     >
                       {link.dropdown === "teams" && (
                         <>
@@ -232,10 +232,10 @@ export default function HeaderClient({
                             if (groupTeams.length === 0) return null;
                             const expanded = openDesktopGroups.has(key);
                             return (
-                              <div key={key} className="border-b border-gray-100 dark:border-white/5 last:border-0">
+                              <div key={key} className="border-b border-gray-100 dark:border-white/10 last:border-0">
                                 <button
                                   onClick={() => toggleDesktopGroup(key)}
-                                  className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                                  className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
                                 >
                                   {label}
                                   <motion.span
@@ -259,11 +259,11 @@ export default function HeaderClient({
                                         <Link
                                           key={team._id}
                                           href={`/teams/${team.slug.current}`}
-                                          className="block pl-6 pr-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-white transition-colors border-t border-gray-100 dark:border-white/5"
+                                          className="block pl-6 pr-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white dark:hover:bg-white/10 dark:hover:text-white transition-colors border-t border-gray-100 dark:border-white/10"
                                         >
                                           {team.name}
                                           {team.league && (
-                                            <span className="block text-xs text-gray-500 dark:text-white/45 font-normal normal-case tracking-normal mt-0.5">
+                                            <span className="block text-xs text-gray-600 dark:text-white/60 font-normal normal-case tracking-normal mt-0.5">
                                               {team.league}
                                             </span>
                                           )}
@@ -280,14 +280,14 @@ export default function HeaderClient({
                             <Link
                               key={team._id}
                               href={`/teams/${team.slug.current}`}
-                              className="block px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-100 dark:border-white/5 last:border-0"
+                              className="block px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-100 dark:border-white/10 last:border-0"
                             >
                               {team.name}
                             </Link>
                           ))}
                           <Link
                             href="/teams"
-                            className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-400 hover:text-gray-900 hover:bg-red-50 dark:text-white/50 dark:hover:text-white dark:hover:bg-white/10 transition-colors border-t border-gray-100 dark:border-white/10"
+                            className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/70 dark:hover:text-white dark:hover:bg-white/10 transition-colors border-t border-gray-100 dark:border-white/10"
                           >
                             Alle Teams →
                           </Link>
@@ -298,7 +298,7 @@ export default function HeaderClient({
                           <Link
                             key={item.href}
                             href={item.href}
-                            className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white/85 dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-200 dark:border-white/10 last:border-0"
+                            className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-200 dark:border-white/10 last:border-0"
                           >
                             {item.label}
                           </Link>
@@ -503,7 +503,7 @@ export default function HeaderClient({
                                           key={team._id}
                                           href={`/teams/${team.slug.current}`}
                                           onClick={() => setMobileOpen(false)}
-                                          className="flex items-center pl-14 pr-6 py-2.5 text-[13px] font-semibold uppercase tracking-wider text-gray-600 hover:text-gray-900 hover:bg-red-50 dark:text-white/55 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                                          className="flex items-center pl-14 pr-6 py-2.5 text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                                         >
                                           {team.name}
                                         </Link>
@@ -520,7 +520,7 @@ export default function HeaderClient({
                               key={team._id}
                               href={`/teams/${team.slug.current}`}
                               onClick={() => setMobileOpen(false)}
-                              className="flex items-center pl-10 pr-6 py-2.5 text-[13px] font-semibold uppercase tracking-wider text-gray-600 hover:text-gray-900 hover:bg-red-50 dark:text-white/55 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                              className="flex items-center pl-10 pr-6 py-2.5 text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                             >
                               {team.name}
                             </Link>
@@ -551,7 +551,7 @@ export default function HeaderClient({
                               key={item.href}
                               href={item.href}
                               onClick={() => setMobileOpen(false)}
-                              className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-600 hover:text-gray-900 hover:bg-red-50 dark:text-white/55 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
+                              className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                             >
                               {item.label}
                             </Link>

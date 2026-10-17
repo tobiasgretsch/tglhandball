@@ -157,6 +157,8 @@ export interface Partner {
   name: string;
   description?: string;
   logo?: SanityImage;
+  /** Light/white logo — render it on a dark plate instead of white. */
+  logoOnDark?: boolean;
   websiteUrl?: string;
   tier?: PartnerTier;
   isPartnerOfTheDay?: boolean;

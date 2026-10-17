@@ -157,6 +157,7 @@ export const activePartnersQuery = groq`
     name,
     description,
     logo,
+    logoOnDark,
     websiteUrl,
     tier,
     isPartnerOfTheDay,

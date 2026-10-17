@@ -7,7 +7,7 @@ interface Props {
   sourceUrl: string;
 }
 
-const HEAD = "px-2 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted dark:text-gray-400";
+const HEAD = "px-2 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted";
 const CELL = "px-2 py-3 text-center tabular-nums";
 /** Detail columns are hidden on narrow screens. */
 const WIDE = "hidden sm:table-cell";
@@ -57,7 +57,7 @@ export default function StandingsTable({ rows, sourceUrl }: Props) {
           </tbody>
         </table>
       </div>
-      <p className="px-4 py-3 text-xs text-muted dark:text-gray-400 border-t border-gray-100 dark:border-gray-700">
+      <p className="px-4 py-3 text-xs text-muted border-t border-gray-100 dark:border-gray-700">
         Quelle:{" "}
         <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
           nuLiga

@@ -140,7 +140,7 @@ export default async function NewsDetailPage({ params }: Props) {
           <div className="pt-8 mb-8">
             <Link
               href="/news"
-              className="press inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400 hover:text-primary dark:hover:text-primary-glow transition-colors"
+              className="press inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-muted hover:text-primary dark:hover:text-primary-glow transition-colors"
             >
               <ArrowLeft size={14} aria-hidden="true" />
               Alle Neuigkeiten
@@ -158,7 +158,7 @@ export default async function NewsDetailPage({ params }: Props) {
               </span>
             )}
             {dateStr && (
-              <span className="flex items-center gap-1.5 text-xs text-muted dark:text-gray-400">
+              <span className="flex items-center gap-1.5 text-xs text-muted">
                 <CalendarDays size={13} className="shrink-0" aria-hidden="true" />
                 {dateStr}
               </span>
@@ -176,7 +176,7 @@ export default async function NewsDetailPage({ params }: Props) {
               <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center">
                 <User size={14} className="text-accent dark:text-accent-sky" aria-hidden="true" />
               </div>
-              <span className="text-sm text-muted dark:text-gray-400">
+              <span className="text-sm text-muted">
                 Von <strong className="text-text dark:text-gray-100">{article.author}</strong>
               </span>
             </div>

@@ -48,7 +48,7 @@ export default async function FoerdervereinPage() {
             <h2 className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-[-0.02em] text-text dark:text-gray-100 mb-4 text-balance">
               Werde Teil des Fördervereins
             </h2>
-            <p className="text-muted dark:text-gray-400 text-base max-w-2xl mx-auto leading-relaxed">
+            <p className="text-muted text-base max-w-2xl mx-auto leading-relaxed">
               Der Förderverein des TG MIPA Landshut unterstützt unsere Mannschaften
               und ermöglicht Kindern und Jugendlichen die Ausübung des Handballs.
               Jede Mitgliedschaft hilft, den Sport in unserer Stadt lebendig zu halten.
@@ -86,7 +86,7 @@ export default async function FoerdervereinPage() {
               <h3 className="font-display font-bold italic uppercase text-2xl md:text-3xl tracking-[-0.02em] text-text dark:text-gray-100 mb-3">
                 Jetzt Mitglied werden
               </h3>
-              <p className="text-muted dark:text-gray-400 text-sm max-w-md mx-auto">
+              <p className="text-muted text-sm max-w-md mx-auto">
                 Fülle das Formular aus und erteile uns ein SEPA-Lastschriftmandat für den Jahresbeitrag.
               </p>
             </div>
@@ -122,7 +122,7 @@ function FeatureCard({
         <h3 className="font-bold text-text dark:text-gray-100 text-lg tracking-[-0.01em]">
           {title}
         </h3>
-        <p className="text-muted dark:text-gray-400 text-sm leading-relaxed">{text}</p>
+        <p className="text-muted text-sm leading-relaxed">{text}</p>
       </div>
     </Reveal>
   );
