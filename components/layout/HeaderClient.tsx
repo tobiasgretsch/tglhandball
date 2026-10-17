@@ -43,6 +43,7 @@ interface NavLink {
 }
 
 const ABTEILUNG_ITEMS: StaticDropdownItem[] = [
+  { label: "Live-Ticker", href: "/live" },
   { label: "Über uns", href: "/ueberuns" },
   { label: "Förderverein", href: "/foerderverein" },
   { label: "Impressionen", href: "/impressionen" },
