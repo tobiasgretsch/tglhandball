@@ -27,6 +27,7 @@ import type {
 } from "@/types";
 import HeroSection from "@/components/sections/HeroSection";
 import MatchdaySection from "@/components/sections/MatchdaySection";
+import { SponsorCard } from "@/components/sections/PartnerCards";
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
@@ -442,82 +443,35 @@ function TeamTile({ tile }: { tile: TeamTileData }) {
 }
 
 // ─── Top-Sponsoren (Hauptsponsor + Exclusiv-Partner) ─────────────────────────
-// Gold ist die bewusste, benannte Ausnahme von der Zwei-Farben-Identität:
-// ausschließlich in dieser Sektion, ausschließlich als Premium-Signal.
 
 function TopSponsorsSection({ sponsors }: { sponsors: Partner[] }) {
   return (
-    <section className="relative bg-white dark:bg-gray-900 overflow-hidden py-12 md:py-16 border-t border-b border-gray-100 dark:border-gray-800">
-      {/* Subtle gold shimmer lines */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" aria-hidden="true" />
-      <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-400/25 to-transparent" aria-hidden="true" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Heading with decorative rule */}
-        <div className="flex items-center gap-4 mb-10">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-amber-400/40 dark:to-amber-400/35" aria-hidden="true" />
-          <div className="flex items-center gap-2.5">
-            <span className="text-amber-500/80 dark:text-amber-400/70 text-[9px] leading-none" aria-hidden="true">★</span>
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-amber-800 dark:text-amber-400/80">
-              Exclusiv-Partner
-            </p>
-            <span className="text-amber-500/80 dark:text-amber-400/70 text-[9px] leading-none" aria-hidden="true">★</span>
-          </div>
-          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-amber-400/40 dark:to-amber-400/35" aria-hidden="true" />
-        </div>
-
-        {/* Centered logo cards */}
-        <div className="flex flex-wrap justify-center gap-6">
-          {sponsors.map((sponsor) => {
-            const logoUrl = sponsor.logo
-              ? urlFor(sponsor.logo).width(440).height(248).fit("max").url()
-              : null;
-
-            const card = (
-              <div className="flex items-center shrink-0 rounded px-5 py-4 transition-[box-shadow,border-color,background-color,transform,opacity] duration-300 bg-gray-50 dark:bg-white/10 border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-amber-400/50 dark:hover:border-amber-400/40 hover:shadow-[0_0_18px_rgba(251,191,36,0.10)]">
-                {logoUrl ? (
-                  <div className="relative" style={{ width: 220, height: 124 }}>
-                    <Image
-                      src={logoUrl}
-                      alt={sponsor.name}
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div style={{ width: 220, height: 124 }} className="flex items-center justify-center">
-                    <span className="font-bold text-text dark:text-white/85 uppercase tracking-wider text-center text-lg">
-                      {sponsor.name}
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-
-            return sponsor.websiteUrl ? (
-              <a
-                key={sponsor._id}
-                href={sponsor.websiteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${sponsor.name} – Website besuchen`}
-              >
-                {card}
-              </a>
-            ) : (
-              <div key={sponsor._id}>{card}</div>
-            );
-          })}
-        </div>
-
-        {/* CTA */}
-        <div className="mt-10 flex justify-center">
+    <section className="bg-background dark:bg-gray-900 pt-16 md:pt-20 pb-6" aria-labelledby="sponsors-heading">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Reveal className="flex items-end justify-between mb-10">
+          <SectionTitle id="sponsors-heading" title="Exclusiv-Partner" />
           <Link
             href="/partner"
-            className="press inline-flex items-center gap-2 border border-amber-500/50 text-amber-800 hover:text-amber-900 hover:border-amber-500/80 hover:bg-amber-50 dark:border-amber-400/40 dark:text-amber-400/80 dark:hover:text-amber-400 dark:hover:border-amber-400/70 dark:hover:bg-amber-400/5 text-[12px] font-bold uppercase tracking-[0.12em] px-6 py-2.5 rounded-sm transition-all duration-200"
+            className="hidden sm:inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-primary hover:text-primary-light dark:text-primary-glow transition-colors shrink-0 mb-1"
           >
-            Alle Partner ansehen
-            <ArrowRight size={13} aria-hidden="true" />
+            Alle Partner <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        </Reveal>
+
+        <div className="grid gap-4 md:gap-5 sm:grid-cols-2">
+          {sponsors.map((sponsor, i) => (
+            <Reveal key={sponsor._id} delay={0.08 * i}>
+              <SponsorCard partner={sponsor} />
+            </Reveal>
+          ))}
+        </div>
+
+        <div className="mt-8 sm:hidden">
+          <Link
+            href="/partner"
+            className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-primary dark:text-primary-glow hover:text-primary-light transition-colors"
+          >
+            Alle Partner <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </div>
       </div>

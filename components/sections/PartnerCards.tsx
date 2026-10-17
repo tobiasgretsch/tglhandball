@@ -214,3 +214,41 @@ export function PartnerTile({ partner }: { partner: Partner }) {
     </PartnerLink>
   );
 }
+
+const SPONSOR_TIER_BADGE: Record<string, { label: string; className: string }> = {
+  hauptsponsor: { label: "Hauptsponsor", className: "bg-primary" },
+  exclusiv_hallenname: { label: "Hallenpartner", className: "bg-accent-deep" },
+};
+
+/** Homepage highlight — logo plate over a name row, tagged with the partner's tier. */
+export function SponsorCard({ partner }: { partner: Partner }) {
+  const badge = partner.tier ? SPONSOR_TIER_BADGE[partner.tier] : undefined;
+  return (
+    <PartnerLink
+      partner={partner}
+      className={`flex h-full flex-col overflow-hidden ${CARD_SURFACE}`}
+    >
+      <LogoPlate
+        partner={partner}
+        width={800}
+        height={400}
+        sizes="(max-width: 1024px) 100vw, 560px"
+        padding="p-8"
+        className="aspect-[2/1]"
+      />
+      <div className="flex items-center justify-between gap-3 border-t border-gray-100 p-5 dark:border-gray-700">
+        <div className="flex min-w-0 flex-col items-start gap-2">
+          {badge && (
+            <span className={`rounded-full px-3 py-1 text-xs font-bold text-white ${badge.className}`}>
+              {badge.label}
+            </span>
+          )}
+          <h3 className="max-w-full truncate text-lg font-bold leading-tight text-text dark:text-gray-100">
+            {partner.name}
+          </h3>
+        </div>
+        {partner.websiteUrl && <VisitLabel className="shrink-0 text-link" />}
+      </div>
+    </PartnerLink>
+  );
+}
