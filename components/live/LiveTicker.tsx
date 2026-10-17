@@ -196,31 +196,62 @@ function StatusChip({ status, label }: { status: GameStatus; label: string }) {
   );
 }
 
+const LOGO_ENDPOINT = "/api/live/logo";
+
+/** White plate keeps the logos' white JPEG backdrop invisible in dark mode too. */
+function TeamLogo({ logoId, name }: { logoId: string | null; name: string }) {
+  const [failed, setFailed] = useState(false);
+  if (!logoId || failed) return null;
+  return (
+    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white p-1 shadow-[0_1px_2px_rgb(0_0_0/0.08)] ring-1 ring-gray-200 dark:ring-gray-600 sm:size-14 sm:p-1.5">
+      {/* eslint-disable-next-line @next/next/no-img-element -- tiny proxied logos; next/image would re-encode 50px JPEGs */}
+      <img
+        src={`${LOGO_ENDPOINT}/${logoId}`}
+        alt={`Logo ${name}`}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+        className="size-full object-contain"
+      />
+    </span>
+  );
+}
+
 function TeamColumn({
   name,
+  logoId,
   isClub,
   align,
   standing,
 }: {
   name: string;
+  logoId: string | null;
   isClub: boolean;
   align: "left" | "right";
   standing?: TableStanding | null;
 }) {
+  const isRight = align === "right";
   return (
-    <div className={`min-w-0 flex-1 ${align === "right" ? "text-right" : "text-left"}`}>
-      <p
-        className={`font-display font-bold uppercase leading-tight text-balance text-base sm:text-xl md:text-2xl ${
-          isClub ? "text-primary dark:text-primary-glow" : "text-text dark:text-gray-100"
-        }`}
-      >
-        {name}
-      </p>
-      {standing && (
-        <p className="mt-1 text-xs text-muted">
-          Platz {standing.rank} · {standing.points} Pkt.
+    <div
+      className={`flex min-w-0 flex-1 gap-2 sm:items-center sm:gap-4 ${
+        isRight ? "flex-col items-end text-right sm:flex-row-reverse" : "flex-col items-start text-left sm:flex-row"
+      }`}
+    >
+      <TeamLogo logoId={logoId} name={name} />
+      <div className="min-w-0">
+        <p
+          className={`font-display font-bold uppercase leading-tight text-balance text-base sm:text-xl md:text-2xl ${
+            isClub ? "text-primary dark:text-primary-glow" : "text-text dark:text-gray-100"
+          }`}
+        >
+          {name}
         </p>
-      )}
+        {standing && (
+          <p className="mt-1 text-xs text-muted">
+            Platz {standing.rank} · {standing.points} Pkt.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -241,7 +272,7 @@ function Scoreboard({ snapshot }: { snapshot: TickerSnapshot }) {
       </div>
 
       <div className="mt-6 flex items-center gap-3 sm:gap-6">
-        <TeamColumn name={game.homeTeam} isClub={isClubTeam(game.homeTeam)} align="left" standing={snapshot.table?.home} />
+        <TeamColumn name={game.homeTeam} logoId={game.homeLogo} isClub={isClubTeam(game.homeTeam)} align="left" standing={snapshot.table?.home} />
         <p
           className="shrink-0 font-display text-4xl font-bold tracking-tight tabular-nums text-text dark:text-gray-100 sm:text-6xl"
           aria-live="polite"
@@ -255,7 +286,7 @@ function Scoreboard({ snapshot }: { snapshot: TickerSnapshot }) {
           <span className="sr-only"> zu </span>
           {snapshot.scoreGuest}
         </p>
-        <TeamColumn name={game.awayTeam} isClub={isClubTeam(game.awayTeam)} align="right" standing={snapshot.table?.guest} />
+        <TeamColumn name={game.awayTeam} logoId={game.awayLogo} isClub={isClubTeam(game.awayTeam)} align="right" standing={snapshot.table?.guest} />
       </div>
 
       <p className="mt-5 text-center text-xs text-muted">

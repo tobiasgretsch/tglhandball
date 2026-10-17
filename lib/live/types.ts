@@ -7,6 +7,9 @@ export interface LiveGame {
   league: string;
   homeTeam: string;
   awayTeam: string;
+  /** nuLiga image ids of the club logos (resolved by `/api/live/logo/<id>`); null when none is set. */
+  homeLogo: string | null;
+  awayLogo: string | null;
   /** ISO-8601 (UTC). */
   scheduled: string;
   scoreHome: number;

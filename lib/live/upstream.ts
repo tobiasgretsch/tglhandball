@@ -45,6 +45,7 @@ export const CACHE = {
   /** Events are keyed by an immutable version id, so they never go stale. */
   events: { revalidate: 24 * 60 * 60 },
   players: { revalidate: 60, bucketSeconds: 60 },
+  logos: { revalidate: 24 * 60 * 60 },
   liveGroup: { bucketSeconds: TIME_STEP_SECONDS },
   liveMeeting: { bucketSeconds: TIME_STEP_SECONDS },
 } as const;
@@ -115,6 +116,26 @@ async function getJson(path: string, revalidate?: number): Promise<unknown | nul
       return null;
     }
     if (error instanceof SyntaxError) throw new UpstreamError("nuLiga returned malformed JSON");
+    throw error;
+  }
+}
+
+export interface Logo {
+  body: ArrayBuffer;
+  contentType: string;
+}
+
+/** A club logo from the live backend; `null` for an unknown id. Logos never change, so they cache for a day. */
+export async function fetchLogo(logoId: string): Promise<Logo | null> {
+  try {
+    const res = await request(`${REST_BASE}/images/${logoId}`, { revalidate: CACHE.logos.revalidate });
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.startsWith("image/")) throw new UpstreamError("nuLiga returned a non-image response");
+    return { body: await res.arrayBuffer(), contentType };
+  } catch (error) {
+    if (error instanceof UpstreamError && (error.status === HTTP_NOT_FOUND || error.status === HTTP_BAD_REQUEST)) {
+      return null;
+    }
     throw error;
   }
 }
