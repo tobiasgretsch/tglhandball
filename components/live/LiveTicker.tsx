@@ -3,14 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
-  CircleDot,
-  Flag,
-  OctagonX,
-  Pause,
+  CircleX,
   Timer,
-  TriangleAlert,
+  Volleyball,
   WifiOff,
-  type LucideIcon,
 } from "lucide-react";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import { formatGameClock } from "@/lib/live/events";
@@ -18,7 +14,7 @@ import { isClubTeam } from "@/lib/live/fixture";
 import type {
   EntryKind,
   GameStatus,
-  ScorerLine,
+  PlayerLine,
   TableStanding,
   TeamStats,
   TickerEntry,
@@ -45,19 +41,6 @@ const ERROR_BACKOFF_MAX_MS = 60_000;
 /** After this many failed attempts the "connection lost" notice is shown. */
 const FAILURES_BEFORE_NOTICE = 2;
 const FRESH_ENTRY_MS = 6_000;
-
-const KIND_ICON: Record<EntryKind, LucideIcon> = {
-  goal: CircleDot,
-  "seven-meter-goal": CircleDot,
-  "seven-meter-miss": CircleDot,
-  "own-goal": CircleDot,
-  "time-penalty": Timer,
-  warning: TriangleAlert,
-  disqualification: OctagonX,
-  timeout: Pause,
-  "team-penalty": TriangleAlert,
-  period: Flag,
-};
 
 const SCORING_KINDS: ReadonlySet<EntryKind> = new Set(["goal", "seven-meter-goal", "own-goal"]);
 
@@ -305,18 +288,43 @@ function statRows(home: TeamStats, guest: TeamStats): StatRow[] {
   ];
 }
 
-function ScorerList({ scorers, align }: { scorers: ScorerLine[]; align: "left" | "right" }) {
-  const empty = <p className={`text-xs text-muted ${align === "right" ? "text-right" : ""}`}>–</p>;
-  if (scorers.length === 0) return empty;
+/** Small upright card in the referee's colour, with a count when a player has more than one. */
+function CardBadge({ count, className, label }: { count: number; className: string; label: string }) {
   return (
-    <ul className="space-y-1">
-      {scorers.map((s) => (
-        <li
-          key={s.name}
-          className="flex items-baseline justify-between gap-3 text-sm"
-        >
-          <span className="min-w-0 truncate">{s.name}</span>
-          <span className="shrink-0 font-bold tabular-nums">{s.goals}</span>
+    <span className="inline-flex items-center gap-0.5" title={`${count}× ${label}`}>
+      <span className={`inline-block h-3.5 w-2.5 rounded-[2px] ${className}`} aria-hidden="true" />
+      {count > 1 && <span className="text-[11px] font-bold tabular-nums">{count}</span>}
+      <span className="sr-only">{`${count}× ${label}`}</span>
+    </span>
+  );
+}
+
+const hasEvents = (p: PlayerLine): boolean => p.goals + p.timePenalties + p.warnings + p.disqualifications > 0;
+
+function PlayerList({ players, align }: { players: PlayerLine[]; align: "left" | "right" }) {
+  if (players.length === 0) {
+    return <p className={`text-xs text-muted ${align === "right" ? "sm:text-right" : ""}`}>–</p>;
+  }
+  return (
+    <ul className="space-y-1.5">
+      {players.map((p) => (
+        <li key={p.name} className="flex items-center justify-between gap-2 text-sm">
+          <span className={`min-w-0 truncate ${hasEvents(p) ? "" : "text-muted dark:text-gray-300"}`}>{p.name}</span>
+          <span className="flex shrink-0 items-center gap-2">
+            {p.timePenalties > 0 && (
+              <span
+                className="text-xs font-bold tabular-nums text-muted"
+                title={`${p.timePenalties}× 2 Minuten`}
+              >
+                {p.timePenalties}×2′<span className="sr-only"> Zeitstrafe</span>
+              </span>
+            )}
+            {p.warnings > 0 && <CardBadge count={p.warnings} className="bg-yellow-400" label="Verwarnung" />}
+            {p.disqualifications > 0 && (
+              <CardBadge count={p.disqualifications} className="bg-red-600" label="Disqualifikation" />
+            )}
+            <span className="w-5 text-right font-bold tabular-nums">{p.goals}</span>
+          </span>
         </li>
       ))}
     </ul>
@@ -326,7 +334,9 @@ function ScorerList({ scorers, align }: { scorers: ScorerLine[]; align: "left" |
 function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
   const { game, stats } = snapshot;
   const rows = statRows(stats.home, stats.guest);
-  const hasScorers = stats.home.scorers.length + stats.guest.scorers.length > 0;
+  const [showAll, setShowAll] = useState(false);
+  const visible = (players: PlayerLine[]): PlayerLine[] => (showAll ? players : players.filter(hasEvents));
+  const hasPlayers = stats.home.players.length + stats.guest.players.length > 0;
   return (
     <details className="group rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_1px_2px_rgb(0_0_0/0.05)] dark:border-gray-700 dark:bg-gray-800 sm:p-6">
       <summary className="flex cursor-pointer list-none items-center justify-between font-display text-lg font-bold uppercase italic text-text dark:text-gray-100 [&::-webkit-details-marker]:hidden">
@@ -361,20 +371,35 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
         </tbody>
       </table>
 
-      {hasScorers && (
-        <div className="mt-5 grid grid-cols-2 gap-8 border-t border-gray-100 pt-4 dark:border-gray-700">
-          <div>
-            <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">
-              Torschützen
-            </h3>
-            <ScorerList scorers={stats.home.scorers} align="left" />
+      {hasPlayers && (
+        <div className="mt-5 border-t border-gray-100 pt-4 dark:border-gray-700">
+          <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
+            <div>
+              <h3 className="mb-2 truncate text-xs font-bold uppercase tracking-[0.1em] text-muted">
+                {game.homeTeam}
+              </h3>
+              <PlayerList players={visible(stats.home.players)} align="left" />
+            </div>
+            <div>
+              <h3 className="mb-2 truncate text-xs font-bold uppercase tracking-[0.1em] text-muted sm:text-right">
+                {game.awayTeam}
+              </h3>
+              <PlayerList players={visible(stats.guest.players)} align="right" />
+            </div>
           </div>
-          <div>
-            <h3 className="mb-2 text-right text-xs font-bold uppercase tracking-[0.1em] text-muted">
-              Torschützen
-            </h3>
-            <ScorerList scorers={stats.guest.scorers} align="right" />
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowAll((v) => !v)}
+            aria-expanded={showAll}
+            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-full py-2 text-xs font-bold text-link transition-transform duration-100 active:scale-[0.97] motion-reduce:active:scale-100"
+          >
+            {showAll ? "Nur Spieler mit Ereignissen" : "Alle Spieler anzeigen"}
+            <ChevronDown
+              size={14}
+              className={`transition-transform motion-reduce:transition-none ${showAll ? "rotate-180" : ""}`}
+              aria-hidden="true"
+            />
+          </button>
         </div>
       )}
     </details>
@@ -389,38 +414,96 @@ function rowTone(entry: TickerEntry, game: TickerSnapshot["game"]): string {
   return isClub ? "bg-red-50 dark:bg-primary/15" : "bg-white dark:bg-gray-800";
 }
 
+const SEVEN_METER_LABEL = "7m";
+const TIME_PENALTY_TAG = "2′";
+
+function CardIcon({ className }: { className: string }) {
+  return <span className={`inline-block h-5 w-3.5 rounded-[3px] shadow-sm ${className}`} aria-hidden="true" />;
+}
+
+function SevenMeterTag() {
+  return <span className="text-[10px] font-bold leading-none tabular-nums">{SEVEN_METER_LABEL}</span>;
+}
+
+/** Icon column of an entry; kinds without an icon return `null`. */
+function EntryIcon({ kind }: { kind: EntryKind }) {
+  switch (kind) {
+    case "goal":
+    case "own-goal":
+      return <Volleyball size={22} className="text-primary dark:text-primary-glow" aria-hidden="true" />;
+    case "seven-meter-goal":
+      return (
+        <span className="flex flex-col items-center gap-0.5 text-primary dark:text-primary-glow">
+          <Volleyball size={20} aria-hidden="true" />
+          <SevenMeterTag />
+        </span>
+      );
+    case "seven-meter-miss":
+      return (
+        <span className="flex flex-col items-center gap-0.5 text-muted dark:text-gray-300">
+          <CircleX size={20} aria-hidden="true" />
+          <SevenMeterTag />
+        </span>
+      );
+    case "time-penalty":
+      return (
+        <span className="flex flex-col items-center gap-0.5 text-text dark:text-gray-100">
+          <Timer size={20} aria-hidden="true" />
+          <span className="text-[10px] font-bold leading-none">{TIME_PENALTY_TAG}</span>
+        </span>
+      );
+    case "warning":
+      return <CardIcon className="bg-yellow-400" />;
+    case "disqualification":
+      return <CardIcon className="bg-red-600" />;
+    default:
+      return null;
+  }
+}
+
+/** One side of an entry: player over event label, with the icon on the edge facing the clock. */
+function EntrySide({ entry, align }: { entry: TickerEntry; align: "left" | "right" }) {
+  const isHome = align === "right";
+  return (
+    <div className={`flex min-w-0 items-center gap-2 sm:gap-3 ${isHome ? "justify-end" : "flex-row-reverse justify-end"}`}>
+      <div className={`min-w-0 break-words text-sm leading-snug ${isHome ? "text-right" : "text-left"}`}>
+        {entry.detail && <p className="font-bold">{entry.detail}</p>}
+        <p className={entry.detail ? "text-muted dark:text-gray-300" : "font-bold"}>{entry.label}</p>
+      </div>
+      <span className="flex w-5 shrink-0 items-center justify-center sm:w-6">
+        <EntryIcon kind={entry.kind} />
+      </span>
+    </div>
+  );
+}
+
 function EntryRow({ entry, snapshot, fresh }: { entry: TickerEntry; snapshot: TickerSnapshot; fresh: boolean }) {
-  const Icon = KIND_ICON[entry.kind];
   const scoring = SCORING_KINDS.has(entry.kind);
   const isPeriod = entry.kind === "period";
   return (
     <li
-      className={`grid grid-cols-[3.5rem_1fr_auto] items-center gap-3 rounded-xl border border-gray-100 px-3 py-2.5 transition-shadow duration-1000 motion-reduce:transition-none dark:border-gray-700 ${rowTone(entry, snapshot.game)} ${
+      className={`grid grid-cols-[minmax(0,1fr)_4rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-gray-100 px-2.5 py-3 sm:gap-3 sm:px-3 transition-shadow duration-1000 motion-reduce:transition-none dark:border-gray-700 ${rowTone(entry, snapshot.game)} ${
         fresh ? "ring-2 ring-primary/50" : "ring-2 ring-transparent"
       }`}
     >
-      <span className="font-mono text-xs tabular-nums text-muted">
-        {formatGameClock(entry.second)}
-      </span>
-      <div className="flex min-w-0 items-center gap-2.5">
-        <Icon
-          size={16}
-          className={`shrink-0 ${scoring ? "text-primary dark:text-primary-glow" : "text-muted"}`}
-          aria-hidden="true"
-        />
-        <p className="min-w-0 text-sm leading-snug">
-          <span className={`font-bold ${isPeriod ? "uppercase tracking-wide" : ""}`}>{entry.label}</span>
-          {entry.detail && (
-            <span className="text-muted dark:text-gray-300"> · {entry.detail}</span>
-          )}
+      {isPeriod ? (
+        <p className="col-span-3 text-center text-sm font-bold uppercase tracking-wide">
+          {entry.label}
+          <span className="ml-2 font-mono text-xs font-normal normal-case tracking-normal tabular-nums text-muted dark:text-gray-300">
+            {formatGameClock(entry.second)}
+          </span>
         </p>
-      </div>
-      {scoring ? (
-        <span className="font-bold tabular-nums text-sm text-text dark:text-gray-100">
-          {entry.scoreHome}:{entry.scoreGuest}
-        </span>
       ) : (
-        <span aria-hidden="true" />
+        <>
+          {entry.side === "home" ? <EntrySide entry={entry} align="right" /> : <span aria-hidden="true" />}
+          <div className="text-center tabular-nums">
+            <p className="text-xs font-bold text-muted dark:text-gray-300">{formatGameClock(entry.second)}</p>
+            <p className={`text-sm text-text dark:text-gray-100 ${scoring ? "font-bold" : ""}`}>
+              {entry.scoreHome} – {entry.scoreGuest}
+            </p>
+          </div>
+          {entry.side === "guest" ? <EntrySide entry={entry} align="left" /> : <span aria-hidden="true" />}
+        </>
       )}
     </li>
   );

@@ -54,10 +54,13 @@ export interface TickerEntry {
   scoreGuest: number;
 }
 
-export interface ScorerLine {
+export interface PlayerLine {
   /** "#7 Nicolas Schühle" */
   name: string;
   goals: number;
+  timePenalties: number;
+  warnings: number;
+  disqualifications: number;
 }
 
 export interface TeamStats {
@@ -72,8 +75,8 @@ export interface TeamStats {
   disqualifications: number;
   timeouts: number;
   biggestLead: number;
-  /** Top three; own goals are not credited to a player. */
-  scorers: ScorerLine[];
+  /** The whole squad plus anyone named in the feed; own goals are not credited to a player. */
+  players: PlayerLine[];
 }
 
 export interface MatchStats {

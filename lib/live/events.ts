@@ -128,13 +128,18 @@ export function deriveScore(
     : fromMeeting;
 }
 
+/** "#7 Nicolas Schühle"; falls back to the name alone when there is no shirt number. */
+export function playerLabel(number: string, firstName: string, lastName: string): string {
+  const name = [firstName, lastName].filter(Boolean).join(" ");
+  return number ? `#${number} ${name}` : name;
+}
+
 function playerLine(event: RawEvent, players: Map<string, RawPlayer>): string {
   const known = event.meetingPersonId ? players.get(event.meetingPersonId) : undefined;
   const lastName = known?.lastName || event.lastName || "";
   const firstName = known?.firstName || event.firstName || "";
   if (!lastName || lastName === ANONYMOUS_NAME) return known?.number ? `#${known.number}` : "";
-  const name = [firstName, lastName].filter(Boolean).join(" ");
-  return known?.number ? `#${known.number} ${name}` : name;
+  return playerLabel(known?.number ?? "", firstName, lastName);
 }
 
 function sideOf(event: RawEvent, previousScore: RawEvent | undefined): TeamSide | null {

@@ -38,7 +38,7 @@ async function buildTicker(meetingId: string): Promise<TickerSnapshot | null> {
     scoreHome: score.home,
     scoreGuest: score.guest,
     entries,
-    stats: buildStats(entries, game.homeTeam, game.awayTeam),
+    stats: buildStats(entries, game.homeTeam, game.awayTeam, players),
     table,
     updatedAt: now,
   };

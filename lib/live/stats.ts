@@ -1,10 +1,19 @@
 /** Per-team match statistics, derived from the (already side-attributed) feed entries. */
-import type { EntryKind, MatchStats, ScorerLine, TeamSide, TeamStats, TickerEntry } from "./types";
+import { playerLabel } from "./events";
+import type { RawPlayer } from "./parse";
+import type { EntryKind, MatchStats, PlayerLine, TeamSide, TeamStats, TickerEntry } from "./types";
 
-const TOP_SCORERS = 3;
 const HALFTIME_LABEL = "Halbzeit";
-const PLAYER_GOAL_KINDS: ReadonlySet<EntryKind> = new Set(["goal", "seven-meter-goal"]);
+const PLAYER_COUNTER: Partial<Record<EntryKind, "goals" | "timePenalties" | "warnings" | "disqualifications">> = {
+  goal: "goals",
+  "seven-meter-goal": "goals",
+  "time-penalty": "timePenalties",
+  warning: "warnings",
+  disqualification: "disqualifications",
+};
 const GOAL_KINDS: ReadonlySet<EntryKind> = new Set(["goal", "seven-meter-goal", "own-goal"]);
+
+const emptyPlayer = (name: string): PlayerLine => ({ name, goals: 0, timePenalties: 0, warnings: 0, disqualifications: 0 });
 
 const emptyTeam = (): TeamStats => ({
   goals: 0,
@@ -17,21 +26,35 @@ const emptyTeam = (): TeamStats => ({
   disqualifications: 0,
   timeouts: 0,
   biggestLead: 0,
-  scorers: [],
+  players: [],
 });
 
-function topScorers(counts: Map<string, number>): ScorerLine[] {
-  return [...counts]
-    .map(([name, goals]) => ({ name, goals }))
-    .sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name, "de"))
-    .slice(0, TOP_SCORERS);
+function sortedPlayers(players: Map<string, PlayerLine>): PlayerLine[] {
+  return [...players.values()].sort(
+    (a, b) =>
+      b.goals - a.goals ||
+      b.timePenalties - a.timePenalties ||
+      b.disqualifications - a.disqualifications ||
+      b.warnings - a.warnings ||
+      a.name.localeCompare(b.name, "de"),
+  );
 }
 
 /** `entriesNewestFirst` is the order `buildEntries` returns. */
-export function buildStats(entriesNewestFirst: TickerEntry[], homeTeam: string, awayTeam: string): MatchStats {
+export function buildStats(
+  entriesNewestFirst: TickerEntry[],
+  homeTeam: string,
+  awayTeam: string,
+  roster: RawPlayer[],
+): MatchStats {
   const entries = [...entriesNewestFirst].reverse();
   const teams: Record<TeamSide, TeamStats> = { home: emptyTeam(), guest: emptyTeam() };
-  const scorerCounts: Record<TeamSide, Map<string, number>> = { home: new Map(), guest: new Map() };
+  const playerLines: Record<TeamSide, Map<string, PlayerLine>> = { home: new Map(), guest: new Map() };
+  for (const p of roster) {
+    if (p.teamHome === null) continue;
+    const name = playerLabel(p.number, p.firstName, p.lastName);
+    playerLines[p.teamHome ? "home" : "guest"].set(name, emptyPlayer(name));
+  }
   const teamNames: Record<TeamSide, string> = { home: homeTeam, guest: awayTeam };
   let secondHalf = false;
 
@@ -47,9 +70,12 @@ export function buildStats(entriesNewestFirst: TickerEntry[], homeTeam: string, 
       const lead = entry.side === "home" ? entry.scoreHome - entry.scoreGuest : entry.scoreGuest - entry.scoreHome;
       team.biggestLead = Math.max(team.biggestLead, lead);
     }
-    if (PLAYER_GOAL_KINDS.has(entry.kind) && entry.detail && entry.detail !== teamNames[entry.side]) {
-      const counts = scorerCounts[entry.side];
-      counts.set(entry.detail, (counts.get(entry.detail) ?? 0) + 1);
+    const counter = PLAYER_COUNTER[entry.kind];
+    if (counter && entry.detail && entry.detail !== teamNames[entry.side]) {
+      const lines = playerLines[entry.side];
+      const line = lines.get(entry.detail) ?? emptyPlayer(entry.detail);
+      line[counter]++;
+      lines.set(entry.detail, line);
     }
 
     switch (entry.kind) {
@@ -75,7 +101,7 @@ export function buildStats(entriesNewestFirst: TickerEntry[], homeTeam: string, 
     }
   }
 
-  teams.home.scorers = topScorers(scorerCounts.home);
-  teams.guest.scorers = topScorers(scorerCounts.guest);
+  teams.home.players = sortedPlayers(playerLines.home);
+  teams.guest.players = sortedPlayers(playerLines.guest);
   return teams;
 }
