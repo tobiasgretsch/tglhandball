@@ -32,10 +32,15 @@ export interface ClubGroup {
 
 const DEFAULT_HALFTIME_MINUTES = 30;
 const MEETING_ID_PATTERN = /^\d{4,12}$/;
+const LOGO_ID_PATTERN = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const GROUP_LINK = /groupPage\?championship=([^&"]+)&(?:amp;)?group=(\d+)"[^>]*>([^<]*)</g;
 
 export function isValidMeetingId(value: string): boolean {
   return MEETING_ID_PATTERN.test(value);
+}
+
+export function isValidLogoId(value: string): boolean {
+  return LOGO_ID_PATTERN.test(value);
 }
 
 type UnknownRecord = Record<string, unknown>;
@@ -57,6 +62,11 @@ function asInt(value: unknown, fallback = 0): number {
 
 function asBoolean(value: unknown): boolean | null {
   return typeof value === "boolean" ? value : null;
+}
+
+function asLogoId(value: unknown): string | null {
+  const id = asString(value);
+  return id && isValidLogoId(id) ? id : null;
 }
 
 /** nuLiga sends "+0000" offsets; normalise to a strict ISO string (or null). */
@@ -83,6 +93,8 @@ export function parseMeeting(raw: unknown, league = ""): LiveGame | null {
     league,
     homeTeam,
     awayTeam,
+    homeLogo: asLogoId(raw.homeImgUrl),
+    awayLogo: asLogoId(raw.guestImgUrl),
     scheduled,
     scoreHome: Math.max(0, asInt(raw.matchesHome)),
     scoreGuest: Math.max(0, asInt(raw.matchesGuest)),
