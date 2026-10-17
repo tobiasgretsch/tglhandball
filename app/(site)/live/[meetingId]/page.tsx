@@ -58,7 +58,7 @@ export default async function LiveTickerPage({ params }: PageProps) {
         <div className="mx-auto max-w-3xl px-4 pb-20 pt-6 sm:px-6">
           <LiveTicker meetingId={meetingId} initial={result.snapshot} />
           <p className="mt-8 text-center text-sm">
-            <Link href="/live" className="font-bold text-primary underline-offset-4 hover:underline">
+            <Link href="/live" className="font-bold text-brand-red underline-offset-4 hover:underline">
               Alle Live-Spiele
             </Link>
           </p>

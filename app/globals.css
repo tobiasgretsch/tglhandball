@@ -3,7 +3,7 @@
 /* Class-based dark mode: apply dark: utilities when html.dark is set */
 @variant dark (&:where(.dark, .dark *));
 
-@theme {
+@theme inline {
   /* ── Match-Rot: attacks. CTAs, live elements, hover states ──────────── */
   --color-primary: #da251c;
   --color-primary-light: #e64752;
@@ -21,11 +21,31 @@
   /* ── Neutrals ────────────────────────────────────────────────────────── */
   --color-background: #F8F9FA;
   --color-text: #1A1A1A;
-  --color-muted: #6B7280;
+  --color-muted: var(--fg-muted);   /* switches with .dark — see the text roles below */
+  --color-link: var(--fg-link);
+  --color-brand-red: var(--fg-red);
 
   /* ── Typography: Barlow Condensed for display, Inter for body ───────── */
   --font-display: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Text roles that flip with the theme, so components never need a
+   `text-x dark:text-y` pair for them. Each pair is ≥ 4.5:1 on its surface
+   (light: #F8F9FA/white, dark: #111827/#1f2937). */
+:root {
+  --fg-muted: #5b6472;   /* secondary copy — 5.9:1 on white */
+  --fg-link: #004f9f;    /* links & blue accent text */
+  --fg-red: #da251c;     /* red accent text */
+}
+.dark {
+  --fg-muted: #9ca3af;   /* 6.9:1 on #111827 */
+  --fg-link: #7db3e8;
+  --fg-red: #ff6b61;
+}
+@media (prefers-contrast: more) {
+  :root { --fg-muted: #374151; }
+  .dark { --fg-muted: #d1d5db; }
 }
 
 html {

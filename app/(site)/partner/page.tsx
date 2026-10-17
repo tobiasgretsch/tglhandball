@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { DEFAULT_OG_IMAGE } from "@/lib/seo";
-import Image from "next/image";
-import { ExternalLink } from "lucide-react";
-import { client, urlFor } from "@/lib/sanity";
+import { client } from "@/lib/sanity";
 import {
   activePartnersQuery,
   pageHeroSlidesQuery,
@@ -12,6 +11,12 @@ import type { Partner, SanityImage, Settings } from "@/types";
 import Reveal from "@/components/ui/Reveal";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 import PartnerInfoBlock from "@/components/sections/PartnerInfoBlock";
+import {
+  HallenPartnerBanner,
+  HauptsponsorCard,
+  PartnerTile,
+  PremiumCard,
+} from "@/components/sections/PartnerCards";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/partner" },
@@ -29,6 +34,22 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 3600;
+
+/** Max stagger steps inside one list, so long grids never feel slow. */
+const MAX_STAGGER_STEPS = 6;
+const STAGGER_SECONDS = 0.05;
+
+/** Section headings shrink with the tier, so the hierarchy reads before the logos do. */
+const HEADING_SIZE = {
+  lg: "text-4xl md:text-5xl",
+  md: "text-3xl md:text-4xl",
+  sm: "text-2xl md:text-3xl",
+} as const;
+
+const TILE_GRID = "grid grid-cols-2 gap-3 sm:gap-4";
+
+const staggerDelay = (index: number) =>
+  Math.min(index, MAX_STAGGER_STEPS) * STAGGER_SECONDS;
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -61,383 +82,132 @@ export default async function PartnerPage() {
   const fitness = byTier("fitness_partner");
   const supporter = byTier("supporter_club");
 
-  const hasAny =
-    [hauptsponsor, exclusiv, premium, topPartner, fitness, supporter].some(
-      (g) => g.length > 0,
-    );
+  const hasAny = partners.length > 0;
 
   return (
     <>
-      {/* ── Hero ────────────────────────────────────────────────────────── */}
       <PageHeroSlider
         slides={slides ?? []}
         title="Unsere Partner"
         subtitle="Ein herzliches Dankeschön an alle Partner, die den Handball in Landshut möglich machen."
       />
 
-      {/* ── Content ─────────────────────────────────────────────────────── */}
       <div className="bg-background dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 space-y-20">
-
-          {/* 1 ── Hauptsponsor */}
+        <div className="mx-auto max-w-6xl space-y-16 px-4 py-12 sm:px-6 md:space-y-24 md:py-20 lg:px-8">
           {hauptsponsor.length > 0 && (
-            <section>
-              <Reveal><SectionHeading label="Hauptsponsor" /></Reveal>
-              <div className="mt-8 flex flex-wrap justify-center gap-6">
+            <TierSection label="Hauptsponsor" size="lg">
+              <div className="space-y-6">
                 {hauptsponsor.map((partner) => (
-                  <Reveal key={partner._id} className="w-full max-w-4xl">
+                  <Reveal key={partner._id}>
                     <HauptsponsorCard partner={partner} />
                   </Reveal>
                 ))}
               </div>
-            </section>
+            </TierSection>
           )}
 
-          {/* 2 ── Info text + buttons */}
-          <PartnerInfoBlock
-            text={pageSettings?.partnerPageText}
-            pdfUrl={pageSettings?.partnerInfoPdf?.asset?.url}
-          />
-
-          {/* 3 ── Exclusiv-Partner Hallenname */}
           {exclusiv.length > 0 && (
-            <section>
-              <Reveal><SectionHeading label="Exclusiv-Partner Hallenname" /></Reveal>
-              <div className="mt-8 flex flex-wrap justify-center gap-6">
+            <TierSection label="Exclusiv-Partner Hallenname" size="md">
+              <div className="space-y-6">
                 {exclusiv.map((partner) => (
-                  <Reveal key={partner._id} className="w-full max-w-lg">
-                    <ExclusivCard partner={partner} />
+                  <Reveal key={partner._id}>
+                    <HallenPartnerBanner partner={partner} />
                   </Reveal>
                 ))}
               </div>
-            </section>
+            </TierSection>
           )}
 
-          {/* 4 ── Premium */}
           {premium.length > 0 && (
-            <section>
-              <Reveal><SectionHeading label="Premiumpartner" /></Reveal>
-              <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {premium.map((partner) => (
-                  <Reveal key={partner._id}>
+            <TierSection label="Premiumpartner" size="md">
+              <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+                {premium.map((partner, i) => (
+                  <Reveal key={partner._id} delay={staggerDelay(i)} className="h-full">
                     <PremiumCard partner={partner} />
                   </Reveal>
                 ))}
               </div>
-            </section>
+            </TierSection>
           )}
 
-          {/* 5 ── Top-Partner (was "standard") */}
           {topPartner.length > 0 && (
-            <section>
-              <Reveal><SectionHeading label="Top-Partner" /></Reveal>
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5">
-                {topPartner.map((partner) => (
-                  <Reveal key={partner._id}>
-                    <StandardTile partner={partner} />
+            <TierSection label="Top-Partner" size="sm">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+                {topPartner.map((partner, i) => (
+                  <Reveal key={partner._id} delay={staggerDelay(i)} className="h-full">
+                    <PartnerTile partner={partner} />
                   </Reveal>
                 ))}
               </div>
-            </section>
+            </TierSection>
           )}
 
-          {/* 6 ── Fitness-Partner */}
-          {fitness.length > 0 && (
-            <section>
-              <Reveal><SectionHeading label="Fitness-Partner" /></Reveal>
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5">
-                {fitness.map((partner) => (
-                  <Reveal key={partner._id}>
-                    <StandardTile partner={partner} />
-                  </Reveal>
-                ))}
-              </div>
-            </section>
+          {(fitness.length > 0 || supporter.length > 0) && (
+            <div className="grid gap-16 md:grid-cols-2 md:gap-10">
+              {fitness.length > 0 && (
+                <TierSection label="Fitness-Partner" size="sm">
+                  <div className={TILE_GRID}>
+                    {fitness.map((partner, i) => (
+                      <Reveal key={partner._id} delay={staggerDelay(i)} className="h-full">
+                        <PartnerTile partner={partner} />
+                      </Reveal>
+                    ))}
+                  </div>
+                </TierSection>
+              )}
+              {supporter.length > 0 && (
+                <TierSection label="Supporter-Club" size="sm">
+                  <div className={TILE_GRID}>
+                    {supporter.map((partner, i) => (
+                      <Reveal key={partner._id} delay={staggerDelay(i)} className="h-full">
+                        <PartnerTile partner={partner} />
+                      </Reveal>
+                    ))}
+                  </div>
+                </TierSection>
+              )}
+            </div>
           )}
 
-          {/* 7 ── Supporter-Club */}
-          {supporter.length > 0 && (
-            <section>
-              <Reveal><SectionHeading label="Supporter-Club" /></Reveal>
-              <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5">
-                {supporter.map((partner) => (
-                  <Reveal key={partner._id}>
-                    <StandardTile partner={partner} />
-                  </Reveal>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Empty state */}
           {!hasAny && (
-            <p className="text-muted dark:text-gray-400 text-sm text-center py-16">
+            <p className="py-16 text-center text-sm text-muted">
               Noch keine Partner hinterlegt. Bitte Partner im CMS anlegen.
             </p>
           )}
+
+          <Reveal>
+            <PartnerInfoBlock
+              text={pageSettings?.partnerPageText}
+              pdfUrl={pageSettings?.partnerInfoPdf?.asset?.url}
+            />
+          </Reveal>
         </div>
       </div>
     </>
   );
 }
 
-// ─── Section heading ──────────────────────────────────────────────────────────
+// ─── Section wrapper ──────────────────────────────────────────────────────────
 
-function SectionHeading({ label }: { label: string }) {
+function TierSection({
+  label,
+  size,
+  children,
+}: {
+  label: string;
+  size: keyof typeof HEADING_SIZE;
+  children: ReactNode;
+}) {
   return (
-    <h2 className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-[-0.02em] text-text dark:text-gray-100">
-      {label}
-    </h2>
+    <section aria-label={label}>
+      <Reveal>
+        <h2
+          className={`mb-6 font-display font-bold italic uppercase leading-none tracking-[-0.02em] text-text dark:text-gray-100 md:mb-8 ${HEADING_SIZE[size]}`}
+        >
+          {label}
+        </h2>
+      </Reveal>
+      {children}
+    </section>
   );
-}
-
-// ─── Hauptsponsor card (largest — full prominence) ────────────────────────────
-
-function HauptsponsorCard({ partner }: { partner: Partner }) {
-  const logoUrl = partner.logo
-    ? urlFor(partner.logo).width(1200).height(540).fit("max").url()
-    : null;
-
-  const inner = (
-    <div className="press-card bg-gray-300 dark:bg-gray-300 rounded-2xl border border-primary/30 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] flex flex-col overflow-hidden group">
-      {/* Top accent bar — thicker for main sponsor */}
-      <div className="h-1 bg-primary" />
-
-      {/* Logo area — 16:9, taller on desktop */}
-      <div className="relative aspect-[16/7] bg-gray-300 dark:bg-gray-300 overflow-hidden">
-        {logoUrl ? (
-          <Image
-            src={logoUrl}
-            alt={partner.name}
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-contain p-8 transition-transform duration-700 motion-safe:group-hover:scale-[1.03] ease-[cubic-bezier(0.22,1,0.36,1)]"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center px-8">
-            <span className="text-4xl font-black text-gray-400 uppercase tracking-[-0.02em] text-center">
-              {partner.name}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Body */}
-      <div className="p-6 flex flex-col items-center text-center flex-1 border-t border-primary/20">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary mb-1">
-          Hauptsponsor
-        </p>
-        <p className="font-black text-gray-900 text-xl leading-tight">
-          {partner.name}
-        </p>
-
-        {partner.description && (
-          <p className="text-gray-600 text-sm mt-2 leading-relaxed flex-1">
-            {partner.description}
-          </p>
-        )}
-
-        {partner.websiteUrl && (
-          <div className="mt-4 pt-4 border-t border-primary/20 w-full">
-            <span className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-primary group-hover:text-primary-light transition-colors">
-              <ExternalLink size={12} aria-hidden="true" />
-              Website besuchen
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  if (partner.websiteUrl) {
-    return (
-      <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer">
-        {inner}
-      </a>
-    );
-  }
-
-  return <div>{inner}</div>;
-}
-
-// ─── Exclusiv-Partner card (large, accent bar in accent color) ────────────────
-
-function ExclusivCard({ partner }: { partner: Partner }) {
-  const logoUrl = partner.logo
-    ? urlFor(partner.logo).width(900).height(400).fit("max").url()
-    : null;
-
-  const inner = (
-    <div className="press-card bg-gray-300 dark:bg-gray-300 rounded-2xl border border-accent/30 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] flex flex-col overflow-hidden group">
-      {/* Top accent bar */}
-      <div className="h-[3px] bg-accent" />
-
-      {/* Logo area — 16:9 */}
-      <div className="relative aspect-[16/9] bg-gray-300 dark:bg-gray-300 overflow-hidden">
-        {logoUrl ? (
-          <Image
-            src={logoUrl}
-            alt={partner.name}
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-contain p-6 transition-transform duration-700 motion-safe:group-hover:scale-[1.03] ease-[cubic-bezier(0.22,1,0.36,1)]"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center px-6">
-            <span className="text-3xl font-black text-gray-400 uppercase tracking-[-0.02em] text-center">
-              {partner.name}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Body */}
-      <div className="p-5 flex flex-col items-center text-center flex-1 border-t border-accent/20">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent mb-1">
-          Exclusiv-Partner
-        </p>
-        <p className="font-black text-gray-900 text-lg leading-tight">
-          {partner.name}
-        </p>
-
-        {partner.description && (
-          <p className="text-gray-600 text-sm mt-2 leading-relaxed flex-1">
-            {partner.description}
-          </p>
-        )}
-
-        {partner.websiteUrl && (
-          <div className="mt-4 pt-4 border-t border-accent/20 w-full">
-            <span className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent group-hover:text-primary transition-colors">
-              <ExternalLink size={12} aria-hidden="true" />
-              Website besuchen
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  if (partner.websiteUrl) {
-    return (
-      <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer">
-        {inner}
-      </a>
-    );
-  }
-
-  return <div>{inner}</div>;
-}
-
-// ─── Premium card ─────────────────────────────────────────────────────────────
-
-function PremiumCard({ partner }: { partner: Partner }) {
-  const logoUrl = partner.logo
-    ? urlFor(partner.logo).width(640).height(360).fit("max").url()
-    : null;
-
-  const inner = (
-    <div className="press-card bg-gray-300 dark:bg-gray-300 rounded-2xl border border-gray-400 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] flex flex-col overflow-hidden group">
-      <div className="h-[3px] bg-primary" />
-
-      <div className="relative aspect-[16/9] bg-gray-300 dark:bg-gray-300 overflow-hidden">
-        {logoUrl ? (
-          <Image
-            src={logoUrl}
-            alt={partner.name}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-contain transition-transform duration-700 motion-safe:group-hover:scale-[1.03] ease-[cubic-bezier(0.22,1,0.36,1)]"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center px-6">
-            <span className="text-2xl font-black text-gray-400 uppercase tracking-[-0.02em] text-center">
-              {partner.name}
-            </span>
-          </div>
-        )}
-      </div>
-
-      <div className="p-5 flex flex-col flex-1 border-t border-gray-400 dark:border-gray-400">
-        <p className="font-black text-gray-900 text-base leading-tight">
-          {partner.name}
-        </p>
-
-        {partner.description && (
-          <p className="text-gray-600 text-sm mt-2 leading-relaxed flex-1">
-            {partner.description}
-          </p>
-        )}
-
-        {partner.websiteUrl && (
-          <div className="mt-4 pt-4 border-t border-gray-400 dark:border-gray-400">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent group-hover:text-primary transition-colors">
-              <ExternalLink size={12} aria-hidden="true" />
-              Website besuchen
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  if (partner.websiteUrl) {
-    return (
-      <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer">
-        {inner}
-      </a>
-    );
-  }
-
-  return <div>{inner}</div>;
-}
-
-// ─── Standard tile (Top-Partner / Fitness-Partner / Supporter-Club) ───────────
-
-function StandardTile({ partner }: { partner: Partner }) {
-  const logoUrl = partner.logo
-    ? urlFor(partner.logo).width(320).height(180).fit("max").url()
-    : null;
-
-  const inner = (
-    <div className="group press-card flex flex-col bg-gray-300 dark:bg-gray-300 rounded-2xl border border-gray-400 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] overflow-hidden cursor-pointer">
-      <div className="relative aspect-[16/9] bg-gray-300 dark:bg-gray-300 overflow-hidden">
-        {logoUrl ? (
-          <Image
-            src={logoUrl}
-            alt={partner.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-contain transition-transform duration-700 motion-safe:group-hover:scale-[1.03] ease-[cubic-bezier(0.22,1,0.36,1)]"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center px-4">
-            <span className="text-sm font-black text-gray-600 text-center leading-tight uppercase tracking-[-0.02em]">
-              {partner.name}
-            </span>
-          </div>
-        )}
-      </div>
-
-      <p className="px-3 py-2 text-xs font-bold text-gray-600 text-center leading-tight group-hover:text-gray-900 transition-colors truncate">
-        {partner.name}
-      </p>
-    </div>
-  );
-
-  if (partner.websiteUrl) {
-    return (
-      <a
-        href={partner.websiteUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={partner.name}
-      >
-        {inner}
-      </a>
-    );
-  }
-
-  return <div>{inner}</div>;
 }

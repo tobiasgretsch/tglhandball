@@ -7,7 +7,7 @@ interface Props {
 
 function PriceCell({ value }: { value?: string }) {
   if (!value) {
-    return <span className="text-muted dark:text-gray-500">–</span>;
+    return <span className="text-muted">–</span>;
   }
   if (value.trim().toLowerCase() === "frei") {
     return <span className="font-bold text-emerald-600 dark:text-emerald-400">frei</span>;
@@ -84,7 +84,7 @@ export default function PricingSection({ data }: Props) {
               </p>
               <div className="flex gap-6">
                 <div className="flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-0.5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted mb-0.5">
                     Normal
                   </p>
                   <p className="text-sm tabular-nums text-text dark:text-gray-100">
@@ -92,7 +92,7 @@ export default function PricingSection({ data }: Props) {
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-0.5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted mb-0.5">
                     Ermäßigt
                   </p>
                   <p className="text-sm tabular-nums text-text dark:text-gray-100">
@@ -106,7 +106,7 @@ export default function PricingSection({ data }: Props) {
 
         {/* Footnote */}
         {footnote && (
-          <p className="mt-4 text-xs text-muted dark:text-gray-500 leading-relaxed">
+          <p className="mt-4 text-xs text-muted leading-relaxed">
             {footnote}
           </p>
         )}

@@ -72,7 +72,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
                 onClick={() => handleCategoryChange(value)}
               />
             ))}
-            <span className="ml-auto shrink-0 text-xs text-muted dark:text-gray-400 tabular-nums">
+            <span className="ml-auto shrink-0 text-xs text-muted tabular-nums">
               {filtered.length} Bild{filtered.length !== 1 ? "er" : ""}
             </span>
           </div>
@@ -82,7 +82,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
       {/* ── Masonry grid ────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         {filtered.length === 0 ? (
-          <p className="text-muted dark:text-gray-400 text-sm py-10 text-center">
+          <p className="text-muted text-sm py-10 text-center">
             Keine Bilder in dieser Kategorie.
           </p>
         ) : (
@@ -127,7 +127,7 @@ function FilterPill({
       className={`press shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-colors border ${
         active
           ? "bg-primary border-primary text-white shadow-[0_8px_24px_-8px_rgb(218_37_28/0.55)]"
-          : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
+          : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
       }`}
     >
       {label}

@@ -234,7 +234,7 @@ function TeamColumn({
         {name}
       </p>
       {standing && (
-        <p className="mt-1 text-xs text-muted dark:text-gray-400">
+        <p className="mt-1 text-xs text-muted">
           Platz {standing.rank} · {standing.points} Pkt.
         </p>
       )}
@@ -253,7 +253,7 @@ function Scoreboard({ snapshot }: { snapshot: TickerSnapshot }) {
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <StatusChip status={snapshot.status} label={snapshot.statusLabel} />
         {game.league && (
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-muted dark:text-gray-400">{game.league}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.1em] text-muted">{game.league}</p>
         )}
       </div>
 
@@ -266,7 +266,7 @@ function Scoreboard({ snapshot }: { snapshot: TickerSnapshot }) {
         >
           <span className="sr-only">Spielstand </span>
           {snapshot.scoreHome}
-          <span className="mx-1.5 text-primary" aria-hidden="true">
+          <span className="mx-1.5 text-brand-red" aria-hidden="true">
             :
           </span>
           <span className="sr-only"> zu </span>
@@ -275,7 +275,7 @@ function Scoreboard({ snapshot }: { snapshot: TickerSnapshot }) {
         <TeamColumn name={game.awayTeam} isClub={isClubTeam(game.awayTeam)} align="right" standing={snapshot.table?.guest} />
       </div>
 
-      <p className="mt-5 text-center text-xs text-muted dark:text-gray-400">
+      <p className="mt-5 text-center text-xs text-muted">
         {kickoffFormat.format(new Date(game.scheduled))} Uhr
         {game.venue ? ` · ${game.venue}` : ""}
         {showHalftime ? ` · Halbzeit ${game.halftimeHome}:${game.halftimeGuest}` : ""}
@@ -306,7 +306,7 @@ function statRows(home: TeamStats, guest: TeamStats): StatRow[] {
 }
 
 function ScorerList({ scorers, align }: { scorers: ScorerLine[]; align: "left" | "right" }) {
-  const empty = <p className={`text-xs text-muted dark:text-gray-400 ${align === "right" ? "text-right" : ""}`}>–</p>;
+  const empty = <p className={`text-xs text-muted ${align === "right" ? "text-right" : ""}`}>–</p>;
   if (scorers.length === 0) return empty;
   return (
     <ul className="space-y-1">
@@ -352,7 +352,7 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
           {rows.map((row) => (
             <tr key={row.label} className="border-t border-gray-100 dark:border-gray-700">
               <td className="w-1/4 py-2 text-left font-bold tabular-nums">{row.home}</td>
-              <th scope="row" className="py-2 text-center text-xs font-semibold text-muted dark:text-gray-400">
+              <th scope="row" className="py-2 text-center text-xs font-semibold text-muted">
                 {row.label}
               </th>
               <td className="w-1/4 py-2 text-right font-bold tabular-nums">{row.guest}</td>
@@ -364,13 +364,13 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
       {hasScorers && (
         <div className="mt-5 grid grid-cols-2 gap-8 border-t border-gray-100 pt-4 dark:border-gray-700">
           <div>
-            <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted dark:text-gray-400">
+            <h3 className="mb-2 text-xs font-bold uppercase tracking-[0.1em] text-muted">
               Torschützen
             </h3>
             <ScorerList scorers={stats.home.scorers} align="left" />
           </div>
           <div>
-            <h3 className="mb-2 text-right text-xs font-bold uppercase tracking-[0.1em] text-muted dark:text-gray-400">
+            <h3 className="mb-2 text-right text-xs font-bold uppercase tracking-[0.1em] text-muted">
               Torschützen
             </h3>
             <ScorerList scorers={stats.guest.scorers} align="right" />
@@ -399,13 +399,13 @@ function EntryRow({ entry, snapshot, fresh }: { entry: TickerEntry; snapshot: Ti
         fresh ? "ring-2 ring-primary/50" : "ring-2 ring-transparent"
       }`}
     >
-      <span className="font-mono text-xs tabular-nums text-muted dark:text-gray-400">
+      <span className="font-mono text-xs tabular-nums text-muted">
         {formatGameClock(entry.second)}
       </span>
       <div className="flex min-w-0 items-center gap-2.5">
         <Icon
           size={16}
-          className={`shrink-0 ${scoring ? "text-primary dark:text-primary-glow" : "text-muted dark:text-gray-400"}`}
+          className={`shrink-0 ${scoring ? "text-primary dark:text-primary-glow" : "text-muted"}`}
           aria-hidden="true"
         />
         <p className="min-w-0 text-sm leading-snug">
@@ -494,7 +494,7 @@ export default function LiveTicker({ meetingId, initial }: LiveTickerProps) {
         </ol>
       )}
 
-      <p className="text-center text-xs text-muted dark:text-gray-400">
+      <p className="text-center text-xs text-muted">
         {snapshot.status === "finished"
           ? "Das Spiel ist beendet."
           : `Aktualisiert um ${timeFormat.format(new Date(snapshot.updatedAt))} Uhr · Daten: nuLiga nuScore`}

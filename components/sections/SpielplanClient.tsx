@@ -149,7 +149,7 @@ function FilterPill({
       className={`press shrink-0 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors border ${
         active
           ? "bg-primary border-primary text-white shadow-[0_8px_24px_-8px_rgb(218_37_28/0.55)]"
-          : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
+          : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
       }`}
     >
       {label}
@@ -185,7 +185,7 @@ function MatchSection({
           {title}
         </h2>
         {matches.length > 0 && (
-          <span className="inline-flex items-center gap-2 text-xs text-muted dark:text-gray-400 sm:ml-auto">
+          <span className="inline-flex items-center gap-2 text-xs text-muted sm:ml-auto">
             <span aria-hidden="true" className="block w-1 h-4 rounded-full bg-primary" />
             Heimspiel
           </span>
@@ -193,12 +193,12 @@ function MatchSection({
       </div>
 
       {groups.length === 0 ? (
-        <p className="text-muted dark:text-gray-400 text-sm py-6">{emptyText}</p>
+        <p className="text-muted text-sm py-6">{emptyText}</p>
       ) : (
         <div className="space-y-6">
           {groups.map((group) => (
             <div key={group.key}>
-              <h3 className="px-1 mb-2 text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400">
+              <h3 className="px-1 mb-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
                 {group.label}
               </h3>
               <ul className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-20px_rgb(0_0_0/0.2)] overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
@@ -218,7 +218,7 @@ function MatchSection({
 
 const OUTCOME_CLASS: Record<Outcome, string> = {
   sieg: "text-primary dark:text-primary-glow",
-  niederlage: "text-muted dark:text-gray-400",
+  niederlage: "text-muted",
   unentschieden: "text-text dark:text-gray-100",
 };
 
@@ -256,7 +256,7 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
             <span className="text-lg font-black tabular-nums text-text dark:text-gray-100">
               {timeFormat.format(new Date(match.date))}
             </span>
-            <span className="block text-[11px] leading-none text-muted dark:text-gray-400">
+            <span className="block text-[11px] leading-none text-muted">
               Uhr
             </span>
           </>
@@ -275,7 +275,7 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
         )}
         <p className="text-sm leading-snug text-balance">
           <span className={sideClass(tgIsHome)}>{match.homeTeam}</span>
-          <span className="mx-1.5 text-muted dark:text-gray-500" aria-hidden="true">
+          <span className="mx-1.5 text-muted" aria-hidden="true">
             –
           </span>
           <span className="sr-only"> gegen </span>
@@ -286,7 +286,7 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
       {/* Venue — below the matchup on mobile, own column on desktop */}
       <div className="col-start-2 md:col-start-3 md:row-start-1 min-w-0">
         {match.venue && (
-          <span className="flex items-center gap-1.5 text-xs text-muted dark:text-gray-400">
+          <span className="flex items-center gap-1.5 text-xs text-muted">
             <MapPin size={12} className="shrink-0" aria-hidden="true" />
             <span className="truncate">{match.venue}</span>
           </span>

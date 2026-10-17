@@ -18,6 +18,13 @@ export default defineType({
       options: { hotspot: true },
     }),
     defineField({
+      name: "logoOnDark",
+      title: "Logo ist hell (dunkle Fläche)",
+      type: "boolean",
+      description: "Für weiße oder sehr helle Logos: zeigt das Logo auf dunklem statt weißem Hintergrund.",
+      initialValue: false,
+    }),
+    defineField({
       name: "description",
       title: "Kurzbeschreibung",
       type: "string",

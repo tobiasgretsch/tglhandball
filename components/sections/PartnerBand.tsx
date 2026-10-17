@@ -19,7 +19,7 @@ type Tier = "premium" | "standard";
 const MARQUEE_MIN_PARTNERS = 7;
 
 const LOGO_BOX: Record<Tier, string> = {
-  premium: "h-16 w-44",
+  premium: "h-12 w-32 sm:h-16 sm:w-44",
   standard: "h-10 w-28",
 };
 
@@ -38,7 +38,7 @@ function PartnerLogo({ partner, tier }: { partner: PartnerBandItem; tier: Tier }
   ) : (
     <span
       className={`partner-logo flex items-center justify-center text-center font-semibold text-gray-500 dark:text-gray-400 ${LOGO_BOX[tier]} ${
-        tier === "premium" ? "text-base" : "text-xs"
+        tier === "premium" ? "text-sm sm:text-base" : "text-xs"
       }`}
     >
       {partner.name}
@@ -64,7 +64,7 @@ function StaticRow({ partners, tier }: { partners: PartnerBandItem[]; tier: Tier
   return (
     <div
       className={`flex flex-wrap items-center justify-center ${
-        tier === "premium" ? "gap-x-14 gap-y-8" : "gap-x-10 gap-y-6"
+        tier === "premium" ? "gap-x-8 gap-y-6 sm:gap-x-14 sm:gap-y-8" : "gap-x-10 gap-y-6"
       }`}
     >
       {partners.map((p) => (

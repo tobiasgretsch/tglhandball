@@ -135,7 +135,7 @@ function TeamCard({ team }: { team: Team }) {
           {team.name}
         </h3>
         {team.league && (
-          <p className="text-muted dark:text-gray-400 text-xs mt-1 leading-snug">{team.league}</p>
+          <p className="text-muted text-xs mt-1 leading-snug">{team.league}</p>
         )}
         <div className="mt-auto pt-4">
           <span className="inline-flex items-center gap-1 text-xs font-bold text-primary dark:text-primary-glow uppercase tracking-wider group-hover:gap-2 transition-[gap] duration-200">

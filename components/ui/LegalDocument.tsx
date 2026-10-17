@@ -24,7 +24,7 @@ function Linkified({ text }: { text: string }) {
             href={part}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-accent underline underline-offset-2 break-all"
+            className="text-link underline underline-offset-2 break-all"
           >
             {part}
           </a>

@@ -120,7 +120,7 @@ export default async function HomePage() {
           </Reveal>
 
           {news.length === 0 ? (
-            <p className="text-muted dark:text-gray-400 text-sm">
+            <p className="text-muted text-sm">
               Noch keine News vorhanden. Bitte Artikel im CMS anlegen.
             </p>
           ) : (
@@ -287,7 +287,7 @@ function FeaturedNewsCard({ article }: { article: NewsArticle }) {
         <div className="flex items-center gap-3 mb-3">
           <CategoryChip category={article.category} />
           {article.publishedAt && (
-            <span className="text-xs text-muted dark:text-gray-400 ml-auto">
+            <span className="text-xs text-muted ml-auto">
               {formatNewsDate(article.publishedAt)}
             </span>
           )}
@@ -296,7 +296,7 @@ function FeaturedNewsCard({ article }: { article: NewsArticle }) {
           {article.title}
         </h3>
         {article.teaser && (
-          <p className="text-muted dark:text-gray-400 text-sm leading-relaxed line-clamp-2 mt-3">
+          <p className="text-muted text-sm leading-relaxed line-clamp-2 mt-3">
             {article.teaser}
           </p>
         )}
@@ -343,7 +343,7 @@ function CompactNewsRow({ article }: { article: NewsArticle }) {
         <div className="flex items-center gap-2.5 mb-1.5">
           <CategoryChip category={article.category} />
           {article.publishedAt && (
-            <span className="text-xs text-muted dark:text-gray-400">
+            <span className="text-xs text-muted">
               {formatNewsDate(article.publishedAt)}
             </span>
           )}
@@ -560,7 +560,7 @@ function PartnerOfDaySection({ partner }: { partner: Partner }) {
           {partner.name}
         </p>
         {partner.description && (
-          <p className="text-muted dark:text-gray-400 text-sm mt-1 leading-relaxed">
+          <p className="text-muted text-sm mt-1 leading-relaxed">
             {partner.description}
           </p>
         )}
@@ -637,7 +637,7 @@ function MagazineTeaser({ magazine }: { magazine: Magazine }) {
             {/* Info */}
             <div className="px-5 py-5 flex-1">
               {meta && (
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted dark:text-gray-400 mb-1">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted mb-1">
                   {meta}
                 </p>
               )}
@@ -645,7 +645,7 @@ function MagazineTeaser({ magazine }: { magazine: Magazine }) {
                 {magazine.opponent ? `vs. ${magazine.opponent}` : "Spieltagsheft"}
               </p>
               {dateStr && (
-                <p className="text-sm text-muted dark:text-gray-400 mt-0.5">{dateStr}</p>
+                <p className="text-sm text-muted mt-0.5">{dateStr}</p>
               )}
             </div>
 

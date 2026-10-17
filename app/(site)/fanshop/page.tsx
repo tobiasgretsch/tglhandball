@@ -63,7 +63,7 @@ function ProductCard({ product }: { product: ShopProduct }) {
         <h3 className="text-sm font-bold leading-snug tracking-[-0.01em] text-text dark:text-gray-100">
           {name}
         </h3>
-        <p className="mt-auto pt-1 text-sm text-muted dark:text-gray-400">
+        <p className="mt-auto pt-1 text-sm text-muted">
           {priceFrom && <span className="text-xs">ab </span>}
           <span className="font-semibold text-text dark:text-gray-100">{price}</span>
         </p>
@@ -87,7 +87,7 @@ function ProductSection({ section }: { section: ShopSection }) {
           >
             {title}
           </h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted dark:text-gray-400 md:text-base">
+          <p className="mt-2 text-sm leading-relaxed text-muted md:text-base">
             {description}
           </p>
         </div>
@@ -150,7 +150,7 @@ export default async function FanshopPage() {
                         <h2 className="text-base font-bold tracking-[-0.01em] text-text dark:text-gray-100">
                           {title}
                         </h2>
-                        <p className="mt-1 text-xs leading-relaxed text-muted dark:text-gray-400">
+                        <p className="mt-1 text-xs leading-relaxed text-muted">
                           {description}
                         </p>
                       </div>
@@ -190,7 +190,7 @@ export default async function FanshopPage() {
             ))}
           </div>
 
-          <p className="mt-2 text-xs text-muted dark:text-gray-400">
+          <p className="mt-2 text-xs text-muted">
             Preise laut Club-Shop, Stand {PRICES_CHECKED_AT}. Verbindlich sind die Angaben im Shop.
           </p>
 

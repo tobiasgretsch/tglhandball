@@ -46,7 +46,7 @@ export default function ConsentGate({ label, provider, children, className, fall
         <button
           type="button"
           onClick={openConsentSettings}
-          className="min-h-11 px-3 text-sm text-accent underline underline-offset-2"
+          className="min-h-11 px-3 text-sm text-link underline underline-offset-2"
         >
           Einstellungen
         </button>
@@ -56,7 +56,7 @@ export default function ConsentGate({ label, provider, children, className, fall
           href={fallbackLink.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex min-h-11 items-center text-sm font-semibold text-accent underline underline-offset-2 dark:text-accent-sky"
+          className="inline-flex min-h-11 items-center text-sm font-semibold text-link underline underline-offset-2 dark:text-accent-sky"
         >
           {fallbackLink.label}
         </a>

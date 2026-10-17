@@ -75,9 +75,9 @@ export default async function LivePage() {
               <LiveGameList title="Zuletzt gespielt" games={finished} timeZone={CLUB_TIME_ZONE} />
             </>
           )}
-          <p className="text-center text-sm text-muted dark:text-gray-400">
+          <p className="text-center text-sm text-muted">
             Alle Termine findest du im{" "}
-            <Link href="/spielplan" className="font-bold text-primary underline-offset-4 hover:underline">
+            <Link href="/spielplan" className="font-bold text-brand-red underline-offset-4 hover:underline">
               Spielplan
             </Link>
             .

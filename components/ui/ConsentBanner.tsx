@@ -130,8 +130,8 @@ export default function ConsentBanner() {
           Wir verwenden nur dann zusätzliche Dienste, wenn du zustimmst. Ohne Zustimmung bleibt die Website voll nutzbar;
           eingebundene Inhalte von Dritten (Tabellen, Karte) werden dann nicht geladen. Du kannst deine Auswahl jederzeit
           über „Cookie-Einstellungen“ im Seitenfuß ändern. Mehr in der{" "}
-          <Link href="/datenschutz" className="text-accent underline underline-offset-2">Datenschutzerklärung</Link>{" "}
-          und im <Link href="/impressum" className="text-accent underline underline-offset-2">Impressum</Link>.
+          <Link href="/datenschutz" className="text-link underline underline-offset-2">Datenschutzerklärung</Link>{" "}
+          und im <Link href="/impressum" className="text-link underline underline-offset-2">Impressum</Link>.
         </p>
 
         {showDetails && (
@@ -176,7 +176,7 @@ export default function ConsentBanner() {
             <button
               type="button"
               onClick={() => setShowDetails(true)}
-              className="min-h-11 text-sm font-medium text-accent underline underline-offset-2"
+              className="min-h-11 text-sm font-medium text-link underline underline-offset-2"
             >
               Einstellungen anpassen
             </button>

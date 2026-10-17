@@ -21,7 +21,7 @@ export default function ErrorPanel({ code, title, message, action }: ErrorPanelP
   return (
     <section className="min-h-[70dvh] flex items-center bg-background dark:bg-gray-900">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-24 text-center">
-        <p className="font-display font-bold italic text-7xl text-primary">{code}</p>
+        <p className="font-display font-bold italic text-7xl text-brand-red">{code}</p>
         <h1 className="mt-4 font-display font-bold italic uppercase text-3xl md:text-4xl text-text dark:text-gray-100 text-balance">
           {title}
         </h1>

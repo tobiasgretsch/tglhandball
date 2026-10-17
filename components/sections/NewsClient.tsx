@@ -59,7 +59,7 @@ export default function NewsClient({ articles }: NewsClientProps) {
                 className={`press shrink-0 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors border ${
                   activeCategory === value
                     ? "bg-primary border-primary text-white shadow-[0_8px_24px_-8px_rgb(218_37_28/0.55)]"
-                    : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-400 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
+                    : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
                 }`}
               >
                 {label}
@@ -72,7 +72,7 @@ export default function NewsClient({ articles }: NewsClientProps) {
       {/* ── Grid ───────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         {filtered.length === 0 ? (
-          <p className="text-muted dark:text-gray-400 text-sm py-10">
+          <p className="text-muted text-sm py-10">
             Keine Artikel in dieser Kategorie gefunden.
           </p>
         ) : (
@@ -97,7 +97,7 @@ export default function NewsClient({ articles }: NewsClientProps) {
               </div>
             )}
 
-            <p className="text-center text-muted dark:text-gray-400 text-xs mt-5">
+            <p className="text-center text-muted text-xs mt-5">
               {Math.min(visibleCount, filtered.length)} von {filtered.length} Artikeln
             </p>
           </>
