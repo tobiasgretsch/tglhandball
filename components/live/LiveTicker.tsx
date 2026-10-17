@@ -482,7 +482,7 @@ function EntryRow({ entry, snapshot, fresh }: { entry: TickerEntry; snapshot: Ti
   const isPeriod = entry.kind === "period";
   return (
     <li
-      className={`grid grid-cols-[minmax(0,1fr)_4rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-gray-100 px-2.5 py-3 sm:gap-3 sm:px-3 transition-shadow duration-1000 motion-reduce:transition-none dark:border-gray-700 ${rowTone(entry, snapshot.game)} ${
+      className={`grid grid-cols-[minmax(0,1fr)_4.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-gray-100 px-2.5 py-3 sm:gap-3 sm:px-3 transition-shadow duration-1000 motion-reduce:transition-none dark:border-gray-700 ${rowTone(entry, snapshot.game)} ${
         fresh ? "ring-2 ring-primary/50" : "ring-2 ring-transparent"
       }`}
     >
@@ -498,8 +498,10 @@ function EntryRow({ entry, snapshot, fresh }: { entry: TickerEntry; snapshot: Ti
           {entry.side === "home" ? <EntrySide entry={entry} align="right" /> : <span aria-hidden="true" />}
           <div className="text-center tabular-nums">
             <p className="text-xs font-bold text-muted dark:text-gray-300">{formatGameClock(entry.second)}</p>
-            <p className={`text-sm text-text dark:text-gray-100 ${scoring ? "font-bold" : ""}`}>
-              {entry.scoreHome} – {entry.scoreGuest}
+            <p className="text-base text-text dark:text-gray-100">
+              <span className={scoring && entry.side === "home" ? "font-bold" : ""}>{entry.scoreHome}</span>
+              {" – "}
+              <span className={scoring && entry.side === "guest" ? "font-bold" : ""}>{entry.scoreGuest}</span>
             </p>
           </div>
           {entry.side === "guest" ? <EntrySide entry={entry} align="left" /> : <span aria-hidden="true" />}
