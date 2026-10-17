@@ -24,8 +24,17 @@ const SCRIPT = [
   { code: 4, home: 3, guest: 2, team: false, last: "Gegner", first: "Max", id: "PL-9" },
   { code: 9, home: 3, guest: 2, team: true, last: "Frank", first: "Henry Eugen", id: "PL-2" },
   { code: 4, home: 4, guest: 2, team: true, last: "Frank", first: "Henry Eugen", id: "PL-2" },
-  { code: 14, home: 4, guest: 2 },
-  { code: 16, home: 4, guest: 2 },
+  { code: 8, home: 4, guest: 2, team: true, last: "Schühle", first: "Nicolas", id: "PL-1" },
+  { code: 8, home: 4, guest: 2, team: false, last: "Gegner", first: "Max", id: "PL-9" },
+  { code: 4, home: 5, guest: 2, team: true, last: "Huber", first: "Lukas", id: "PL-3" },
+  { code: 8, home: 5, guest: 2, team: true, last: "Schühle", first: "Nicolas", id: "PL-1" },
+  { code: 10, home: 5, guest: 2, team: true, last: "Huber", first: "Lukas", id: "PL-3" },
+  { code: 9, home: 5, guest: 2, team: false, last: "Gegner", first: "Max", id: "PL-9" },
+  { code: 9, home: 5, guest: 2, team: false, last: "Mustermann", first: "Tim", id: "PL-10" },
+  { code: 8, home: 5, guest: 2, team: false, last: "Mustermann", first: "Tim", id: "PL-10" },
+  { code: 4, home: 5, guest: 3, team: false, last: "Mustermann", first: "Tim", id: "PL-10" },
+  { code: 14, home: 5, guest: 3 },
+  { code: 16, home: 5, guest: 3 },
 ];
 
 const state = () => Math.min(SCRIPT.length, 1 + Math.floor((Date.now() - started) / STEP_MS));
@@ -74,6 +83,11 @@ const players = {
     { personId: 1, firstname: "Nicolas", lastname: "Schühle", nr: "7", personType: 0, teamHome: true, meetingPersonId: "PL-1" },
     { personId: 2, firstname: "Henry Eugen", lastname: "Frank", nr: "11", personType: 0, teamHome: true, meetingPersonId: "PL-2" },
     { personId: 9, firstname: "Max", lastname: "Gegner", nr: "5", personType: 0, teamHome: false, meetingPersonId: "PL-9" },
+    { personId: 3, firstname: "Lukas", lastname: "Huber", nr: "9", personType: 0, teamHome: true, meetingPersonId: "PL-3" },
+    { personId: 10, firstname: "Tim", lastname: "Mustermann", nr: "13", personType: 0, teamHome: false, meetingPersonId: "PL-10" },
+    { personId: 4, firstname: "Jonas", lastname: "Bauer", nr: "3", personType: 0, teamHome: true, meetingPersonId: "PL-4" },
+    { personId: 5, firstname: "Felix", lastname: "Maier", nr: "1", personType: 0, teamHome: true, meetingPersonId: "PL-5" },
+    { personId: 11, firstname: "Paul", lastname: "Weber", nr: "22", personType: 0, teamHome: false, meetingPersonId: "PL-11" },
   ],
 };
 
