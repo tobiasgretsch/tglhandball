@@ -10,6 +10,7 @@ import type { Settings, Partner } from "@/types";
 const QUICK_LINKS = [
   { label: "News", href: "/news" },
   { label: "Teams", href: "/teams" },
+  { label: "Live-Ticker", href: "/live" },
   { label: "Partner", href: "/partner" },
   { label: "Fanshop", href: "/fanshop" },
   { label: "Abteilung", href: "/ueberuns" },
