@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { client } from "@/lib/sanity";
 import { pageHeroSlidesQuery } from "@/lib/queries";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
@@ -8,6 +9,7 @@ import type { LiveGame, LiveSummary } from "@/lib/live/types";
 import type { SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 import LiveGameList from "@/components/live/LiveGameList";
+import { LiveListSkeleton } from "@/components/live/LiveSkeleton";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/live" },
@@ -29,24 +31,49 @@ async function loadSummary(): Promise<LiveSummary | null> {
   }
 }
 
-export default async function LivePage() {
-  const [summary, slides] = await Promise.all([
-    loadSummary(),
-    client
-      .fetch<SanityImage[]>(pageHeroSlidesQuery, {}, { next: { revalidate: 3600 } })
-      .catch(() => [] as SanityImage[]),
-  ]);
+/** Streams in behind a skeleton: on a cold instance nuLiga needs several seconds to answer. */
+async function LiveGames() {
+  const summary = await loadSummary();
+  if (summary === null) {
+    return (
+      <p
+        role="status"
+        className="rounded-2xl bg-white p-6 text-center text-muted dark:bg-gray-800 dark:text-gray-300"
+      >
+        Die Live-Daten sind gerade nicht erreichbar. Bitte versuche es in einem Moment erneut.
+      </p>
+    );
+  }
 
   // The summary's own timestamp, so "upcoming" and "live" agree with each other.
-  const now = summary?.updatedAt ?? 0;
+  const now = summary.updatedAt;
   const startOf = (g: LiveGame) => new Date(g.scheduled).getTime();
-  const all = summary?.games ?? [];
-  const live = all.filter((g) => g.live);
-  const upcoming = all.filter((g) => !g.live && startOf(g) > now).slice(0, LIST_LIMIT);
-  const finished = all
+  const live = summary.games.filter((g) => g.live);
+  const upcoming = summary.games.filter((g) => !g.live && startOf(g) > now).slice(0, LIST_LIMIT);
+  const finished = summary.games
     .filter((g) => !g.live && startOf(g) <= now)
     .sort((a, b) => startOf(b) - startOf(a))
     .slice(0, LIST_LIMIT);
+
+  return (
+    <>
+      <LiveGameList
+        title="Läuft gerade"
+        games={live}
+        timeZone={CLUB_TIME_ZONE}
+        emptyText="Im Moment läuft kein Spiel."
+      />
+      <LiveGameList title="Als Nächstes" games={upcoming} timeZone={CLUB_TIME_ZONE} />
+      <LiveGameList title="Zuletzt gespielt" games={finished} timeZone={CLUB_TIME_ZONE} />
+    </>
+  );
+}
+
+export default async function LivePage() {
+  // Only the cached hero images are awaited here, so the hero paints immediately.
+  const slides = await client
+    .fetch<SanityImage[]>(pageHeroSlidesQuery, {}, { next: { revalidate: 3600 } })
+    .catch(() => [] as SanityImage[]);
 
   return (
     <>
@@ -57,25 +84,9 @@ export default async function LivePage() {
       />
       <section className="bg-background dark:bg-gray-900">
         <div className="mx-auto max-w-3xl space-y-10 px-4 pb-20 pt-6 sm:px-6">
-          {summary === null ? (
-            <p
-              role="status"
-              className="rounded-2xl bg-white p-6 text-center text-muted dark:bg-gray-800 dark:text-gray-300"
-            >
-              Die Live-Daten sind gerade nicht erreichbar. Bitte versuche es in einem Moment erneut.
-            </p>
-          ) : (
-            <>
-              <LiveGameList
-                title="Läuft gerade"
-                games={live}
-                timeZone={CLUB_TIME_ZONE}
-                emptyText="Im Moment läuft kein Spiel."
-              />
-              <LiveGameList title="Als Nächstes" games={upcoming} timeZone={CLUB_TIME_ZONE} />
-              <LiveGameList title="Zuletzt gespielt" games={finished} timeZone={CLUB_TIME_ZONE} />
-            </>
-          )}
+          <Suspense fallback={<LiveListSkeleton />}>
+            <LiveGames />
+          </Suspense>
           <p className="text-center text-sm text-muted">
             Alle Termine findest du im{" "}
             <Link href="/spielplan" className="font-bold text-brand-red underline-offset-4 hover:underline">
