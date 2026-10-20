@@ -15,19 +15,6 @@ export const allNewsQuery = groq`
   }
 `;
 
-export const newsByCategoryQuery = groq`
-  *[_type == "news" && category == $category] | order(publishedAt desc) {
-    _id,
-    title,
-    slug,
-    publishedAt,
-    category,
-    mainImage { ..., "lqip": asset->metadata.lqip },
-    teaser,
-    author,
-  }
-`;
-
 export const newsDetailQuery = groq`
   *[_type == "news" && slug.current == $slug][0] {
     _id,
@@ -99,47 +86,10 @@ export const spielplanQuery = groq`
   }
 `;
 
-export const spielplanByTeamQuery = groq`
-  *[_type == "match" && team._ref == $teamId] | order(date asc) {
-    _id,
-    date,
-    homeTeam,
-    awayTeam,
-    result,
-    meetingId,
-    team->{ _id, name, slug },
-    venue,
-    isHomeGame,
-  }
-`;
-
-export const upcomingMatchesQuery = groq`
-  *[_type == "match" && date > $now && !defined(result)] | order(date asc) {
-    _id,
-    date,
-    homeTeam,
-    awayTeam,
-    team->{ _id, name, slug },
-    venue,
-    isHomeGame,
-  }
-`;
-
 // ─── Spieltagshefte (Magazines) ───────────────────────────────────────────────
 
 export const allMagazinesQuery = groq`
   *[_type == "magazine"] | order(date desc) {
-    _id,
-    season,
-    matchday,
-    opponent,
-    date,
-    pdfFile { asset->{ url } },
-  }
-`;
-
-export const magazinesBySeasonQuery = groq`
-  *[_type == "magazine" && season == $season] | order(matchday asc) {
     _id,
     season,
     matchday,
@@ -177,16 +127,6 @@ export const partnerOfTheDayQuery = groq`
 
 export const allGalleryQuery = groq`
   *[_type == "gallery"] | order(date desc) {
-    _id,
-    image,
-    caption,
-    category,
-    date,
-  }
-`;
-
-export const galleryByCategoryQuery = groq`
-  *[_type == "gallery" && category == $category] | order(date desc) {
     _id,
     image,
     caption,

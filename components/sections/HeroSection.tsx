@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Newspaper } from "lucide-react";
+import { heroFadeUp } from "@/lib/motion";
 
 interface HeroSectionProps {
   heroImageUrl: string | null;
@@ -11,24 +12,11 @@ interface HeroSectionProps {
   clubName: string;
 }
 
-function makeFadeUp(reduced: boolean) {
-  return {
-    // Opacity stays 1: the headline is the LCP element and must be visible
-    // in the server HTML and before hydration; only the rise is animated.
-    hidden: { opacity: 1, y: reduced ? 0 : 28 },
-    show: (delay: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: reduced
-        ? { duration: 0 }
-        : { type: "spring" as const, bounce: 0, duration: 0.8, delay },
-    }),
-  };
-}
+const HERO_RISE_PX = 28;
 
 export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubName }: HeroSectionProps) {
   const prefersReduced = useReducedMotion() ?? false;
-  const fadeUp = makeFadeUp(prefersReduced);
+  const fadeUp = heroFadeUp(prefersReduced, HERO_RISE_PX);
 
   return (
     <section className="relative min-h-dvh flex items-end" aria-labelledby="hero-heading">

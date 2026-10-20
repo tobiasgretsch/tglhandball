@@ -34,7 +34,7 @@ type ShopCategoryId =
   | "baelle-schuhe"
   | "equipment";
 
-export interface ShopCategory {
+interface ShopCategory {
   id: ShopCategoryId;
   title: string;
   description: string;

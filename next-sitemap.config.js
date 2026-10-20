@@ -24,7 +24,7 @@ module.exports = {
   // Dynamic routes are handled by generateStaticParams in each page file.
   // We add them here as well so next-sitemap picks them up even if the
   // build output doesn't expose them automatically.
-  additionalPaths: async (config) => {
+  additionalPaths: async () => {
     const { createClient } = require("@sanity/client");
 
     const sanityClient = createClient({

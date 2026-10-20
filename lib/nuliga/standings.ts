@@ -3,6 +3,8 @@
  * `parseStandings` is pure; `fetchStandings` adds the (cached) network call.
  */
 
+import { toText } from "./html";
+
 export interface StandingRow {
   rank: string;
   team: string;
@@ -33,29 +35,12 @@ const HEADER_FIELD: Record<string, keyof StandingRow> = {
   Punkte: "points",
 };
 
-const HTML_ENTITIES: Record<string, string> = {
-  "&nbsp;": " ",
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'",
-};
-
-function toText(html: string): string {
-  return html
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&(?:nbsp|amp|lt|gt|quot|#39);/g, (m) => HTML_ENTITIES[m])
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function readCells(rowHtml: string, tag: "td" | "th"): string[] {
   const pattern = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, "g");
   return [...rowHtml.matchAll(pattern)].map((m) => toText(m[1]));
 }
 
-export function parseStandings(html: string): StandingRow[] {
+function parseStandings(html: string): StandingRow[] {
   const table = TABLE_PATTERN.exec(html)?.[1];
   if (!table) return [];
 
@@ -87,7 +72,7 @@ export function parseStandings(html: string): StandingRow[] {
   return rows;
 }
 
-export function isAllowedStandingsUrl(value: string): boolean {
+function isAllowedStandingsUrl(value: string): boolean {
   try {
     const url = new URL(value);
     return url.protocol === "https:" && url.hostname === ALLOWED_HOST;

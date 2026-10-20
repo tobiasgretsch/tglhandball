@@ -3,6 +3,8 @@
  * Input: raw HTML. Output: one entry per fixture row, no I/O.
  */
 
+import { decodeEntities, toText } from "./html";
+
 export interface NuligaMatch {
   /** Stable identifier — survives rescheduling, unique per fixture. */
   key: string;
@@ -47,23 +49,6 @@ interface Cell {
   text: string;
 }
 
-const HTML_ENTITIES: Record<string, string> = {
-  "&nbsp;": " ",
-  "&amp;": "&",
-  "&lt;": "<",
-  "&gt;": ">",
-  "&quot;": '"',
-  "&#39;": "'",
-};
-
-function decodeEntities(value: string): string {
-  return value.replace(/&(?:nbsp|amp|lt|gt|quot|#39);/g, (m) => HTML_ENTITIES[m]);
-}
-
-function toText(html: string): string {
-  return decodeEntities(html.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
-}
-
 /**
  * Rows start with two date cells (weekday, date). They are either filled,
  * blank rowspan filler (inherit the previous row's date), or a single
@@ -83,7 +68,7 @@ function readCells(rowHtml: string): Cell[] {
 }
 
 /** Converts a Europe/Berlin wall-clock time to an ISO string with offset. */
-export function berlinToIso(day: string, time: string): string {
+function berlinToIso(day: string, time: string): string {
   const d = DATE_PATTERN.exec(day);
   const t = TIME_PATTERN.exec(time);
   if (!d || !t) throw new Error(`Unparseable date/time: "${day}" "${time}"`);

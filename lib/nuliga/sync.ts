@@ -25,7 +25,7 @@ interface ExistingMatch {
   teamRef?: string;
 }
 
-export interface SyncSummary {
+interface SyncSummary {
   parsed: number;
   created: number;
   updated: number;

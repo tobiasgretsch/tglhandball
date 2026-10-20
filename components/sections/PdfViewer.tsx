@@ -89,21 +89,31 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
   const pinchRef = useRef<{ startDistance: number; startZoom: number } | null>(null);
   const draggedRef = useRef(false);
   const gestureWasMultiRef = useRef(false);
-  // Shadow ref kept in sync with pageCache — lets stable callbacks read the latest cache
+  // Mirror of pageCache for the stable `enqueue` callback (written where pages finish rendering)
   const pageCacheRef = useRef<Map<number, string>>(new Map());
   const renderingRef = useRef<Set<number>>(new Set());
   const numPagesRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<number | null>(null);
 
-  // Keep shadow ref in sync on every render
-  pageCacheRef.current = pageCache;
-
   // Lock body scroll while viewer is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
+
+  function navigate(delta: number) {
+    setCurrentPage((p) => {
+      const next = Math.max(1, Math.min(p + delta, numPagesRef.current));
+      if (next !== p) resetZoom();
+      return next;
+    });
+  }
+
+  function resetZoom() {
+    setZoom(MIN_ZOOM);
+    setPan({ x: 0, y: 0 });
+  }
 
   // Keyboard navigation (re-registers each render so it captures latest numPages)
   useEffect(() => {
@@ -147,6 +157,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
 
     renderPageToDataUrl(pdfRef.current, pageNum, maxW, maxH)
       .then((dataUrl) => {
+        pageCacheRef.current.set(pageNum, dataUrl);
         setPageCache((prev) => new Map(prev).set(pageNum, dataUrl));
       })
       .catch(() => { /* silently ignore individual page render failures */ })
@@ -183,19 +194,6 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
       .catch(() => { /* keep showing the base render */ })
       .finally(() => hiResRenderingRef.current.delete(page));
   }, [zoom, currentPage, status, hiResCache]);
-
-  function navigate(delta: number) {
-    setCurrentPage((p) => {
-      const next = Math.max(1, Math.min(p + delta, numPagesRef.current));
-      if (next !== p) resetZoom();
-      return next;
-    });
-  }
-
-  function resetZoom() {
-    setZoom(MIN_ZOOM);
-    setPan({ x: 0, y: 0 });
-  }
 
   /** Pan limit per axis: how far the zoomed image may travel before an edge shows. */
   function clampPan(next: { x: number; y: number }, z: number) {
@@ -366,6 +364,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
            * the browser paints the new src atomically — no intermediate blank state.
            * The previous image stays visible until React commits the new src.
            */
+          // eslint-disable-next-line @next/next/no-img-element -- data URL from pdf.js; next/image cannot optimise it
           <img
             ref={imgRef}
             key={currentPage}

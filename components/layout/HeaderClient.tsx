@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,6 +8,15 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import type { TeamCategory } from "@/types";
 import { LiveNavBadge } from "@/components/live/LiveBadge";
+
+/** The anti-flash script in the root layout sets `dark` on <html> before hydration. */
+function subscribeToTheme(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  return () => observer.disconnect();
+}
+const readIsDark = () => document.documentElement.classList.contains("dark");
+const serverIsDark = () => false;
 
 interface TeamItem {
   _id: string;
@@ -68,7 +77,7 @@ export default function HeaderClient({
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<"teams" | "abteilung" | null>(null);
-  const [isDark, setIsDark] = useState(false);
+  const isDark = useSyncExternalStore(subscribeToTheme, readIsDark, serverIsDark);
   const [mobileExpanded, setMobileExpanded] = useState<Set<string>>(new Set());
   const [openDesktopGroups, setOpenDesktopGroups] = useState<Set<TeamCategory>>(new Set());
   const prefersReduced = useReducedMotion() ?? false;
@@ -92,11 +101,6 @@ export default function HeaderClient({
   };
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialise isDark from the class already applied by the anti-flash script.
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-  }, []);
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -112,7 +116,6 @@ export default function HeaderClient({
 
   const toggleTheme = () => {
     const next = !isDark;
-    setIsDark(next);
     document.documentElement.classList.toggle("dark", next);
     try {
       localStorage.setItem("theme", next ? "dark" : "light");

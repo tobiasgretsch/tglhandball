@@ -11,7 +11,7 @@ import Reveal from "@/components/ui/Reveal";
 import PortableText from "@/components/ui/PortableText";
 import JsonLd from "@/components/ui/JsonLd";
 import { breadcrumbJsonLd, newsArticleJsonLd } from "@/lib/seo";
-import { NewsCard, CATEGORY_STYLES, formatPublishedDate } from "@/components/sections/NewsCard";
+import { NewsCard, NewsCategoryChip, formatPublishedDate } from "@/components/sections/NewsCard";
 
 // ─── Static params + metadata ─────────────────────────────────────────────────
 
@@ -89,7 +89,6 @@ export default async function NewsDetailPage({ params }: Props) {
     ? urlFor(article.mainImage).width(1600).height(700).url()
     : null;
 
-  const category = article.category ? CATEGORY_STYLES[article.category] : null;
   const dateStr = article.publishedAt
     ? formatPublishedDate(article.publishedAt)
     : null;
@@ -150,13 +149,7 @@ export default async function NewsDetailPage({ params }: Props) {
           <Reveal>
           {/* Category + date */}
           <div className="flex flex-wrap items-center gap-3 mb-5">
-            {category && (
-              <span
-                className={`text-xs font-bold uppercase tracking-[0.12em] px-2.5 py-0.5 rounded-full ${category.bg} ${category.text}`}
-              >
-                {category.label}
-              </span>
-            )}
+            <NewsCategoryChip category={article.category} />
             {dateStr && (
               <span className="flex items-center gap-1.5 text-xs text-muted">
                 <CalendarDays size={13} className="shrink-0" aria-hidden="true" />
