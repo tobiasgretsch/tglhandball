@@ -25,17 +25,11 @@ export default defineType({
       type: "string",
     }),
     defineField({
-      name: "category",
-      title: "Kategorie",
-      type: "string",
-      options: {
-        list: [
-          { title: "Herren", value: "herren" },
-          { title: "Damen", value: "damen" },
-          { title: "Jugend", value: "jugend" },
-          { title: "Events", value: "events" },
-        ],
-      },
+      name: "team",
+      title: "Mannschaft",
+      description: "Das Bild erscheint auf der Mannschaftsseite. Leer lassen = Verein (Über-uns-Seite).",
+      type: "reference",
+      to: [{ type: "team" }],
     }),
     defineField({
       name: "date",
@@ -51,11 +45,11 @@ export default defineType({
     },
   ],
   preview: {
-    select: { title: "caption", subtitle: "category", media: "image" },
+    select: { title: "caption", subtitle: "team.name", media: "image" },
     prepare({ title, subtitle, media }) {
       return {
         title: title || "Kein Titel",
-        subtitle,
+        subtitle: subtitle ?? "Verein",
         media,
       };
     },

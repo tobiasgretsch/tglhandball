@@ -15,6 +15,7 @@ import {
   topSponsorsQuery,
   homeUpcomingMatchesQuery,
   latestResultQuery,
+  allGalleryQuery,
 } from "@/lib/queries";
 import type {
   Settings,
@@ -24,12 +25,15 @@ import type {
   Magazine,
   Partner,
   Match,
+  GalleryItem,
 } from "@/types";
 import HeroSection from "@/components/sections/HeroSection";
 import MatchdaySection from "@/components/sections/MatchdaySection";
 import { SponsorCard } from "@/components/sections/PartnerCards";
 import { NewsCategoryChip, formatPublishedDate } from "@/components/sections/NewsCard";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
+import GalleryStrip from "@/components/sections/GalleryStrip";
+import { pickOnePerSelection, type GalleryHighlight } from "@/lib/gallery";
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
@@ -57,7 +61,7 @@ export default async function HomePage() {
   const now = new Date().toISOString(); // match date filter
   const today = now.slice(0, 10); // "YYYY-MM-DD" — magazine date filter
 
-  const [settings, news, teams, partnerOfDay, upcomingMagazine, topSponsors, upcomingMatches, lastResult] =
+  const [settings, news, teams, partnerOfDay, upcomingMagazine, topSponsors, upcomingMatches, lastResult, galleryItems] =
     await Promise.all([
       client
         .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
@@ -83,7 +87,12 @@ export default async function HomePage() {
       client
         .fetch<Match | null>(latestResultQuery, {}, { next: { revalidate: 300 } })
         .catch(() => null),
+      client
+        .fetch<GalleryItem[]>(allGalleryQuery, {}, { next: { revalidate: 300 } })
+        .catch(() => [] as GalleryItem[]),
     ]);
+
+  const galleryHighlights = pickOnePerSelection(galleryItems);
 
   // The Spieltag section covers the flagship men's team; all other teams get a link.
   const flagshipTeamId = teams.find((t) => t.category === "herren")?._id;
@@ -193,6 +202,11 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+      )}
+
+      {/* ── Section 4b: Galerie — ein Zufallsfoto je Auswahl ────────── */}
+      {galleryHighlights.length > 0 && (
+        <GalleryTeaser highlights={galleryHighlights} />
       )}
 
       {/* ── Section 5: Top-Sponsoren ────────────────────────────────── */}
@@ -414,6 +428,46 @@ function TeamTile({ tile }: { tile: TeamTileData }) {
         </p>
       </div>
     </Link>
+  );
+}
+
+// ─── Galerie-Teaser ───────────────────────────────────────────────────────────
+
+function GalleryTeaser({ highlights }: { highlights: GalleryHighlight[] }) {
+  return (
+    <section className="bg-background dark:bg-gray-900 pt-16 md:pt-20 pb-6" aria-labelledby="gallery-heading">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Reveal className="flex items-end justify-between mb-10">
+          <SectionTitle id="gallery-heading" title="Impressionen" />
+          <Link
+            href="/impressionen"
+            className="hidden sm:inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-primary hover:text-primary-light dark:text-primary-glow transition-colors shrink-0 mb-1"
+          >
+            Zur Galerie <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        </Reveal>
+
+        <GalleryStrip
+          tiles={highlights.map(({ item, label, filter }) => ({
+            id: filter,
+            href: `/impressionen?team=${encodeURIComponent(filter)}`,
+            image: item.image,
+            alt: item.image.alt ?? item.caption ?? label,
+            label,
+          }))}
+        />
+
+        {/* Mobile only — desktop link is in the section header */}
+        <div className="mt-6 sm:hidden">
+          <Link
+            href="/impressionen"
+            className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.12em] text-primary dark:text-primary-glow hover:text-primary-light transition-colors"
+          >
+            Zur Galerie <ArrowRight size={14} aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
 

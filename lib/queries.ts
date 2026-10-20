@@ -51,9 +51,28 @@ export const teamDetailQuery = groq`
     league,
     headerImage { ..., "lqip": asset->metadata.lqip },
     description,
-    coaches,
-    betreuer,
-    squad,
+    coaches[] {
+      _key,
+      name,
+      role,
+      image { ..., "lqip": asset->metadata.lqip },
+      imageBack { ..., "lqip": asset->metadata.lqip },
+    },
+    betreuer[] {
+      _key,
+      name,
+      role,
+      image { ..., "lqip": asset->metadata.lqip },
+      imageBack { ..., "lqip": asset->metadata.lqip },
+    },
+    squad[] {
+      _key,
+      name,
+      number,
+      position,
+      image { ..., "lqip": asset->metadata.lqip },
+      imageBack { ..., "lqip": asset->metadata.lqip },
+    },
     trainingTimes,
     pricingSection {
       heading,
@@ -130,8 +149,26 @@ export const allGalleryQuery = groq`
     _id,
     image,
     caption,
-    category,
     date,
+    "team": team->{ _id, name, slug },
+  }
+`;
+
+/** Latest photos tagged with one team — the row on the team page. */
+export const teamGalleryQuery = groq`
+  *[_type == "gallery" && team._ref == $teamId] | order(date desc) [0...12] {
+    _id,
+    image,
+    caption,
+  }
+`;
+
+/** Latest club photos (not tagged with a team) — the row on the Über-uns page. */
+export const clubGalleryQuery = groq`
+  *[_type == "gallery" && !defined(team)] | order(date desc) [0...12] {
+    _id,
+    image,
+    caption,
   }
 `;
 

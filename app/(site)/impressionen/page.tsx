@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { client } from "@/lib/sanity";
@@ -40,7 +41,10 @@ export default async function ImpressionsPage() {
         subtitle="Fotos und Eindrücke von Spielen, Training und Events."
       />
 
-      <GalleryClient items={items} />
+      {/* GalleryClient reads ?team= from the URL, which needs a Suspense boundary. */}
+      <Suspense>
+        <GalleryClient items={items} />
+      </Suspense>
     </>
   );
 }

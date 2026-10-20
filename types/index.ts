@@ -8,6 +8,7 @@ export interface SanityImage {
   };
   alt?: string;
   hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
   lqip?: string; // base64 data URL from Sanity asset metadata — used for blur placeholder
 }
 
@@ -70,6 +71,8 @@ export interface Coach {
   name: string;
   role?: string;
   image?: SanityImage;
+  /** Second photo, shown on the flipped side of the card. */
+  imageBack?: SanityImage;
 }
 
 export interface Betreuer {
@@ -77,6 +80,8 @@ export interface Betreuer {
   name: string;
   role?: string;
   image?: SanityImage;
+  /** Second photo, shown on the flipped side of the card. */
+  imageBack?: SanityImage;
 }
 
 export interface Player {
@@ -85,6 +90,8 @@ export interface Player {
   name: string;
   position?: string;
   image?: SanityImage;
+  /** Second photo, shown on the flipped side of the card. */
+  imageBack?: SanityImage;
 }
 
 export type TrainingDay = "mo" | "di" | "mi" | "do" | "fr" | "sa" | "so";
@@ -167,14 +174,13 @@ export interface Partner {
 
 // ─── Gallery ──────────────────────────────────────────────────────────────────
 
-export type GalleryCategory = "herren" | "damen" | "jugend" | "events";
-
 export interface GalleryItem {
   _id: string;
   image: SanityImage;
   caption?: string;
-  category?: GalleryCategory;
   date?: string;
+  /** Untagged photos belong to the club ("Verein"). */
+  team?: Pick<Team, "_id" | "name" | "slug">;
 }
 
 // ─── Settings (singleton) ────────────────────────────────────────────────────

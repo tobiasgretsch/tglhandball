@@ -2,43 +2,57 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { urlFor } from "@/lib/sanity";
-import type { GalleryItem, GalleryCategory } from "@/types";
+import type { GalleryItem } from "@/types";
 import FilterPill from "@/components/ui/FilterPill";
+import { CLUB_GALLERY_FILTER, CLUB_GALLERY_LABEL } from "@/lib/gallery";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-type FilterCategory = GalleryCategory | "alle";
+/** Filter values besides a team id. */
+const ALL = "alle";
 
-const FILTER_OPTIONS: { value: FilterCategory; label: string }[] = [
-  { value: "alle",    label: "Alle"   },
-  { value: "herren",  label: "Herren" },
-  { value: "damen",   label: "Damen"  },
-  { value: "jugend",  label: "Jugend" },
-  { value: "events",  label: "Events" },
-];
+/** Query parameter the team pages use to deep-link into a team's photos. */
+const TEAM_PARAM = "team";
 
-const CATEGORY_LABELS: Record<GalleryCategory, string> = {
-  herren: "Herren",
-  damen:  "Damen",
-  jugend: "Jugend",
-  events: "Events",
-};
+type GalleryTeam = NonNullable<GalleryItem["team"]>;
+
+/** Tag shown on a photo: its team, or the club for untagged photos. */
+const tagLabel = (item: GalleryItem): string => item.team?.name ?? CLUB_GALLERY_LABEL;
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function GalleryClient({ items }: { items: GalleryItem[] }) {
-  const [activeCategory, setActiveCategory] = useState<FilterCategory>("alle");
+  const teams = useMemo(() => uniqueTeams(items), [items]);
+  const hasClubPhotos = useMemo(() => items.some((item) => !item.team), [items]);
+  const requestedTeam = useSearchParams().get(TEAM_PARAM);
+
+  const filterOptions = useMemo(
+    () => [
+      { value: ALL, label: "Alle" },
+      ...(hasClubPhotos ? [{ value: CLUB_GALLERY_FILTER, label: CLUB_GALLERY_LABEL }] : []),
+      ...teams.map((team) => ({ value: team._id, label: team.name })),
+    ],
+    [teams, hasClubPhotos]
+  );
+
+  const [activeFilter, setActiveFilter] = useState<string>(() => {
+    if (requestedTeam === CLUB_GALLERY_FILTER) return CLUB_GALLERY_FILTER;
+    return teams.find((t) => t.slug.current === requestedTeam)?._id ?? ALL;
+  });
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const filtered = useMemo(
     () =>
-      activeCategory === "alle"
-        ? items
-        : items.filter((item) => item.category === activeCategory),
-    [items, activeCategory]
+      items.filter((item) => {
+        if (activeFilter === ALL) return true;
+        if (activeFilter === CLUB_GALLERY_FILTER) return !item.team;
+        return item.team?._id === activeFilter;
+      }),
+    [items, activeFilter]
   );
 
   const openLightbox = useCallback((index: number) => setLightboxIndex(index), []);
@@ -54,8 +68,8 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
     );
   }, [filtered.length]);
 
-  const handleCategoryChange = (cat: FilterCategory) => {
-    setActiveCategory(cat);
+  const handleFilterChange = (value: string) => {
+    setActiveFilter(value);
     setLightboxIndex(null);
   };
 
@@ -65,12 +79,12 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
       <div className="material-bar sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
-            {FILTER_OPTIONS.map(({ value, label }) => (
+            {filterOptions.map(({ value, label }) => (
               <FilterPill
                 key={value}
                 label={label}
-                active={activeCategory === value}
-                onClick={() => handleCategoryChange(value)}
+                active={activeFilter === value}
+                onClick={() => handleFilterChange(value)}
               />
             ))}
             <span className="ml-auto shrink-0 text-xs text-muted tabular-nums">
@@ -84,7 +98,7 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         {filtered.length === 0 ? (
           <p className="text-muted text-sm py-10 text-center">
-            Keine Bilder in dieser Kategorie.
+            Keine Bilder in dieser Auswahl.
           </p>
         ) : (
           <div className="columns-2 md:columns-3 xl:columns-4 gap-3 md:gap-4">
@@ -109,6 +123,15 @@ export default function GalleryClient({ items }: { items: GalleryItem[] }) {
       />
     </div>
   );
+}
+
+/** Teams that have at least one photo, in order of first appearance. */
+function uniqueTeams(items: GalleryItem[]): GalleryTeam[] {
+  const byId = new Map<string, GalleryTeam>();
+  for (const { team } of items) {
+    if (team?.slug?.current) byId.set(team._id, team);
+  }
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name, "de"));
 }
 
 // ─── Masonry item ─────────────────────────────────────────────────────────────
@@ -144,11 +167,9 @@ function MasonryItem({
             {item.caption}
           </p>
         )}
-        {item.category && (
-          <span className="inline-block mt-1.5 text-xs font-bold uppercase tracking-[0.12em] text-white/75">
-            {CATEGORY_LABELS[item.category]}
-          </span>
-        )}
+        <span className="inline-block mt-1.5 text-xs font-bold uppercase tracking-[0.12em] text-white/75">
+          {tagLabel(item)}
+        </span>
       </div>
     </button>
   );
@@ -224,20 +245,16 @@ function Lightbox({ items, index, onClose, onNext, onPrev }: LightboxProps) {
                 />
               </div>
 
-              {(item.caption || item.category) && (
-                <div className="mt-4 flex items-center gap-3 max-w-[85vw]">
-                  {item.caption && (
-                    <p className="text-white/80 text-sm leading-snug flex-1 text-center">
-                      {item.caption}
-                    </p>
-                  )}
-                  {item.category && (
-                    <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-white/70 border border-white/25 px-2.5 py-0.5 rounded-full">
-                      {CATEGORY_LABELS[item.category]}
-                    </span>
-                  )}
-                </div>
-              )}
+              <div className="mt-4 flex items-center gap-3 max-w-[85vw]">
+                {item.caption && (
+                  <p className="text-white/80 text-sm leading-snug flex-1 text-center">
+                    {item.caption}
+                  </p>
+                )}
+                <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-white/70 border border-white/25 px-2.5 py-0.5 rounded-full">
+                  {tagLabel(item)}
+                </span>
+              </div>
 
               <p className="mt-2 text-xs text-white/60 tabular-nums">
                 {index! + 1} / {items.length}

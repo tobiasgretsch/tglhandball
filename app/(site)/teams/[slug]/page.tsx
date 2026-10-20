@@ -14,14 +14,18 @@ import {
   teamDetailQuery,
   teamUpcomingMatchesQuery,
   teamRecentResultsQuery,
+  teamGalleryQuery,
   settingsQuery,
 } from "@/lib/queries";
-import type { Team, Match, Betreuer, Settings, TrainingDay, TrainingTime } from "@/types";
+import type { Team, Match, GalleryItem, Betreuer, Settings, TrainingDay, TrainingTime } from "@/types";
+import PersonCard from "@/components/ui/PersonCard";
+import { toPersonPhoto } from "@/lib/personPhoto";
 import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import PricingSection from "@/components/sections/PricingSection";
 import StandingsTable from "@/components/sections/StandingsTable";
+import GalleryRow from "@/components/sections/GalleryRow";
 import { LiveMatchBadge } from "@/components/live/LiveBadge";
 import { fetchStandings } from "@/lib/nuliga/standings";
 
@@ -95,7 +99,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
   if (!team) notFound();
 
-  const [upcoming, results, settings, standings] = await Promise.all([
+  const [upcoming, results, settings, standings, photos] = await Promise.all([
     client
       .fetch<Match[]>(
         teamUpcomingMatchesQuery,
@@ -114,6 +118,13 @@ export default async function TeamDetailPage({ params }: Props) {
       .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
       .catch(() => null),
     team.nuligaTableUrl ? fetchStandings(team.nuligaTableUrl) : Promise.resolve([]),
+    client
+      .fetch<Pick<GalleryItem, "_id" | "image" | "caption">[]>(
+        teamGalleryQuery,
+        { teamId: team._id },
+        { next: { revalidate: 3600 } }
+      )
+      .catch(() => []),
   ]);
 
   const heroUrl = team.headerImage
@@ -193,182 +204,7 @@ export default async function TeamDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ── 3. Tabelle (nuLiga) — shown directly after About ──────────── */}
-      {team.nuligaTableUrl && standings.length > 0 && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading label="Tabelle" />
-            <StandingsTable rows={standings} sourceUrl={team.nuligaTableUrl} />
-          </div>
-        </section>
-      )}
-
-      {/* ── 3b. Trainingszeiten ───────────────────────────────────────── */}
-      {team.trainingTimes && team.trainingTimes.length > 0 && (
-        <section className="bg-white dark:bg-gray-800 py-14 md:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading label="Trainingszeiten" />
-            <ul className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortTrainingTimes(team.trainingTimes).map((slot) => (
-                <TrainingSlot key={slot._key} slot={slot} />
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-
-      {/* ── 4. Coaching staff ─────────────────────────────────────────── */}
-      {team.coaches && team.coaches.length > 0 && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading label="Trainerteam" />
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
-              {team.coaches.map((coach) => {
-                const coachImageUrl = coach.image
-                  ? urlFor(coach.image).width(400).height(500).url()
-                  : null;
-                return (
-                  <div
-                    key={coach._key}
-                    className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.25)] transition-shadow duration-300"
-                  >
-                    <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
-                      {coachImageUrl ? (
-                        <Image
-                          src={coachImageUrl}
-                          alt={coach.name}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-cover object-top motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <User size={32} className="text-muted/30" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-3 md:p-4">
-                      <p className="font-semibold text-text dark:text-gray-100 text-sm leading-tight truncate">
-                        {coach.name}
-                      </p>
-                      {coach.role && (
-                        <p className="text-muted text-xs mt-0.5 truncate">
-                          {coach.role}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── 7. Squad ──────────────────────────────────────────────────── */}
-      {team.squad && team.squad.length > 0 && (
-        <section className="bg-white dark:bg-gray-800 py-14 md:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading label="Kader" />
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
-              {team.squad.map((player) => {
-                const playerImageUrl = player.image
-                  ? urlFor(player.image).width(400).height(500).url()
-                  : null;
-                return (
-                  <div
-                    key={player._key}
-                    className="group bg-background dark:bg-gray-700 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-600 shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.25)] transition-shadow duration-300"
-                  >
-                    {/* Player image */}
-                    <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
-                      {playerImageUrl ? (
-                        <Image
-                          src={playerImageUrl}
-                          alt={player.name}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                          className="object-cover object-top motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Shield size={32} className="text-muted/30" />
-                        </div>
-                      )}
-                      {/* Jersey number badge */}
-                      {player.number !== undefined && (
-                        <span className="absolute top-2 left-2 bg-primary text-white text-xs md:text-sm font-bold tabular-nums w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center leading-none shadow-sm">
-                          {player.number}
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-3 md:p-4">
-                      <p className="font-semibold text-text dark:text-gray-100 text-sm leading-tight truncate">
-                        {player.name}
-                      </p>
-                      {player.position && (
-                        <p className="text-muted text-xs mt-0.5 truncate">
-                          {player.position}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── 8. Betreuer ───────────────────────────────────────────────── */}
-      {team.betreuer && team.betreuer.length > 0 && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading label="Betreuer" />
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
-              {team.betreuer.map((b: Betreuer) => {
-                const imageUrl = b.image
-                  ? urlFor(b.image).width(400).height(500).url()
-                  : null;
-                return (
-                  <div
-                    key={b._key}
-                    className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.05)] hover:shadow-[0_12px_32px_-12px_rgb(0_0_0/0.25)] transition-shadow duration-300"
-                  >
-                    <div className="relative aspect-[4/5] bg-gradient-to-b from-gray-100 dark:from-gray-600 to-gray-200 dark:to-gray-700 overflow-hidden">
-                      {imageUrl ? (
-                        <Image
-                          src={imageUrl}
-                          alt={b.name}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-cover object-top motion-safe:group-hover:scale-[1.03] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <User size={32} className="text-muted/30" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-3 md:p-4">
-                      <p className="font-semibold text-text dark:text-gray-100 text-sm leading-tight truncate">
-                        {b.name}
-                      </p>
-                      {b.role && (
-                        <p className="text-muted text-xs mt-0.5 truncate">
-                          {b.role}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── 9 & 10: Schedule + Results (side by side on desktop) ─────── */}
+      {/* ── 3. Spiele — directly after About, the most-visited part ───── */}
       {(upcoming.length > 0 || results.length > 0) && (
         <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -403,6 +239,100 @@ export default async function TeamDetailPage({ params }: Props) {
             >
               Gesamter Spielplan <ArrowRight size={14} aria-hidden="true" />
             </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ── 3b. Galerie ───────────────────────────────────────────────── */}
+      <GalleryRow photos={photos} filter={slug} />
+
+      {/* ── 4. Tabelle (nuLiga) ───────────────────────────────────────── */}
+      {team.nuligaTableUrl && standings.length > 0 && (
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Tabelle" />
+            <StandingsTable rows={standings} sourceUrl={team.nuligaTableUrl} />
+          </div>
+        </section>
+      )}
+
+      {/* ── 5. Trainingszeiten ───────────────────────────────────────── */}
+      {team.trainingTimes && team.trainingTimes.length > 0 && (
+        <section className="bg-white dark:bg-gray-800 py-14 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Trainingszeiten" />
+            <ul className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sortTrainingTimes(team.trainingTimes).map((slot) => (
+                <TrainingSlot key={slot._key} slot={slot} />
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* ── 4. Coaching staff ─────────────────────────────────────────── */}
+      {team.coaches && team.coaches.length > 0 && (
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Trainerteam" />
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+              {team.coaches.map((coach) => (
+                <PersonCard
+                  key={coach._key}
+                  name={coach.name}
+                  subtitle={coach.role}
+                  photo={toPersonPhoto(coach.image)}
+                  photoBack={toPersonPhoto(coach.imageBack, "center")}
+                  fallbackIcon={<User size={32} className="text-muted/30" />}
+                  surfaceClassName="dark:bg-gray-800"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 7. Squad ──────────────────────────────────────────────────── */}
+      {team.squad && team.squad.length > 0 && (
+        <section className="bg-white dark:bg-gray-800 py-14 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Kader" />
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+              {team.squad.map((player) => (
+                <PersonCard
+                  key={player._key}
+                  name={player.name}
+                  subtitle={player.position}
+                  badge={player.number}
+                  photo={toPersonPhoto(player.image)}
+                  photoBack={toPersonPhoto(player.imageBack, "center")}
+                  fallbackIcon={<Shield size={32} className="text-muted/30" />}
+                  surfaceClassName="bg-background dark:bg-gray-700"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── 8. Betreuer ───────────────────────────────────────────────── */}
+      {team.betreuer && team.betreuer.length > 0 && (
+        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeading label="Betreuer" />
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+              {team.betreuer.map((b: Betreuer) => (
+                <PersonCard
+                  key={b._key}
+                  name={b.name}
+                  subtitle={b.role}
+                  photo={toPersonPhoto(b.image)}
+                  photoBack={toPersonPhoto(b.imageBack, "center")}
+                  fallbackIcon={<User size={32} className="text-muted/30" />}
+                  surfaceClassName="dark:bg-gray-800"
+                />
+              ))}
+            </div>
           </div>
         </section>
       )}

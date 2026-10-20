@@ -3,13 +3,15 @@ import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import Image from "next/image";
 import { MapPin, Mail } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
-import { settingsQuery } from "@/lib/queries";
-import type { Settings } from "@/types";
+import { clubGalleryQuery, settingsQuery } from "@/lib/queries";
+import { CLUB_GALLERY_FILTER } from "@/lib/gallery";
+import type { GalleryItem, Settings } from "@/types";
 import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
 import ConsentGate from "@/components/ui/ConsentGate";
 import VenueMap from "@/components/sections/VenueMap";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
+import GalleryRow from "@/components/sections/GalleryRow";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/ueberuns" },
@@ -30,9 +32,18 @@ export const revalidate = 3600;
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function UeberUnsPage() {
-  const settings = await client
-    .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
-    .catch(() => null);
+  const [settings, clubPhotos] = await Promise.all([
+    client
+      .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
+      .catch(() => null),
+    client
+      .fetch<Pick<GalleryItem, "_id" | "image" | "caption">[]>(
+        clubGalleryQuery,
+        {},
+        { next: { revalidate: 3600 } }
+      )
+      .catch(() => []),
+  ]);
 
   // GROQ returns null for unset fields, not undefined.
   // Use != null to correctly guard against both null and undefined.
@@ -215,6 +226,15 @@ export default async function UeberUnsPage() {
             </section>
           </>
         )}
+
+        {hasMap && clubPhotos.length > 0 && <Divider />}
+
+        {/* ── Section 4: Verein gallery ────────────────────────────────── */}
+        <GalleryRow
+          photos={clubPhotos}
+          filter={CLUB_GALLERY_FILTER}
+          className="bg-background dark:bg-gray-900"
+        />
 
       </div>
     </>

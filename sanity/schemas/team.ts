@@ -1,4 +1,5 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
+import { personImageFields } from "./personImages";
 
 export default defineType({
   name: "team",
@@ -44,12 +45,7 @@ export default defineType({
           fields: [
             defineField({ name: "name", title: "Name", type: "string" }),
             defineField({ name: "role", title: "Rolle", type: "string" }),
-            defineField({
-              name: "image",
-              title: "Bild",
-              type: "image",
-              options: { hotspot: true },
-            }),
+            ...personImageFields(),
           ],
           preview: {
             select: { title: "name", subtitle: "role", media: "image" },
@@ -67,12 +63,7 @@ export default defineType({
           fields: [
             defineField({ name: "name", title: "Name", type: "string" }),
             defineField({ name: "role", title: "Rolle", type: "string" }),
-            defineField({
-              name: "image",
-              title: "Bild",
-              type: "image",
-              options: { hotspot: true },
-            }),
+            ...personImageFields(),
           ],
           preview: {
             select: { title: "name", subtitle: "role", media: "image" },
@@ -91,12 +82,7 @@ export default defineType({
             defineField({ name: "number", title: "Trikotnummer", type: "number" }),
             defineField({ name: "name", title: "Name", type: "string" }),
             defineField({ name: "position", title: "Position", type: "string" }),
-            defineField({
-              name: "image",
-              title: "Bild",
-              type: "image",
-              options: { hotspot: true },
-            }),
+            ...personImageFields(),
           ],
           preview: {
             select: { title: "name", subtitle: "position", media: "image" },
