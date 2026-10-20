@@ -15,15 +15,15 @@ interface Coordinates {
 const getCoordinates = ({ lat, lng }: ClubLocation): Coordinates | null =>
   lat != null && lng != null ? { lat, lng } : null;
 
-const osmViewUrl = ({ lat, lng }: Coordinates) =>
-  `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`;
+const googleMapsUrl = ({ lat, lng }: Coordinates) =>
+  `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 
-const osmRouteUrl = (location: ClubLocation, coords: Coordinates | null) =>
-  coords
-    ? `https://www.openstreetmap.org/directions?route=%3B${coords.lat}%2C${coords.lng}`
-    : `https://www.openstreetmap.org/search?query=${encodeURIComponent(
-        [location.name, location.address].filter(Boolean).join(", ")
-      )}`;
+const googleRouteUrl = (location: ClubLocation, coords: Coordinates | null) => {
+  const destination = coords
+    ? `${coords.lat},${coords.lng}`
+    : [location.name, location.address].filter(Boolean).join(", ");
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+};
 
 interface AnfahrtSectionProps {
   locations: ClubLocation[];
@@ -71,7 +71,7 @@ export default function AnfahrtSection({ locations }: AnfahrtSectionProps) {
           </div>
 
           <a
-            href={osmRouteUrl(selected, coords)}
+            href={googleRouteUrl(selected, coords)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-11 items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent dark:text-accent-sky hover:text-primary transition-colors"
@@ -85,7 +85,7 @@ export default function AnfahrtSection({ locations }: AnfahrtSectionProps) {
           label="Die Karte"
           provider="OpenStreetMap"
           className="h-[400px] md:h-[460px]"
-          fallbackLink={{ href: osmViewUrl(coords), label: "Standort auf openstreetmap.org öffnen" }}
+          fallbackLink={{ href: googleMapsUrl(coords), label: "Standort in Google Maps öffnen" }}
         >
           {/* key remounts the map: Leaflet reads center/zoom only on creation */}
           <VenueMap
