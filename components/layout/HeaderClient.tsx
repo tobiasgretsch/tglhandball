@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
+import { Menu, X, ChevronDown, Sun, Moon, ShoppingBag } from "lucide-react";
 import type { TeamCategory } from "@/types";
 import { LiveNavBadge } from "@/components/live/LiveBadge";
 
@@ -44,29 +44,37 @@ interface StaticDropdownItem {
   href: string;
 }
 
+type DropdownKey = "teams" | "spiele" | "verein";
+
 interface NavLink {
   label: string;
   href?: string;
-  dropdown?: "teams" | "abteilung";
+  dropdown?: DropdownKey;
   staticItems?: StaticDropdownItem[];
 }
 
-const ABTEILUNG_ITEMS: StaticDropdownItem[] = [
+const SPIELE_ITEMS: StaticDropdownItem[] = [
+  { label: "Spielplan & Ergebnisse", href: "/spielplan" },
   { label: "Live-Ticker", href: "/live" },
+  { label: "Spieltagsmagazin", href: "/spieltagsmagazin" },
+];
+
+const VEREIN_ITEMS: StaticDropdownItem[] = [
   { label: "Über uns", href: "/ueberuns" },
-  { label: "Förderverein", href: "/foerderverein" },
   { label: "Impressionen", href: "/impressionen" },
+  { label: "Förderverein", href: "/foerderverein" },
+  { label: "Kontakt", href: "/ueberuns#kontakt" },
 ];
 
 const NAV_LINKS: NavLink[] = [
   { label: "News", href: "/news" },
   { label: "Teams", href: "/teams", dropdown: "teams" },
-  { label: "Spielplan", href: "/spielplan" },
-  { label: "Magazine", href: "/spieltagsmagazin" },
+  { label: "Spiele", dropdown: "spiele", staticItems: SPIELE_ITEMS },
+  { label: "Verein", dropdown: "verein", staticItems: VEREIN_ITEMS },
   { label: "Partner", href: "/partner" },
-  { label: "Fanshop", href: "/fanshop" },
-  { label: "Abteilung", dropdown: "abteilung", staticItems: ABTEILUNG_ITEMS },
 ];
+
+const FANSHOP_HREF = "/fanshop";
 
 export default function HeaderClient({
   logoUrl,
@@ -76,7 +84,7 @@ export default function HeaderClient({
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<"teams" | "abteilung" | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<DropdownKey | null>(null);
   const isDark = useSyncExternalStore(subscribeToTheme, readIsDark, serverIsDark);
   const [mobileExpanded, setMobileExpanded] = useState<Set<string>>(new Set());
   const [openDesktopGroups, setOpenDesktopGroups] = useState<Set<TeamCategory>>(new Set());
@@ -133,7 +141,7 @@ export default function HeaderClient({
     return !!link.href && (pathname === link.href || pathname.startsWith(link.href + "/"));
   };
 
-  const openMenu = (key: "teams" | "abteilung") => {
+  const openMenu = (key: DropdownKey) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setOpenDropdown(key);
   };
@@ -296,8 +304,7 @@ export default function HeaderClient({
                           </Link>
                         </>
                       )}
-                      {link.dropdown === "abteilung" &&
-                        link.staticItems?.map((item) => (
+                      {link.staticItems?.map((item) => (
                           <Link
                             key={item.href}
                             href={item.href}
@@ -332,6 +339,14 @@ export default function HeaderClient({
           )}
 
           <LiveNavBadge className="ml-3" />
+
+          <Link
+            href={FANSHOP_HREF}
+            className="ml-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[13px] font-bold uppercase tracking-[0.12em] text-primary hover:bg-white/90 dark:bg-primary dark:text-white dark:hover:bg-primary-light press"
+          >
+            <ShoppingBag size={15} aria-hidden />
+            Fanshop
+          </Link>
 
           {/* Theme toggle — desktop */}
           <button
@@ -539,9 +554,9 @@ export default function HeaderClient({
                       )}
                     </AnimatePresence>
 
-                    {/* Collapsible Verein sub-links */}
+                    {/* Collapsible sub-links of the static dropdowns */}
                     <AnimatePresence initial={false}>
-                      {link.dropdown === "abteilung" && mobileExpanded.has("abteilung") && link.staticItems && (
+                      {link.dropdown && link.staticItems && mobileExpanded.has(link.dropdown) && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
@@ -564,6 +579,17 @@ export default function HeaderClient({
                     </AnimatePresence>
                   </motion.div>
                 ))}
+
+                <div className="px-6 pt-5">
+                  <Link
+                    href={FANSHOP_HREF}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-white hover:bg-primary-light dark:bg-white dark:text-primary dark:hover:bg-white/90 transition-colors"
+                  >
+                    <ShoppingBag size={16} aria-hidden />
+                    Fanshop
+                  </Link>
+                </div>
               </nav>
             </motion.div>
           </>
