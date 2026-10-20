@@ -67,7 +67,7 @@ app/
     impressionen/page.tsx       # Photo gallery
     ueberuns/page.tsx           # Club history, board, venue map, contact form
     partner/page.tsx            # Premium + standard partners
-    kontakt/page.tsx            # Redirects → /ueberuns#kontakt
+    kontakt/page.tsx            # Redirects → /ueberuns
     verein/page.tsx             # Redirects → /ueberuns
 
 
@@ -268,6 +268,7 @@ Claude must treat every mistake as a learning event and record it in this file.
 | 2026-10-20 | Images / CRLF | Person cards were three copy-pasted blocks, each resizing images in the client-visible page; scripted edits on CRLF files silently missed because regexes assumed LF (duplicate field, missed interface). | Resize on Sanity CDN server-side (`lib/personPhoto.ts`, `.auto("format")`, 640×800), pass plain URLs to client components, request secondary images only on interaction. When scripting edits on CRLF files use `?
 ` and grep the result. |
 | 2026-10-20 | Live ticker UX | The ticker's mirrored 3-column feed gave each text side ~80 px at 360 px, and a hero image pushed the score below the fold; freshness sat under 100+ rows. A thick left border as side marker was flagged as an AI-UI tell and duplicated the club tint + team name. | On phones, feeds that carry names use one full-width column (mirrored layout from `sm:`); the score is the first thing on screen (no hero) and docks as a sticky bar. Don't add a second encoding for what text already says. Test narrow layouts in a 360 px iframe (`resize_window` does not change the viewport) against `scripts/mock-nuliga.mjs`. |
+| 2026-10-20 | CMS data | The "Unsere Halle" section on /ueberuns was gated on `venueLat/venueLng`, which are null in production, so it never rendered. I only noticed when checking the live data. | Before building on an optional CMS section, query the real document (Sanity MCP) to see which fields are filled; make the map optional instead of gating the whole section on coordinates. |
 
 ### Active Rules Derived from Past Mistakes
 

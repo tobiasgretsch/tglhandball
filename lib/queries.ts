@@ -343,5 +343,6 @@ export const settingsQuery = groq`
     venueAddress,
     venueLat,
     venueLng,
+    locations[] { _key, name, label, address, lat, lng },
   }
 `;

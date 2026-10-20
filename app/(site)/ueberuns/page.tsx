@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 import Image from "next/image";
-import { MapPin, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { client, urlFor } from "@/lib/sanity";
 import { clubGalleryQuery, settingsQuery } from "@/lib/queries";
 import { CLUB_GALLERY_FILTER } from "@/lib/gallery";
-import type { GalleryItem, Settings } from "@/types";
+import type { ClubLocation, GalleryItem, Settings } from "@/types";
 import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
-import ConsentGate from "@/components/ui/ConsentGate";
-import VenueMap from "@/components/sections/VenueMap";
+import AnfahrtSection from "@/components/sections/AnfahrtSection";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 import GalleryRow from "@/components/sections/GalleryRow";
 
@@ -45,10 +44,7 @@ export default async function UeberUnsPage() {
       .catch(() => []),
   ]);
 
-  // GROQ returns null for unset fields, not undefined.
-  // Use != null to correctly guard against both null and undefined.
-  const hasMap =
-    settings?.venueLat != null && settings?.venueLng != null;
+  const locations = buildLocations(settings);
 
   return (
     <>
@@ -166,68 +162,15 @@ export default async function UeberUnsPage() {
           </>
         )}
 
-        {/* ── Section 3: Venue / Hall ──────────────────────────────────── */}
-        {hasMap && (
-          <>
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
-              <Reveal><SectionHeading label="Unsere Halle" /></Reveal>
-
-              <div className="mt-8 grid lg:grid-cols-[1fr_2fr] gap-8 lg:gap-12 items-start">
-                {/* Address block */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] p-6">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <MapPin size={15} className="text-brand-red" />
-                    </div>
-                    <div>
-                      {settings?.venueName && (
-                        <p className="font-black text-text dark:text-gray-100 text-base leading-tight">
-                          {settings.venueName}
-                        </p>
-                      )}
-                      {settings?.venueAddress && (
-                        <p className="text-muted text-sm mt-1 whitespace-pre-line leading-relaxed">
-                          {settings.venueAddress}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {settings?.venueAddress && (
-                    <a
-                      href={`https://www.openstreetmap.org/?mlat=${settings.venueLat}&mlon=${settings.venueLng}&zoom=16`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent dark:text-accent-sky hover:text-primary transition-colors"
-                    >
-                      In OpenStreetMap öffnen →
-                    </a>
-                  )}
-                </div>
-
-                {/* Interactive map */}
-                <ConsentGate
-                  label="Die Karte"
-                  provider="OpenStreetMap"
-                  className="h-[400px] md:h-[460px]"
-                  fallbackLink={{
-                    href: `https://www.openstreetmap.org/?mlat=${settings!.venueLat}&mlon=${settings!.venueLng}#map=17/${settings!.venueLat}/${settings!.venueLng}`,
-                    label: "Standort auf openstreetmap.org öffnen",
-                  }}
-                >
-                  <VenueMap
-                    lat={settings!.venueLat!}
-                    lng={settings!.venueLng!}
-                    venueName={settings?.venueName}
-                    venueAddress={settings?.venueAddress}
-                  />
-                </ConsentGate>
-              </div>
-            </section>
-          </>
+        {/* ── Section 3: Anfahrt (game hall + training locations) ──────── */}
+        {locations.length > 0 && (
+          <section id="anfahrt" className="scroll-mt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
+            <Reveal><SectionHeading label="Anfahrt" /></Reveal>
+            <AnfahrtSection locations={locations} />
+          </section>
         )}
 
-        {hasMap && clubPhotos.length > 0 && <Divider />}
+        {locations.length > 0 && clubPhotos.length > 0 && <Divider />}
 
         {/* ── Section 4: Verein gallery ────────────────────────────────── */}
         <GalleryRow
@@ -239,6 +182,22 @@ export default async function UeberUnsPage() {
       </div>
     </>
   );
+}
+
+/** The legacy "Spielhalle" settings fields come first, followed by the CMS-managed locations. */
+function buildLocations(settings: Settings | null): ClubLocation[] {
+  if (!settings) return [];
+  const gameHall: ClubLocation[] = settings.venueName || settings.venueAddress
+    ? [{
+        _key: "spielhalle",
+        name: settings.venueName ?? "Spielhalle",
+        label: "Spielhalle",
+        address: settings.venueAddress,
+        lat: settings.venueLat,
+        lng: settings.venueLng,
+      }]
+    : [];
+  return [...gameHall, ...(settings.locations ?? [])];
 }
 
 // ─── Shared sub-components ────────────────────────────────────────────────────

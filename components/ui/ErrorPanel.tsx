@@ -13,7 +13,6 @@ const QUICK_LINKS = [
   { href: "/spielplan", label: "Spielplan & Ergebnisse" },
   { href: "/teams", label: "Unsere Teams" },
   { href: "/news", label: "Neuigkeiten" },
-  { href: "/ueberuns#kontakt", label: "Kontakt" },
 ] as const;
 
 /** Shared body for 404 and runtime-error pages — keeps visitors inside the site. */

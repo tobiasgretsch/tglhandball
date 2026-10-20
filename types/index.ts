@@ -193,6 +193,16 @@ export interface BoardMember {
   photo?: SanityImage;
 }
 
+export interface ClubLocation {
+  _key: string;
+  name: string;
+  label?: string;
+  address?: string;
+  /** GROQ yields null for unset fields; without coordinates only the address card is shown. */
+  lat?: number | null;
+  lng?: number | null;
+}
+
 export interface Settings {
   clubName?: string;
   logo?: SanityImage;
@@ -211,6 +221,7 @@ export interface Settings {
   venueAddress?: string;
   venueLat?: number;
   venueLng?: number;
+  locations?: ClubLocation[];
   partnerPageText?: PortableTextBlock[];
   partnerInfoPdf?: SanityFile;
 }

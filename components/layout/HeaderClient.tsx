@@ -63,7 +63,7 @@ const VEREIN_ITEMS: StaticDropdownItem[] = [
   { label: "Über uns", href: "/ueberuns" },
   { label: "Impressionen", href: "/impressionen" },
   { label: "Förderverein", href: "/foerderverein" },
-  { label: "Kontakt", href: "/ueberuns#kontakt" },
+  { label: "Anfahrt", href: "/ueberuns#anfahrt" },
 ];
 
 const NAV_LINKS: NavLink[] = [

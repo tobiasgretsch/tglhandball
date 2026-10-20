@@ -158,25 +158,73 @@ export default defineType({
     // ─── Venue ───────────────────────────────────────────────────────────────
     defineField({
       name: "venueName",
-      title: "Hallenname",
+      title: "Spielhalle – Name",
       type: "string",
       description: 'z.B. "ERGOLD Energie Arena"',
     }),
     defineField({
       name: "venueAddress",
-      title: "Hallenadresse",
+      title: "Spielhalle – Adresse",
       type: "text",
       rows: 3,
     }),
     defineField({
       name: "venueLat",
-      title: "Breitengrad (Latitude)",
+      title: "Spielhalle – Breitengrad (Latitude)",
       type: "number",
     }),
     defineField({
       name: "venueLng",
-      title: "Längengrad (Longitude)",
+      title: "Spielhalle – Längengrad (Longitude)",
       type: "number",
+    }),
+    defineField({
+      name: "locations",
+      title: "Weitere Standorte (Training etc.)",
+      type: "array",
+      description:
+        "Erscheinen auf der Seite „Über uns“ im Bereich „Anfahrt“ hinter der Spielhalle. Die Koordinaten findest du z. B. per Rechtsklick auf den Ort in Google Maps.",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({
+              name: "name",
+              title: "Name",
+              type: "string",
+              description: 'z.B. "Sporthalle Berufsschule"',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: "label",
+              title: "Bezeichnung",
+              type: "string",
+              description: 'Kurzer Zusatz, z.B. "Training" oder "Jugendtraining"',
+            }),
+            defineField({
+              name: "address",
+              title: "Adresse",
+              type: "text",
+              rows: 3,
+            }),
+            defineField({
+              name: "lat",
+              title: "Breitengrad (Latitude)",
+              type: "number",
+              validation: (Rule) => Rule.required().min(-90).max(90),
+            }),
+            defineField({
+              name: "lng",
+              title: "Längengrad (Longitude)",
+              type: "number",
+              validation: (Rule) => Rule.required().min(-180).max(180),
+            }),
+          ],
+          preview: {
+            select: { title: "name", subtitle: "label" },
+          },
+        }),
+      ],
     }),
   ],
   preview: {
