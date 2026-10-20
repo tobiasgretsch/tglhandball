@@ -1,25 +1,32 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import {
+  ArrowUp,
+  Check,
   ChevronDown,
   CircleX,
+  Share2,
+  Smartphone,
   Timer,
   Volleyball,
   WifiOff,
 } from "lucide-react";
+import FilterPill from "@/components/ui/FilterPill";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import { formatGameClock } from "@/lib/live/events";
 import { isClubTeam } from "@/lib/live/fixture";
 import type {
   EntryKind,
   GameStatus,
+  LiveGame,
   PlayerLine,
   TableStanding,
   TeamStats,
   TickerEntry,
   TickerSnapshot,
 } from "@/lib/live/types";
+import { useChangeCount, useClock, useShare, useWakeLock } from "./useTickerEnv";
 
 interface LiveTickerProps {
   meetingId: string;
@@ -42,7 +49,26 @@ const ERROR_BACKOFF_MAX_MS = 60_000;
 const FAILURES_BEFORE_NOTICE = 2;
 const FRESH_ENTRY_MS = 6_000;
 
+const MS_PER_SECOND = 1_000;
+const SECONDS_PER_MINUTE = 60;
+const MINUTES_PER_HOUR = 60;
+const JUST_NOW_SECONDS = 5;
+/** A running game whose data is older than this is flagged as possibly outdated. */
+const OUTDATED_AFTER_SECONDS = 45;
+/** Height of the fixed site header once scrolled; the sticky score bar docks below it. */
+const HEADER_SCROLLED_PX = 60;
+/** Feed rows rendered at first and added per click, so a long game does not become a wall of rows. */
+const FEED_PAGE_SIZE = 30;
+
 const SCORING_KINDS: ReadonlySet<EntryKind> = new Set(["goal", "seven-meter-goal", "own-goal"]);
+const PENALTY_KINDS: ReadonlySet<EntryKind> = new Set([
+  "time-penalty",
+  "warning",
+  "disqualification",
+  "team-penalty",
+]);
+/** Bookkeeping events: shown, but visually quieter than goals and penalties. */
+const MINOR_KINDS: ReadonlySet<EntryKind> = new Set(["timeout", "team-penalty"]);
 
 function isSnapshot(value: unknown): value is TickerSnapshot {
   if (typeof value !== "object" || value === null) return false;
@@ -67,6 +93,11 @@ const kickoffFormat = new Intl.DateTimeFormat("de-DE", {
   weekday: "long",
   day: "2-digit",
   month: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: CLUB_TIME_ZONE,
+});
+const kickoffTimeFormat = new Intl.DateTimeFormat("de-DE", {
   hour: "2-digit",
   minute: "2-digit",
   timeZone: CLUB_TIME_ZONE,
@@ -176,6 +207,57 @@ function useFreshEntries(entries: TickerEntry[]): ReadonlySet<number> {
   return fresh;
 }
 
+/** Highest entry index, or -1 for an empty feed. */
+function newestIndex(entries: TickerEntry[]): number {
+  return entries.reduce((max, e) => Math.max(max, e.idx), -1);
+}
+
+/** Tracks whether `ref` is on screen below the fixed header, and reports the newest entry at each change. */
+function useBelowHeaderVisibility(
+  ref: RefObject<HTMLElement | null>,
+  newestIdx: number,
+): { visible: boolean; seenIdx: number | null } {
+  const [state, setState] = useState<{ visible: boolean; seenIdx: number | null }>({ visible: true, seenIdx: null });
+  const newestRef = useRef(newestIdx);
+
+  useEffect(() => {
+    newestRef.current = newestIdx;
+  }, [newestIdx]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setState({ visible: entry.isIntersecting, seenIdx: newestRef.current }),
+      { rootMargin: `-${HEADER_SCROLLED_PX}px 0px 0px 0px` },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+
+  return state;
+}
+
+/** "ca. 47′" while the game runs; the clock of the latest entry is the best minute nuLiga gives us. */
+function gameMinuteLabel(snapshot: TickerSnapshot): string | null {
+  if (snapshot.status !== "running" || snapshot.entries.length === 0) return null;
+  return `ca. ${Math.floor(snapshot.entries[0].second / SECONDS_PER_MINUTE)}′`;
+}
+
+function freshnessLabel(ageSeconds: number): string {
+  if (ageSeconds < JUST_NOW_SECONDS) return "gerade eben";
+  if (ageSeconds < SECONDS_PER_MINUTE) return `vor ${ageSeconds} s`;
+  return `vor ${Math.floor(ageSeconds / SECONDS_PER_MINUTE)} Min.`;
+}
+
+function countdownLabel(scheduled: string, now: number): string {
+  const minutes = Math.ceil((new Date(scheduled).getTime() - now) / MS_PER_SECOND / SECONDS_PER_MINUTE);
+  if (minutes <= 0) return "Anpfiff gleich";
+  if (minutes < MINUTES_PER_HOUR) return `Anpfiff in ${minutes} Min.`;
+  const hours = Math.floor(minutes / MINUTES_PER_HOUR);
+  return `Anpfiff in ${hours} Std. ${minutes % MINUTES_PER_HOUR} Min.`;
+}
+
 function StatusChip({ status, label }: { status: GameStatus; label: string }) {
   const running = status === "running";
   return (
@@ -192,6 +274,20 @@ function StatusChip({ status, label }: { status: GameStatus; label: string }) {
       )}
       {running ? "Live" : label}
       {running && <span className="font-bold normal-case tracking-normal opacity-90">· {label}</span>}
+    </span>
+  );
+}
+
+/** How old the data is — the fan's answer to "is this still live?". Silent until the clock is available. */
+function Freshness({ status, updatedAt, now }: { status: GameStatus; updatedAt: number; now: number | null }) {
+  if (now === null || status === "finished") return null;
+  const age = Math.max(0, Math.floor((now - updatedAt) / MS_PER_SECOND));
+  const outdated = status === "running" && age > OUTDATED_AFTER_SECONDS;
+  return (
+    <span
+      className={`text-xs font-semibold tabular-nums ${outdated ? "text-amber-700 dark:text-amber-300" : "text-muted"}`}
+    >
+      Aktualisiert {freshnessLabel(age)}
     </span>
   );
 }
@@ -256,45 +352,144 @@ function TeamColumn({
   );
 }
 
-function Scoreboard({ snapshot }: { snapshot: TickerSnapshot }) {
+/** One score digit; pops once when the value changes, so a goal is noticed without reading. */
+function ScoreDigit({ value }: { value: number }) {
+  const changes = useChangeCount(value);
+  return (
+    <span key={changes} className={changes > 0 ? "score-pop" : undefined}>
+      {value}
+    </span>
+  );
+}
+
+const ACTION_BUTTON_CLASS =
+  "press inline-flex min-h-11 items-center gap-1.5 rounded-full border border-gray-200 px-3 text-sm sm:gap-2 sm:px-4 font-semibold text-text transition-colors hover:border-primary hover:text-primary dark:border-gray-600 dark:text-gray-100 dark:hover:text-primary-glow";
+
+/** Share the score; keep the phone awake while following the game. */
+function ActionBar({ snapshot }: { snapshot: TickerSnapshot }) {
   const { game } = snapshot;
-  const showHalftime = snapshot.status !== "scheduled" && (game.halftimeHome > 0 || game.halftimeGuest > 0);
+  const { share, copied } = useShare();
+  const wakeLock = useWakeLock();
+  const shareText = `${game.homeTeam} ${snapshot.scoreHome}:${snapshot.scoreGuest} ${game.awayTeam} – Live-Ticker`;
+  return (
+    <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+      <button type="button" onClick={() => share(shareText, shareText)} className={ACTION_BUTTON_CLASS}>
+        {copied ? <Check size={16} aria-hidden="true" /> : <Share2 size={16} aria-hidden="true" />}
+        {copied ? "Link kopiert" : "Teilen"}
+      </button>
+      {wakeLock.supported && snapshot.status !== "finished" && (
+        <button
+          type="button"
+          onClick={wakeLock.toggle}
+          aria-pressed={wakeLock.active}
+          className={`${ACTION_BUTTON_CLASS} ${wakeLock.active ? "!border-primary !text-primary dark:!text-primary-glow" : ""}`}
+        >
+          <Smartphone size={16} aria-hidden="true" />
+          {wakeLock.active ? "Display bleibt an" : "Display anlassen"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function Scoreboard({
+  snapshot,
+  now,
+  scoreRef,
+}: {
+  snapshot: TickerSnapshot;
+  now: number | null;
+  scoreRef: RefObject<HTMLDivElement | null>;
+}) {
+  const { game } = snapshot;
+  const scheduled = snapshot.status === "scheduled";
+  const showHalftime = !scheduled && (game.halftimeHome > 0 || game.halftimeGuest > 0);
+  const minute = gameMinuteLabel(snapshot);
+  const progress = [minute, showHalftime ? `Halbzeit ${game.halftimeHome}:${game.halftimeGuest}` : null].filter(Boolean);
   return (
     <section
       aria-label="Spielstand"
       className="rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_1px_2px_rgb(0_0_0/0.05)] dark:border-gray-700 dark:bg-gray-800 sm:p-8"
     >
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <StatusChip status={snapshot.status} label={snapshot.statusLabel} />
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <StatusChip status={snapshot.status} label={snapshot.statusLabel} />
+          <Freshness status={snapshot.status} updatedAt={snapshot.updatedAt} now={now} />
+        </div>
         {game.league && (
           <p className="text-xs font-bold uppercase tracking-[0.1em] text-muted">{game.league}</p>
         )}
       </div>
 
-      <div className="mt-6 flex items-center gap-3 sm:gap-6">
+      <div ref={scoreRef} className="mt-6 flex items-center gap-3 sm:gap-6">
         <TeamColumn name={game.homeTeam} logoId={game.homeLogo} isClub={isClubTeam(game.homeTeam)} align="left" standing={snapshot.table?.home} />
-        <p
-          className="shrink-0 font-display text-4xl font-bold tracking-tight tabular-nums text-text dark:text-gray-100 sm:text-6xl"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <span className="sr-only">Spielstand </span>
-          {snapshot.scoreHome}
-          <span className="mx-1.5 text-brand-red" aria-hidden="true">
-            :
-          </span>
-          <span className="sr-only"> zu </span>
-          {snapshot.scoreGuest}
-        </p>
+        {scheduled ? (
+          <div className="shrink-0 text-center">
+            <p className="font-display text-3xl font-bold tabular-nums text-text dark:text-gray-100 sm:text-5xl">
+              {kickoffTimeFormat.format(new Date(game.scheduled))}
+              <span className="ml-1 text-base font-semibold text-muted sm:text-xl">Uhr</span>
+            </p>
+            {now !== null && (
+              <p className="mt-1 text-xs font-semibold text-muted">{countdownLabel(game.scheduled, now)}</p>
+            )}
+          </div>
+        ) : (
+          <p
+            className="shrink-0 font-display text-4xl font-bold tracking-tight tabular-nums text-text dark:text-gray-100 sm:text-6xl"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <span className="sr-only">Spielstand </span>
+            <ScoreDigit value={snapshot.scoreHome} />
+            <span className="mx-1.5 text-brand-red" aria-hidden="true">
+              :
+            </span>
+            <span className="sr-only"> zu </span>
+            <ScoreDigit value={snapshot.scoreGuest} />
+          </p>
+        )}
         <TeamColumn name={game.awayTeam} logoId={game.awayLogo} isClub={isClubTeam(game.awayTeam)} align="right" standing={snapshot.table?.guest} />
       </div>
 
-      <p className="mt-5 text-center text-xs text-muted">
+      {progress.length > 0 && (
+        <p className="mt-4 text-center text-sm font-semibold tabular-nums text-text dark:text-gray-100">
+          {progress.join(" · ")}
+        </p>
+      )}
+      <p className="mt-3 text-center text-xs text-muted">
         {kickoffFormat.format(new Date(game.scheduled))} Uhr
         {game.venue ? ` · ${game.venue}` : ""}
-        {showHalftime ? ` · Halbzeit ${game.halftimeHome}:${game.halftimeGuest}` : ""}
       </p>
+
+      <ActionBar snapshot={snapshot} />
     </section>
+  );
+}
+
+/** Compact score that docks under the site header once the scoreboard has scrolled away. */
+function StickyScore({ snapshot, visible }: { snapshot: TickerSnapshot; visible: boolean }) {
+  const { game } = snapshot;
+  const minute = gameMinuteLabel(snapshot);
+  const nameClass = (name: string) => `min-w-0 flex-1 truncate text-sm font-bold ${isClubTeam(name) ? "text-primary dark:text-primary-glow" : "text-text dark:text-gray-100"}`;
+  return (
+    <div
+      aria-hidden="true"
+      inert={!visible}
+      className={`fixed inset-x-0 top-[54px] z-40 border-b border-gray-200 bg-white/95 backdrop-blur transition-[transform,opacity] duration-200 motion-reduce:transition-none dark:border-gray-700 dark:bg-gray-800/95 lg:top-[60px] ${
+        visible ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-full opacity-0"
+      }`}
+    >
+      <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-2 sm:px-6">
+        <p className={`${nameClass(game.homeTeam)} text-right`}>{game.homeTeam}</p>
+        <p className="shrink-0 font-display text-xl font-bold tabular-nums text-text dark:text-gray-100">
+          {snapshot.scoreHome}
+          <span className="mx-1 text-brand-red">:</span>
+          {snapshot.scoreGuest}
+        </p>
+        <p className={nameClass(game.awayTeam)}>{game.awayTeam}</p>
+        {minute && <p className="hidden shrink-0 text-xs font-semibold tabular-nums text-muted sm:block">{minute}</p>}
+      </div>
+    </div>
   );
 }
 
@@ -302,21 +497,47 @@ interface StatRow {
   label: string;
   home: string;
   guest: string;
+  /** Numbers behind the comparison bar; omitted for rows that have no meaningful ratio. */
+  homeValue?: number;
+  guestValue?: number;
 }
 
 function statRows(home: TeamStats, guest: TeamStats): StatRow[] {
   const sevenMeter = (t: TeamStats) => `${t.sevenMeterGoals}/${t.sevenMeterAttempts}`;
-  return [
-    { label: "Tore", home: String(home.goals), guest: String(guest.goals) },
-    { label: "Tore 1. Halbzeit", home: String(home.goalsFirstHalf), guest: String(guest.goalsFirstHalf) },
-    { label: "Tore 2. Halbzeit", home: String(home.goalsSecondHalf), guest: String(guest.goalsSecondHalf) },
-    { label: "7-Meter", home: sevenMeter(home), guest: sevenMeter(guest) },
-    { label: "Höchste Führung", home: String(home.biggestLead), guest: String(guest.biggestLead) },
-    { label: "2-Minuten-Strafen", home: String(home.timePenalties), guest: String(guest.timePenalties) },
-    { label: "Verwarnungen", home: String(home.warnings), guest: String(guest.warnings) },
-    { label: "Disqualifikationen", home: String(home.disqualifications), guest: String(guest.disqualifications) },
-    { label: "Auszeiten", home: String(home.timeouts), guest: String(guest.timeouts) },
+  const rows: StatRow[] = [
+    {
+      label: "Tore 1. / 2. Halbzeit",
+      home: `${home.goalsFirstHalf} · ${home.goalsSecondHalf}`,
+      guest: `${guest.goalsFirstHalf} · ${guest.goalsSecondHalf}`,
+    },
+    { label: "7-Meter", home: sevenMeter(home), guest: sevenMeter(guest), homeValue: home.sevenMeterGoals, guestValue: guest.sevenMeterGoals },
+    { label: "Höchste Führung", home: String(home.biggestLead), guest: String(guest.biggestLead), homeValue: home.biggestLead, guestValue: guest.biggestLead },
+    { label: "2-Minuten-Strafen", home: String(home.timePenalties), guest: String(guest.timePenalties), homeValue: home.timePenalties, guestValue: guest.timePenalties },
+    { label: "Auszeiten", home: String(home.timeouts), guest: String(guest.timeouts), homeValue: home.timeouts, guestValue: guest.timeouts },
   ];
+  // Rare events only earn a row once something happened.
+  if (home.warnings + guest.warnings > 0) {
+    rows.push({ label: "Verwarnungen", home: String(home.warnings), guest: String(guest.warnings) });
+  }
+  if (home.disqualifications + guest.disqualifications > 0) {
+    rows.push({ label: "Disqualifikationen", home: String(home.disqualifications), guest: String(guest.disqualifications) });
+  }
+  return rows;
+}
+
+const barColor = (isClub: boolean): string => (isClub ? "bg-primary" : "bg-gray-400 dark:bg-gray-500");
+
+/** Thin two-colour ratio bar under a stat label; hidden while both values are zero. */
+function ComparisonBar({ row, homeIsClub, guestIsClub }: { row: StatRow; homeIsClub: boolean; guestIsClub: boolean }) {
+  const { homeValue, guestValue } = row;
+  if (homeValue === undefined || guestValue === undefined || homeValue + guestValue === 0) return null;
+  const homeShare = (homeValue / (homeValue + guestValue)) * 100;
+  return (
+    <span aria-hidden="true" className="mt-1.5 flex h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
+      <span className={barColor(homeIsClub)} style={{ width: `${homeShare}%` }} />
+      <span className={`flex-1 ${barColor(guestIsClub)}`} />
+    </span>
+  );
 }
 
 /** Small upright card in the referee's colour, with a count when a player has more than one. */
@@ -324,7 +545,7 @@ function CardBadge({ count, className, label }: { count: number; className: stri
   return (
     <span className="inline-flex items-center gap-0.5" title={`${count}× ${label}`}>
       <span className={`inline-block h-3.5 w-2.5 rounded-[2px] ${className}`} aria-hidden="true" />
-      {count > 1 && <span className="text-[11px] font-bold tabular-nums">{count}</span>}
+      {count > 1 && <span className="text-xs font-bold tabular-nums">{count}</span>}
       <span className="sr-only">{`${count}× ${label}`}</span>
     </span>
   );
@@ -365,12 +586,14 @@ function PlayerList({ players, align }: { players: PlayerLine[]; align: "left" |
 function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
   const { game, stats } = snapshot;
   const rows = statRows(stats.home, stats.guest);
+  const homeIsClub = isClubTeam(game.homeTeam);
+  const guestIsClub = isClubTeam(game.awayTeam);
   const [showAll, setShowAll] = useState(false);
   const visible = (players: PlayerLine[]): PlayerLine[] => (showAll ? players : players.filter(hasEvents));
   const hasPlayers = stats.home.players.length + stats.guest.players.length > 0;
   return (
     <details className="group rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_1px_2px_rgb(0_0_0/0.05)] dark:border-gray-700 dark:bg-gray-800 sm:p-6">
-      <summary className="flex cursor-pointer list-none items-center justify-between font-display text-lg font-bold uppercase italic text-text dark:text-gray-100 [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-display text-lg font-bold uppercase italic text-text dark:text-gray-100 [&::-webkit-details-marker]:hidden">
         Statistik
         <ChevronDown
           size={18}
@@ -392,11 +615,12 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.label} className="border-t border-gray-100 dark:border-gray-700">
-              <td className="w-1/4 py-2 text-left font-bold tabular-nums">{row.home}</td>
-              <th scope="row" className="py-2 text-center text-xs font-semibold text-muted">
+              <td className="w-1/4 py-2.5 text-left text-base font-bold tabular-nums">{row.home}</td>
+              <th scope="row" className="py-2.5 text-center text-xs font-semibold text-muted">
                 {row.label}
+                <ComparisonBar row={row} homeIsClub={homeIsClub} guestIsClub={guestIsClub} />
               </th>
-              <td className="w-1/4 py-2 text-right font-bold tabular-nums">{row.guest}</td>
+              <td className="w-1/4 py-2.5 text-right text-base font-bold tabular-nums">{row.guest}</td>
             </tr>
           ))}
         </tbody>
@@ -422,7 +646,7 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
             type="button"
             onClick={() => setShowAll((v) => !v)}
             aria-expanded={showAll}
-            className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-full py-2 text-xs font-bold text-link transition-transform duration-100 active:scale-[0.97] motion-reduce:active:scale-100"
+            className="mt-4 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full text-sm font-bold text-link transition-transform duration-100 active:scale-[0.97] motion-reduce:active:scale-100"
           >
             {showAll ? "Nur Spieler mit Ereignissen" : "Alle Spieler anzeigen"}
             <ChevronDown
@@ -437,12 +661,29 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
   );
 }
 
+type FeedFilter = "all" | "goals" | "penalties";
+
+const FILTER_KINDS: Record<FeedFilter, ReadonlySet<EntryKind> | null> = {
+  all: null,
+  goals: SCORING_KINDS,
+  penalties: PENALTY_KINDS,
+};
+
+/** Period dividers stay in every filter so the feed keeps its structure. */
+function matchesFilter(entry: TickerEntry, filter: FeedFilter): boolean {
+  const kinds = FILTER_KINDS[filter];
+  return kinds === null || entry.kind === "period" || kinds.has(entry.kind);
+}
+
 /** Our own team's events get a soft tint so the feed reads at a glance. */
 function rowTone(entry: TickerEntry, game: TickerSnapshot["game"]): string {
   if (entry.kind === "period") return "bg-gray-50 dark:bg-gray-800/60";
-  const side = entry.side;
-  const isClub = side !== null && isClubTeam(side === "home" ? game.homeTeam : game.awayTeam);
-  return isClub ? "bg-red-50 dark:bg-primary/15" : "bg-white dark:bg-gray-800";
+  return isClubEntry(entry, game) ? "bg-red-50 dark:bg-primary/15" : "bg-white dark:bg-gray-800";
+}
+
+function isClubEntry(entry: TickerEntry, game: LiveGame): boolean {
+  if (entry.side === null) return false;
+  return isClubTeam(entry.side === "home" ? game.homeTeam : game.awayTeam);
 }
 
 const SEVEN_METER_LABEL = "7m";
@@ -453,7 +694,7 @@ function CardIcon({ className }: { className: string }) {
 }
 
 function SevenMeterTag() {
-  return <span className="text-[10px] font-bold leading-none tabular-nums">{SEVEN_METER_LABEL}</span>;
+  return <span className="text-xs font-bold leading-none tabular-nums">{SEVEN_METER_LABEL}</span>;
 }
 
 /** Icon column of an entry; kinds without an icon return `null`. */
@@ -480,7 +721,7 @@ function EntryIcon({ kind }: { kind: EntryKind }) {
       return (
         <span className="flex flex-col items-center gap-0.5 text-text dark:text-gray-100">
           <Timer size={20} aria-hidden="true" />
-          <span className="text-[10px] font-bold leading-none">{TIME_PENALTY_TAG}</span>
+          <span className="text-xs font-bold leading-none">{TIME_PENALTY_TAG}</span>
         </span>
       );
     case "warning":
@@ -492,33 +733,70 @@ function EntryIcon({ kind }: { kind: EntryKind }) {
   }
 }
 
-/** One side of an entry: player over event label, with the icon on the edge facing the clock. */
+/** Player over event label; `teamName` adds the team on the single-column mobile layout. */
+function EntryText({
+  entry,
+  align,
+  teamName,
+}: {
+  entry: TickerEntry;
+  align: "left" | "right";
+  teamName?: string;
+}) {
+  const major = SCORING_KINDS.has(entry.kind);
+  const minor = MINOR_KINDS.has(entry.kind);
+  const headline = `font-bold ${major ? "text-base" : ""}`;
+  const subline = "text-muted dark:text-gray-300";
+  return (
+    <div className={`min-w-0 break-words leading-snug ${minor ? "text-xs" : "text-sm"} ${align === "right" ? "text-right" : "text-left"}`}>
+      {entry.detail && <p className={headline}>{entry.detail}</p>}
+      <p className={entry.detail ? subline : headline}>
+        {entry.label}
+        {teamName && <span className="font-normal text-muted dark:text-gray-300"> · {teamName}</span>}
+      </p>
+    </div>
+  );
+}
+
+/** One side of an entry in the mirrored layout, with the icon on the edge facing the clock. */
 function EntrySide({ entry, align }: { entry: TickerEntry; align: "left" | "right" }) {
   const isHome = align === "right";
   return (
-    <div className={`flex min-w-0 items-center gap-2 sm:gap-3 ${isHome ? "justify-end" : "flex-row-reverse justify-end"}`}>
-      <div className={`min-w-0 break-words text-sm leading-snug ${isHome ? "text-right" : "text-left"}`}>
-        {entry.detail && <p className="font-bold">{entry.detail}</p>}
-        <p className={entry.detail ? "text-muted dark:text-gray-300" : "font-bold"}>{entry.label}</p>
-      </div>
-      <span className="flex w-5 shrink-0 items-center justify-center sm:w-6">
+    <div className={`flex min-w-0 items-center gap-3 ${isHome ? "justify-end" : "flex-row-reverse justify-end"}`}>
+      <EntryText entry={entry} align={align} />
+      <span className="flex w-6 shrink-0 items-center justify-center">
         <EntryIcon kind={entry.kind} />
       </span>
     </div>
   );
 }
 
-function EntryRow({ entry, snapshot, fresh }: { entry: TickerEntry; snapshot: TickerSnapshot; fresh: boolean }) {
+function ClockAndScore({ entry }: { entry: TickerEntry }) {
   const scoring = SCORING_KINDS.has(entry.kind);
+  return (
+    <div className="text-center tabular-nums">
+      <p className="text-sm font-semibold text-muted dark:text-gray-300">{formatGameClock(entry.second)}</p>
+      <p className={`text-text dark:text-gray-100 ${scoring ? "text-lg leading-tight" : "text-base"}`}>
+        <span className={scoring && entry.side === "home" ? "font-bold" : ""}>{entry.scoreHome}</span>
+        {" – "}
+        <span className={scoring && entry.side === "guest" ? "font-bold" : ""}>{entry.scoreGuest}</span>
+      </p>
+    </div>
+  );
+}
+
+function EntryRow({ entry, game, fresh }: { entry: TickerEntry; game: LiveGame; fresh: boolean }) {
   const isPeriod = entry.kind === "period";
+  const teamName = entry.side === "home" ? game.homeTeam : entry.side === "guest" ? game.awayTeam : undefined;
+  const padding = MINOR_KINDS.has(entry.kind) ? "py-2" : "py-3";
   return (
     <li
-      className={`grid grid-cols-[minmax(0,1fr)_4.5rem_minmax(0,1fr)] items-center gap-2 rounded-xl border border-gray-100 px-2.5 py-3 sm:gap-3 sm:px-3 transition-shadow duration-1000 motion-reduce:transition-none dark:border-gray-700 ${rowTone(entry, snapshot.game)} ${
+      className={`rounded-xl border border-gray-100 px-2.5 sm:px-3 transition-shadow duration-1000 motion-reduce:transition-none dark:border-gray-700 ${padding} ${rowTone(entry, game)} ${
         fresh ? "ring-2 ring-primary/50" : "ring-2 ring-transparent"
       }`}
     >
       {isPeriod ? (
-        <p className="col-span-3 text-center text-sm font-bold uppercase tracking-wide">
+        <p className="text-center text-sm font-bold uppercase tracking-wide">
           {entry.label}
           <span className="ml-2 font-mono text-xs font-normal normal-case tracking-normal tabular-nums text-muted dark:text-gray-300">
             {formatGameClock(entry.second)}
@@ -526,25 +804,156 @@ function EntryRow({ entry, snapshot, fresh }: { entry: TickerEntry; snapshot: Ti
         </p>
       ) : (
         <>
-          {entry.side === "home" ? <EntrySide entry={entry} align="right" /> : <span aria-hidden="true" />}
-          <div className="text-center tabular-nums">
-            <p className="text-xs font-bold text-muted dark:text-gray-300">{formatGameClock(entry.second)}</p>
-            <p className="text-base text-text dark:text-gray-100">
-              <span className={scoring && entry.side === "home" ? "font-bold" : ""}>{entry.scoreHome}</span>
-              {" – "}
-              <span className={scoring && entry.side === "guest" ? "font-bold" : ""}>{entry.scoreGuest}</span>
-            </p>
+          {/* Phones: one full-width column; the side is told by the club tint and the team name. */}
+          <div className="grid grid-cols-[4.5rem_1.5rem_minmax(0,1fr)] items-center gap-2 sm:hidden">
+            <ClockAndScore entry={entry} />
+            <span className="flex justify-center">
+              <EntryIcon kind={entry.kind} />
+            </span>
+            <EntryText entry={entry} align="left" teamName={teamName} />
           </div>
-          {entry.side === "guest" ? <EntrySide entry={entry} align="left" /> : <span aria-hidden="true" />}
+          {/* Tablet and up: home events left, guest events right of the clock. */}
+          <div className="hidden grid-cols-[minmax(0,1fr)_5rem_minmax(0,1fr)] items-center gap-3 sm:grid">
+            {entry.side === "home" ? <EntrySide entry={entry} align="right" /> : <span aria-hidden="true" />}
+            <ClockAndScore entry={entry} />
+            {entry.side === "guest" ? <EntrySide entry={entry} align="left" /> : <span aria-hidden="true" />}
+          </div>
         </>
       )}
     </li>
   );
 }
 
+const FILTER_EMPTY_TEXT: Record<Exclude<FeedFilter, "all">, string> = {
+  goals: "Noch keine Tore gefallen.",
+  penalties: "Bisher keine Strafen.",
+};
+
+function Feed({ snapshot, fresh }: { snapshot: TickerSnapshot; fresh: ReadonlySet<number> }) {
+  const [filter, setFilter] = useState<FeedFilter>("all");
+  const [limit, setLimit] = useState(FEED_PAGE_SIZE);
+  const { entries, game } = snapshot;
+
+  const count = (f: FeedFilter) => entries.filter((e) => e.kind !== "period" && matchesFilter(e, f)).length;
+  const filtered = entries.filter((e) => matchesFilter(e, filter));
+  const shown = filtered.slice(0, limit);
+  const hidden = filtered.length - shown.length;
+  const pick = (next: FeedFilter) => {
+    setFilter(next);
+    setLimit(FEED_PAGE_SIZE);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div role="group" aria-label="Ereignisse filtern" className="flex flex-wrap gap-2">
+        <FilterPill label="Alle" active={filter === "all"} onClick={() => pick("all")} />
+        <FilterPill label={`Tore · ${count("goals")}`} active={filter === "goals"} onClick={() => pick("goals")} />
+        <FilterPill label={`Strafen · ${count("penalties")}`} active={filter === "penalties"} onClick={() => pick("penalties")} />
+      </div>
+
+      {filter !== "all" && count(filter) === 0 && (
+        <p className="rounded-2xl bg-white p-5 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
+          {FILTER_EMPTY_TEXT[filter]}
+        </p>
+      )}
+      <ol className="space-y-2" aria-label="Spielverlauf, neueste Ereignisse zuerst">
+        {shown.map((entry) => (
+          <EntryRow key={entry.idx} entry={entry} game={game} fresh={fresh.has(entry.idx)} />
+        ))}
+      </ol>
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setLimit((l) => l + FEED_PAGE_SIZE)}
+          className="press flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full text-sm font-bold text-link"
+        >
+          Ältere Ereignisse anzeigen ({hidden})
+          <ChevronDown size={14} aria-hidden="true" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** "3 neue Ereignisse ↑" — only while the fan has scrolled away from the top of the feed. */
+function NewEventsPill({ count }: { count: number }) {
+  if (count === 0) return null;
+  const scrollToTop = () => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  };
+  return (
+    <button
+      type="button"
+      onClick={scrollToTop}
+      className="press fixed bottom-5 left-1/2 z-40 inline-flex min-h-11 whitespace-nowrap -translate-x-1/2 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-white shadow-lg"
+    >
+      <ArrowUp size={16} aria-hidden="true" />
+      {count === 1 ? "1 neues Ereignis" : `${count} neue Ereignisse`}
+    </button>
+  );
+}
+
+function TickerView({
+  snapshot,
+  connection,
+  failures,
+}: {
+  snapshot: TickerSnapshot;
+  connection: Connection;
+  failures: number;
+}) {
+  const now = useClock();
+  const fresh = useFreshEntries(snapshot.entries);
+  const scoreRef = useRef<HTMLDivElement | null>(null);
+  const { visible: scoreInView, seenIdx } = useBelowHeaderVisibility(scoreRef, newestIndex(snapshot.entries));
+  const unseen =
+    scoreInView || seenIdx === null
+      ? 0
+      : snapshot.entries.filter((e) => e.kind !== "period" && e.idx > seenIdx).length;
+
+  const showNotice = connection === "retrying" && failures >= FAILURES_BEFORE_NOTICE;
+  return (
+    <div className="space-y-4">
+      <StickyScore snapshot={snapshot} visible={!scoreInView} />
+      <NewEventsPill count={unseen} />
+
+      {showNotice && (
+        <p
+          role="status"
+          className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-900/30 dark:text-amber-100"
+        >
+          <WifiOff size={16} aria-hidden="true" />
+          Verbindung unterbrochen – Stand von {timeFormat.format(new Date(snapshot.updatedAt))} Uhr. Wir versuchen es weiter.
+        </p>
+      )}
+
+      <Scoreboard snapshot={snapshot} now={now} scoreRef={scoreRef} />
+
+      {snapshot.entries.length > 0 && <StatsPanel snapshot={snapshot} />}
+
+      {!snapshot.game.scoreboardEnabled && snapshot.entries.length === 0 ? (
+        <p className="rounded-2xl bg-white p-6 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
+          Für dieses Spiel wird kein Live-Ticker geführt. Das Ergebnis erscheint nach dem Spiel im Spielplan.
+        </p>
+      ) : snapshot.entries.length === 0 ? (
+        <p className="rounded-2xl bg-white p-6 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
+          Sobald das Spiel angepfiffen wird, erscheinen hier alle Tore, Strafen und Auszeiten.
+        </p>
+      ) : (
+        <Feed snapshot={snapshot} fresh={fresh} />
+      )}
+
+      <p className="text-center text-xs text-muted">
+        {snapshot.status === "finished" ? "Das Spiel ist beendet. " : "Wird automatisch aktualisiert. "}
+        Daten: nuLiga nuScore
+      </p>
+    </div>
+  );
+}
+
 export default function LiveTicker({ meetingId, initial }: LiveTickerProps) {
   const { snapshot, connection, failures } = useTickerPolling(meetingId, initial);
-  const fresh = useFreshEntries(snapshot?.entries ?? []);
   const retry = useCallback(() => window.location.reload(), []);
 
   if (connection === "not-found") {
@@ -577,44 +986,5 @@ export default function LiveTicker({ meetingId, initial }: LiveTickerProps) {
     );
   }
 
-  const showNotice = connection === "retrying" && failures >= FAILURES_BEFORE_NOTICE;
-  return (
-    <div className="space-y-4">
-      {showNotice && (
-        <p
-          role="status"
-          className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-900/30 dark:text-amber-100"
-        >
-          <WifiOff size={16} aria-hidden="true" />
-          Verbindung unterbrochen – Stand von {timeFormat.format(new Date(snapshot.updatedAt))} Uhr. Wir versuchen es weiter.
-        </p>
-      )}
-
-      <Scoreboard snapshot={snapshot} />
-
-      {snapshot.entries.length > 0 && <StatsPanel snapshot={snapshot} />}
-
-      {!snapshot.game.scoreboardEnabled && snapshot.entries.length === 0 ? (
-        <p className="rounded-2xl bg-white p-6 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
-          Für dieses Spiel wird kein Live-Ticker geführt. Das Ergebnis erscheint nach dem Spiel im Spielplan.
-        </p>
-      ) : snapshot.entries.length === 0 ? (
-        <p className="rounded-2xl bg-white p-6 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
-          Sobald das Spiel angepfiffen wird, erscheinen hier alle Tore, Strafen und Auszeiten.
-        </p>
-      ) : (
-        <ol className="space-y-2" aria-label="Spielverlauf, neueste Ereignisse zuerst">
-          {snapshot.entries.map((entry) => (
-            <EntryRow key={entry.idx} entry={entry} snapshot={snapshot} fresh={fresh.has(entry.idx)} />
-          ))}
-        </ol>
-      )}
-
-      <p className="text-center text-xs text-muted">
-        {snapshot.status === "finished"
-          ? "Das Spiel ist beendet."
-          : `Aktualisiert um ${timeFormat.format(new Date(snapshot.updatedAt))} Uhr · Daten: nuLiga nuScore`}
-      </p>
-    </div>
-  );
+  return <TickerView snapshot={snapshot} connection={connection} failures={failures} />;
 }

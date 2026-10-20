@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { client } from "@/lib/sanity";
-import { pageHeroSlidesQuery } from "@/lib/queries";
 import { getTicker } from "@/lib/live/ticker";
 import type { TickerSnapshot } from "@/lib/live/types";
-import type { SanityImage } from "@/types";
-import PageHeroSlider from "@/components/sections/PageHeroSlider";
 import LiveTicker from "@/components/live/LiveTicker";
 import { LiveListSkeleton } from "@/components/live/LiveSkeleton";
 
@@ -49,26 +46,26 @@ async function TickerSection({ meetingId }: { meetingId: string }) {
 
 export default async function LiveTickerPage({ params }: PageProps) {
   const { meetingId } = await params;
-  // Only the cached hero images are awaited here, so the hero paints immediately.
-  const slides = await client
-    .fetch<SanityImage[]>(pageHeroSlidesQuery, {}, { next: { revalidate: 3600 } })
-    .catch(() => [] as SanityImage[]);
-
+  // No hero image: on a phone the score has to be the first thing on screen.
   return (
-    <>
-      <PageHeroSlider slides={slides ?? []} title="Live-Ticker" subtitle="Spielverlauf in Echtzeit" />
-      <section className="bg-background dark:bg-gray-900">
-        <div className="mx-auto max-w-3xl px-4 pb-20 pt-6 sm:px-6">
-          <Suspense fallback={<LiveListSkeleton rows={TICKER_SKELETON_ROWS} />}>
-            <TickerSection meetingId={meetingId} />
-          </Suspense>
-          <p className="mt-8 text-center text-sm">
-            <Link href="/live" className="font-bold text-brand-red underline-offset-4 hover:underline">
-              Alle Live-Spiele
-            </Link>
-          </p>
+    <section className="bg-background dark:bg-gray-900">
+      <div className="mx-auto max-w-3xl px-4 pb-20 pt-20 sm:px-6 lg:pt-24">
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h1 className="font-display text-2xl font-bold uppercase italic tracking-[-0.02em] text-text dark:text-gray-100">
+            Live-Ticker
+          </h1>
+          <Link
+            href="/live"
+            className="inline-flex min-h-11 items-center gap-1 text-sm font-bold text-brand-red underline-offset-4 hover:underline"
+          >
+            <ChevronLeft size={16} aria-hidden="true" />
+            Alle Live-Spiele
+          </Link>
         </div>
-      </section>
-    </>
+        <Suspense fallback={<LiveListSkeleton rows={TICKER_SKELETON_ROWS} />}>
+          <TickerSection meetingId={meetingId} />
+        </Suspense>
+      </div>
+    </section>
   );
 }
