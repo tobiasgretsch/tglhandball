@@ -38,7 +38,7 @@ const HTTP_SERVER_ERROR = 500;
 const TIME_STEP_SECONDS = 15;
 
 /** How long Next's shared data cache may reuse a response, per kind of data. */
-export const CACHE = {
+const CACHE = {
   clubGroups: { revalidate: 6 * 60 * 60 },
   groupName: { revalidate: 6 * 60 * 60 },
   schedule: { revalidate: 10 * 60, bucketSeconds: 10 * 60 },
@@ -50,7 +50,7 @@ export const CACHE = {
   liveMeeting: { bucketSeconds: TIME_STEP_SECONDS },
 } as const;
 
-export class UpstreamError extends Error {
+class UpstreamError extends Error {
   constructor(
     message: string,
     readonly status?: number,
@@ -120,7 +120,7 @@ async function getJson(path: string, revalidate?: number): Promise<unknown | nul
   }
 }
 
-export interface Logo {
+interface Logo {
   body: ArrayBuffer;
   contentType: string;
 }

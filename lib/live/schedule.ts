@@ -73,7 +73,7 @@ async function loadGames(groups: ClubGroup[], mode: "slow" | "fast") {
 /** The last games we knew per meeting — bridges a failed fast read so a live badge does not flicker. */
 let previousGames: LiveGame[] = [];
 
-export function pollInterval(games: LiveGame[], now: number): number {
+function pollInterval(games: LiveGame[], now: number): number {
   if (games.some((g) => g.live)) return POLL_LIVE_MS;
   if (games.some((g) => isHot(g, now))) return POLL_HOT_MS;
   if (games.some((g) => startsAt(g) > now && startsAt(g) - now <= SOON_MS)) return POLL_SOON_MS;

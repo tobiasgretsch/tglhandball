@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import type { NewsArticle, NewsCategory } from "@/types";
 import Reveal from "@/components/ui/Reveal";
 import { NewsCard } from "@/components/sections/NewsCard";
+import FilterPill from "@/components/ui/FilterPill";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -53,17 +54,12 @@ export default function NewsClient({ articles }: NewsClientProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
             {FILTERS.map(({ value, label }) => (
-              <button
+              <FilterPill
                 key={value}
+                label={label}
+                active={activeCategory === value}
                 onClick={() => handleFilterChange(value)}
-                className={`press shrink-0 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors border ${
-                  activeCategory === value
-                    ? "bg-primary border-primary text-white shadow-[0_8px_24px_-8px_rgb(218_37_28/0.55)]"
-                    : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-muted dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:text-primary-glow"
-                }`}
-              >
-                {label}
-              </button>
+              />
             ))}
           </div>
         </div>

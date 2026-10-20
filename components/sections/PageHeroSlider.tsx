@@ -5,6 +5,7 @@ import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { urlFor } from "@/lib/sanity";
 import type { SanityImage } from "@/types";
+import { heroFadeUp } from "@/lib/motion";
 
 interface PageHeroSliderProps {
   slides: SanityImage[];
@@ -19,20 +20,7 @@ interface PageHeroSliderProps {
 }
 
 const SLIDE_INTERVAL_MS = 5000;
-
-function makeFadeUp(reduced: boolean) {
-  return {
-    // Opacity stays 1 so the h1 is visible in server HTML and before hydration.
-    hidden: { opacity: 1, y: reduced ? 0 : 20 },
-    show: (delay: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: reduced
-        ? { duration: 0 }
-        : { type: "spring" as const, bounce: 0, duration: 0.8, delay },
-    }),
-  };
-}
+const HERO_RISE_PX = 20;
 
 const DEFAULT_SHEET = "bg-background dark:bg-gray-900";
 
@@ -47,7 +35,7 @@ export default function PageHeroSlider({
   const [current, setCurrent] = useState(0);
   const prefersReduced = useReducedMotion() ?? false;
   const hasSlides = slides.length > 0;
-  const fadeUp = makeFadeUp(prefersReduced);
+  const fadeUp = heroFadeUp(prefersReduced, HERO_RISE_PX);
 
   // Randomise the starting slide after hydration to avoid SSR mismatch.
   useEffect(() => {

@@ -15,7 +15,7 @@ export function absoluteUrl(path: string): string {
 }
 
 /** Splits "Straße 7\n84034 Landshut" into a schema.org PostalAddress. */
-export function toPostalAddress(rawAddress: string): JsonLd {
+function toPostalAddress(rawAddress: string): JsonLd {
   const [street, cityLine = ""] = rawAddress.split("\n").map((line) => line.trim());
   const [, postalCode, city] = cityLine.match(/^(\d{5})\s+(.+)$/) ?? [];
   return {
@@ -27,7 +27,7 @@ export function toPostalAddress(rawAddress: string): JsonLd {
   };
 }
 
-export function venuePlace(settings: Settings | null): JsonLd | null {
+function venuePlace(settings: Settings | null): JsonLd | null {
   if (!settings?.venueName || !settings.venueAddress) return null;
   return {
     "@type": "SportsActivityLocation",

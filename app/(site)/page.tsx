@@ -28,6 +28,8 @@ import type {
 import HeroSection from "@/components/sections/HeroSection";
 import MatchdaySection from "@/components/sections/MatchdaySection";
 import { SponsorCard } from "@/components/sections/PartnerCards";
+import { NewsCategoryChip, formatPublishedDate } from "@/components/sections/NewsCard";
+import { CLUB_TIME_ZONE } from "@/lib/dates";
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
@@ -228,33 +230,6 @@ function SectionTitle({ title, id }: { title: string; id?: string }) {
 
 // ─── News section ─────────────────────────────────────────────────────────────
 
-const CATEGORY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  herren:  { bg: "bg-accent",          text: "text-white",        label: "Herren"  },
-  damen:   { bg: "bg-primary",         text: "text-white",        label: "Damen"   },
-  jugend:  { bg: "bg-accent-tint",     text: "text-accent-deep",  label: "Jugend"  },
-  verein:  { bg: "bg-gray-100",        text: "text-gray-700",     label: "Verein"  },
-};
-
-function formatNewsDate(publishedAt: string): string {
-  return new Intl.DateTimeFormat("de-DE", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(publishedAt));
-}
-
-function CategoryChip({ category }: { category?: string }) {
-  if (!category) return null;
-  const style = CATEGORY_STYLES[category] ?? CATEGORY_STYLES.verein;
-  return (
-    <span
-      className={`text-xs font-bold uppercase tracking-[0.12em] px-2.5 py-0.5 rounded-full ${style.bg} ${style.text}`}
-    >
-      {style.label}
-    </span>
-  );
-}
-
 /** Featured article — large image with a text panel overlapping the lower edge. */
 function FeaturedNewsCard({ article }: { article: NewsArticle }) {
   const imageUrl = article.mainImage
@@ -286,10 +261,10 @@ function FeaturedNewsCard({ article }: { article: NewsArticle }) {
       {/* Text panel — overlaps the image, breaks the card rectangle */}
       <div className="relative -mt-14 md:-mt-20 ml-0 sm:ml-8 mr-0 sm:mr-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl backdrop-saturate-150 rounded-2xl border border-white/60 dark:border-white/10 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.25)] p-6 md:p-7">
         <div className="flex items-center gap-3 mb-3">
-          <CategoryChip category={article.category} />
+          <NewsCategoryChip category={article.category} />
           {article.publishedAt && (
             <span className="text-xs text-muted ml-auto">
-              {formatNewsDate(article.publishedAt)}
+              {formatPublishedDate(article.publishedAt)}
             </span>
           )}
         </div>
@@ -342,10 +317,10 @@ function CompactNewsRow({ article }: { article: NewsArticle }) {
 
       <div className="min-w-0">
         <div className="flex items-center gap-2.5 mb-1.5">
-          <CategoryChip category={article.category} />
+          <NewsCategoryChip category={article.category} />
           {article.publishedAt && (
             <span className="text-xs text-muted">
-              {formatNewsDate(article.publishedAt)}
+              {formatPublishedDate(article.publishedAt)}
             </span>
           )}
         </div>
@@ -560,6 +535,7 @@ function MagazineTeaser({ magazine }: { magazine: Magazine }) {
         day: "2-digit",
         month: "long",
         year: "numeric",
+        timeZone: CLUB_TIME_ZONE,
       }).format(new Date(magazine.date))
     : null;
 

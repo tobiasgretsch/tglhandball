@@ -8,7 +8,7 @@ import { CLUB_TIME_ZONE } from "@/lib/dates";
 // ─── Shared constants & helpers ───────────────────────────────────────────────
 // Kept in a plain module (no 'use client') so Server Components can import them.
 
-export const CATEGORY_STYLES: Record<
+const CATEGORY_STYLES: Record<
   NewsCategory,
   { bg: string; text: string; label: string }
 > = {
@@ -27,6 +27,18 @@ export function formatPublishedDate(dateStr: string): string {
   }).format(new Date(dateStr));
 }
 
+export function NewsCategoryChip({ category }: { category?: NewsCategory }) {
+  if (!category) return null;
+  const style = CATEGORY_STYLES[category];
+  return (
+    <span
+      className={`text-xs font-bold uppercase tracking-[0.12em] px-2.5 py-0.5 rounded-full ${style.bg} ${style.text}`}
+    >
+      {style.label}
+    </span>
+  );
+}
+
 // ─── NewsCard component ───────────────────────────────────────────────────────
 
 export function NewsCard({ article }: { article: NewsArticle }) {
@@ -38,7 +50,6 @@ export function NewsCard({ article }: { article: NewsArticle }) {
     ? formatPublishedDate(article.publishedAt)
     : null;
 
-  const category = article.category ? CATEGORY_STYLES[article.category] : null;
 
   return (
     <article className="group press-card h-full bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-[0_1px_2px_rgb(0_0_0/0.06),0_12px_32px_-16px_rgb(0_0_0/0.2)] hover:shadow-[0_1px_2px_rgb(0_0_0/0.06),0_20px_44px_-16px_rgb(0_0_0/0.3)] transition-shadow duration-300 border border-gray-100 dark:border-gray-700 flex flex-col">
@@ -68,13 +79,7 @@ export function NewsCard({ article }: { article: NewsArticle }) {
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-center gap-3 mb-3">
-          {category && (
-            <span
-              className={`text-xs font-bold uppercase tracking-[0.12em] px-2.5 py-0.5 rounded-full ${category.bg} ${category.text}`}
-            >
-              {category.label}
-            </span>
-          )}
+          <NewsCategoryChip category={article.category} />
           {dateStr && (
             <span className="flex items-center gap-1 text-xs text-muted ml-auto">
               <CalendarDays size={12} className="shrink-0" aria-hidden="true" />

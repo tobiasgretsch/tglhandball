@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 
-export type ConsentCategory = "statistics" | "external";
+type ConsentCategory = "statistics" | "external";
 
 export interface ConsentChoices {
   statistics: boolean;
@@ -15,7 +15,7 @@ interface ConsentRecord extends ConsentChoices {
   timestamp: string;
 }
 
-export const CONSENT_VERSION = 1;
+const CONSENT_VERSION = 1;
 const STORAGE_KEY = "tgl-consent";
 const CHANGE_EVENT = "tgl-consent-change";
 export const OPEN_SETTINGS_EVENT = "tgl-consent-open";
@@ -82,7 +82,7 @@ function subscribe(onChange: () => void): () => void {
   };
 }
 
-export type ConsentState =
+type ConsentState =
   | { status: "unknown" } // before hydration — never load anything
   | { status: "undecided" }
   | ({ status: "decided" } & ConsentChoices);

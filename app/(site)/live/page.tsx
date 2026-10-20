@@ -4,7 +4,7 @@ import { client } from "@/lib/sanity";
 import { pageHeroSlidesQuery } from "@/lib/queries";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import { getLiveSummary } from "@/lib/live/schedule";
-import type { LiveGame } from "@/lib/live/types";
+import type { LiveGame, LiveSummary } from "@/lib/live/types";
 import type { SanityImage } from "@/types";
 import PageHeroSlider from "@/components/sections/PageHeroSlider";
 import LiveGameList from "@/components/live/LiveGameList";
@@ -21,25 +21,26 @@ export const dynamic = "force-dynamic";
 const LIST_LIMIT = 8;
 
 /** `null` when nuLiga could not be reached, so the page can say so instead of showing "no games". */
-async function loadGames(): Promise<LiveGame[] | null> {
+async function loadSummary(): Promise<LiveSummary | null> {
   try {
-    return (await getLiveSummary()).games;
+    return await getLiveSummary();
   } catch {
     return null;
   }
 }
 
 export default async function LivePage() {
-  const [games, slides] = await Promise.all([
-    loadGames(),
+  const [summary, slides] = await Promise.all([
+    loadSummary(),
     client
       .fetch<SanityImage[]>(pageHeroSlidesQuery, {}, { next: { revalidate: 3600 } })
       .catch(() => [] as SanityImage[]),
   ]);
 
-  const now = Date.now();
+  // The summary's own timestamp, so "upcoming" and "live" agree with each other.
+  const now = summary?.updatedAt ?? 0;
   const startOf = (g: LiveGame) => new Date(g.scheduled).getTime();
-  const all = games ?? [];
+  const all = summary?.games ?? [];
   const live = all.filter((g) => g.live);
   const upcoming = all.filter((g) => !g.live && startOf(g) > now).slice(0, LIST_LIMIT);
   const finished = all
@@ -56,7 +57,7 @@ export default async function LivePage() {
       />
       <section className="bg-background dark:bg-gray-900">
         <div className="mx-auto max-w-3xl space-y-10 px-4 pb-20 pt-6 sm:px-6">
-          {games === null ? (
+          {summary === null ? (
             <p
               role="status"
               className="rounded-2xl bg-white p-6 text-center text-muted dark:bg-gray-800 dark:text-gray-300"
