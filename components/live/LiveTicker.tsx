@@ -26,6 +26,7 @@ import type {
   TickerEntry,
   TickerSnapshot,
 } from "@/lib/live/types";
+import MatchFlow from "./MatchFlow";
 import { useChangeCount, useClock, useShare, useWakeLock } from "./useTickerEnv";
 
 interface LiveTickerProps {
@@ -212,12 +213,16 @@ function newestIndex(entries: TickerEntry[]): number {
   return entries.reduce((max, e) => Math.max(max, e.idx), -1);
 }
 
+interface Visibility {
+  visible: boolean;
+  /** Not visible because it was scrolled off the top (as opposed to still being further down the page). */
+  scrolledPast: boolean;
+  seenIdx: number | null;
+}
+
 /** Tracks whether `ref` is on screen below the fixed header, and reports the newest entry at each change. */
-function useBelowHeaderVisibility(
-  ref: RefObject<HTMLElement | null>,
-  newestIdx: number,
-): { visible: boolean; seenIdx: number | null } {
-  const [state, setState] = useState<{ visible: boolean; seenIdx: number | null }>({ visible: true, seenIdx: null });
+function useBelowHeaderVisibility(ref: RefObject<HTMLElement | null>, newestIdx: number): Visibility {
+  const [state, setState] = useState<Visibility>({ visible: true, scrolledPast: false, seenIdx: null });
   const newestRef = useRef(newestIdx);
 
   useEffect(() => {
@@ -228,7 +233,12 @@ function useBelowHeaderVisibility(
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => setState({ visible: entry.isIntersecting, seenIdx: newestRef.current }),
+      ([entry]) =>
+        setState({
+          visible: entry.isIntersecting,
+          scrolledPast: !entry.isIntersecting && entry.boundingClientRect.top < HEADER_SCROLLED_PX,
+          seenIdx: newestRef.current,
+        }),
       { rootMargin: `-${HEADER_SCROLLED_PX}px 0px 0px 0px` },
     );
     observer.observe(el);
@@ -906,9 +916,13 @@ function TickerView({
   const now = useClock();
   const fresh = useFreshEntries(snapshot.entries);
   const scoreRef = useRef<HTMLDivElement | null>(null);
-  const { visible: scoreInView, seenIdx } = useBelowHeaderVisibility(scoreRef, newestIndex(snapshot.entries));
+  const feedTopRef = useRef<HTMLDivElement | null>(null);
+  const newest = newestIndex(snapshot.entries);
+  const { visible: scoreInView } = useBelowHeaderVisibility(scoreRef, newest);
+  // New events only count while the newest feed row is above the viewport; anyone looking at it already sees them.
+  const { scrolledPast: pastFeedTop, seenIdx } = useBelowHeaderVisibility(feedTopRef, newest);
   const unseen =
-    scoreInView || seenIdx === null
+    !pastFeedTop || seenIdx === null
       ? 0
       : snapshot.entries.filter((e) => e.kind !== "period" && e.idx > seenIdx).length;
 
@@ -930,8 +944,12 @@ function TickerView({
 
       <Scoreboard snapshot={snapshot} now={now} scoreRef={scoreRef} />
 
+      {snapshot.entries.length > 0 && <MatchFlow snapshot={snapshot} />}
+
       {snapshot.entries.length > 0 && <StatsPanel snapshot={snapshot} />}
 
+      {/* Always mounted so the observer is attached even when the first event arrives mid-visit. */}
+      <div ref={feedTopRef} aria-hidden="true" className="-mb-4 h-px" />
       {!snapshot.game.scoreboardEnabled && snapshot.entries.length === 0 ? (
         <p className="rounded-2xl bg-white p-6 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
           Für dieses Spiel wird kein Live-Ticker geführt. Das Ergebnis erscheint nach dem Spiel im Spielplan.
