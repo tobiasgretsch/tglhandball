@@ -113,7 +113,7 @@ export interface TickerSnapshot {
 }
 
 export interface LiveSummary {
-  /** TG games from three days back to one week ahead, oldest first. */
+  /** TG games from one week back to one week ahead, oldest first. */
   games: LiveGame[];
   /** How long the client should wait before asking again. */
   pollAfterMs: number;

@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { LiveGame, LiveSummary } from "@/lib/live/types";
 
 interface LiveContextValue {
-  /** TG games from three days back to a week ahead (empty until the first answer). */
+  /** TG games from a week back to a week ahead (empty until the first answer). */
   games: LiveGame[];
   liveGames: LiveGame[];
 }

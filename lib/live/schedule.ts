@@ -15,7 +15,7 @@ const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
 const DAY_MS = 24 * HOUR_MS;
 
-const LOOKBACK_MS = 3 * DAY_MS;
+const LOOKBACK_MS = 7 * DAY_MS;
 const LOOKAHEAD_MS = 7 * DAY_MS;
 const HOT_BEFORE_MS = 45 * MINUTE_MS;
 const HOT_AFTER_MS = 4 * HOUR_MS;
