@@ -4,6 +4,7 @@
  * for everything the ticker window still knows about.
  */
 import { revalidatePath, revalidateTag } from "next/cache";
+import { client } from "@/lib/sanity";
 import { anonymize, archiveTag, isYouthGame } from "./archive";
 import { deriveHighlights } from "./highlights";
 import { getLiveSummary } from "./schedule";
@@ -17,6 +18,9 @@ const DOC_ID_PREFIX = "matchArchive-";
 const SWEEP_MIN_AGE_MS = 3 * 60 * 60 * 1000;
 const SWEEP_CONCURRENCY = 3;
 const SWEEP_MAX_GAMES = 20;
+/** nuLiga's group listing drops a game once its group has played a later matchday, so the Spielplan fills the gap. */
+const BACKFILL_DAYS = 14;
+const DAY_MS = 24 * 60 * 60 * 1000;
 const SCHEMA_VERSION = 1;
 
 const docId = (meetingId: string) => `${DOC_ID_PREFIX}${meetingId}`;
@@ -100,17 +104,32 @@ export interface SweepSummary {
 const isSweepCandidate = (game: LiveGame, now: number) =>
   !game.live && game.scoreboardEnabled && now - new Date(game.scheduled).getTime() >= SWEEP_MIN_AGE_MS;
 
-/** Archives every finished game the ticker window (one week back) still lists. */
+const MISSING_FROM_ARCHIVE_QUERY = `*[_type == "match" && defined(meetingId) && defined(result)
+  && date >= $from && date <= $to && !(meetingId in *[_type == "matchArchive"].meetingId)] | order(date desc).meetingId`;
+
+/** Played games of our Spielplan that have no archive page yet (nuLiga still serves them per game id). */
+async function missingFromArchive(now: number): Promise<string[]> {
+  const from = new Date(now - BACKFILL_DAYS * DAY_MS).toISOString();
+  const to = new Date(now - SWEEP_MIN_AGE_MS).toISOString();
+  return client.fetch<string[]>(MISSING_FROM_ARCHIVE_QUERY, { from, to });
+}
+
+/**
+ * Archives every finished game the ticker window still lists, plus recent Spielplan games that fell out of it.
+ * TODO: games without an electronic score sheet are re-checked every night until they leave the backfill window.
+ */
 export async function archiveRecentGames(): Promise<SweepSummary> {
   const { games } = await getLiveSummary();
   const now = Date.now();
-  const candidates = games.filter((g) => isSweepCandidate(g, now)).slice(-SWEEP_MAX_GAMES);
+  const windowIds = games.filter((g) => isSweepCandidate(g, now)).map((g) => g.meetingId);
+  const backfillIds = await missingFromArchive(now).catch(() => []);
+  const candidates = [...new Set([...windowIds.reverse(), ...backfillIds])].slice(0, SWEEP_MAX_GAMES);
   const summary: SweepSummary = { candidates: candidates.length, archived: 0, failed: 0 };
 
   let next = 0;
   const worker = async () => {
     while (next < candidates.length) {
-      const { meetingId } = candidates[next++];
+      const meetingId = candidates[next++];
       try {
         if ((await archiveGame(meetingId)) === "archived") summary.archived++;
       } catch (error) {
