@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { archiveRecentGames } from "@/lib/live/archiveWrite";
 import { syncMatches } from "@/lib/nuliga/sync";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 /**
  * Vercel Cron target. Vercel sends `Authorization: Bearer <CRON_SECRET>`;
@@ -25,7 +26,12 @@ export async function GET(request: Request) {
       revalidatePath("/spielplan");
       revalidatePath("/teams/[slug]", "page");
     }
-    return NextResponse.json(summary);
+    // A failed sweep must not hide a successful sync, so it reports its own error.
+    const archive = await archiveRecentGames().catch((error: unknown) => {
+      console.error("[archive-sweep]", error instanceof Error ? error.message : error);
+      return { error: "Archive sweep failed" };
+    });
+    return NextResponse.json({ ...summary, archive });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Sync failed";
     console.error("[sync-matches]", message);

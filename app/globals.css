@@ -290,3 +290,11 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .score-pop { animation: none; }
 }
+
+/* Tailwind v4 dropped `scrollbar-hide`; the horizontally scrolling filter bars rely on it. */
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

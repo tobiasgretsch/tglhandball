@@ -1,6 +1,7 @@
 import news from "./news";
 import team from "./team";
 import match from "./match";
+import matchArchive from "./matchArchive";
 import magazine from "./magazine";
 import partner from "./partner";
 import gallery from "./gallery";
@@ -12,6 +13,7 @@ export const schemaTypes = [
   news,
   team,
   match,
+  matchArchive,
   magazine,
   partner,
   gallery,

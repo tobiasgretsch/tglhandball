@@ -1,3 +1,4 @@
+import type { LiveGame } from "@/lib/live/types";
 import type { Match, Settings } from "@/types";
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://tglhandball.de").replace(/\/$/, "");
@@ -163,6 +164,26 @@ export function fixturesJsonLd(matches: Match[], settings: Settings | null): Jso
       position: index + 1,
       item: matchJsonLd(match, settings),
     })),
+  };
+}
+
+/** A finished game with its final score, for the game page. */
+export function finishedGameJsonLd(game: LiveGame, scoreHome: number, scoreGuest: number, path: string): JsonLd {
+  const start = new Date(game.scheduled);
+  return {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    name: `${game.homeTeam} – ${game.awayTeam}`,
+    url: absoluteUrl(path),
+    sport: "Handball",
+    startDate: start.toISOString(),
+    endDate: new Date(start.getTime() + DEFAULT_MATCH_DURATION_MS).toISOString(),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    homeTeam: { "@type": "SportsTeam", name: game.homeTeam },
+    awayTeam: { "@type": "SportsTeam", name: game.awayTeam },
+    ...(game.venue && { location: { "@type": "Place", name: game.venue } }),
+    description: `Endergebnis: ${scoreHome}:${scoreGuest}`,
   };
 }
 

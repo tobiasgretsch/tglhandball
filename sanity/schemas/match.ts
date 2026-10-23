@@ -36,6 +36,12 @@ export default defineType({
       to: [{ type: "team" }],
     }),
     defineField({
+      name: "league",
+      title: "Liga",
+      type: "string",
+      description: "Wird von der nuLiga-Synchronisierung gesetzt.",
+    }),
+    defineField({
       name: "venue",
       title: "Spielstätte",
       type: "string",

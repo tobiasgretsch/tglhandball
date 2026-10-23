@@ -11,7 +11,7 @@ import {
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import type { Match, Team } from "@/types";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
-import { OUTCOME_LABEL, parseResult, tgOutcome } from "@/lib/match";
+import { OUTCOME_LABEL, gamePagePath, parseResult, tgOutcome } from "@/lib/match";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
 import { LiveMatchBadge } from "@/components/live/LiveBadge";
@@ -284,7 +284,12 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
                 {lastResult.team?.name ? ` · ${lastResult.team.name}` : ""}
               </p>
               {lastResult.meetingId && (
-                <div className="mt-5">
+                <div className="mt-5 flex flex-wrap gap-3">
+                  {gamePagePath(lastResult) && (
+                    <Link href={gamePagePath(lastResult) ?? "/spielplan"} className="btn btn-glass">
+                      Spielverlauf
+                    </Link>
+                  )}
                   <MatchReportButton meetingId={lastResult.meetingId} tone="glass" />
                 </div>
               )}

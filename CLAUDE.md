@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **TG MIPA Landshut Handball** — official club website with public-facing content and a protected member area. Repository: https://github.com/tobiasgretsch/tglhandball
 
+**Live site:** https://tglhandball.vercel.app/ — the deployed Next.js site. `tglhandball.de` still serves the old WordPress site, so check live behaviour (e.g. `/api/live`) on the Vercel URL.
+
 ---
 
 ## Tech Stack
@@ -63,6 +65,7 @@ app/
     spielplan/page.tsx          # Fixture & results listing with team filter
     live/page.tsx               # Live overview: running / next / last TG games
     live/[meetingId]/page.tsx   # Live ticker for one game (noindex, polls /api/live/[id])
+    spielplan/[meetingId]/page.tsx  # Permanent game page from the `matchArchive` (finished games only; youth = noindex, no names)
     spieltagsmagazin/page.tsx   # Magazine PDF archive
     impressionen/page.tsx       # Photo gallery
     ueberuns/page.tsx           # Club history, board, venue map, contact form
@@ -94,6 +97,9 @@ lib/
                                 #   fixture.ts (Sanity match ↔ live game), upstream.ts (REST client, 15 s time buckets),
                                 #   schedule.ts (two-tier polling), ticker.ts (snapshot), stats.ts (per-team match stats from the feed),
                                 #   table.ts (league position from the nuLiga group page), coalesce.ts (dedupe + stale fallback)
+                                #   archive.ts / archiveWrite.ts / highlights.ts: permanent copy of finished games (raw nuLiga data in Sanity
+                                #   `matchArchive`, written lazily when a finished game is viewed + by the nightly cron sweep)
+  spielplanFilter.ts            # URL-state filters of /spielplan (pure): team, season, month, home/away, result, league, status, highlight, search
   sanity.ts                     # Read-only Sanity client + urlFor() helper
   sanity-write.ts               # Write client (uses SANITY_API_TOKEN)
   queries.ts                    # All GROQ queries (allNewsQuery, teamDetailQuery,
@@ -270,6 +276,8 @@ Claude must treat every mistake as a learning event and record it in this file.
 | 2026-10-20 | Live ticker UX | The ticker's mirrored 3-column feed gave each text side ~80 px at 360 px, and a hero image pushed the score below the fold; freshness sat under 100+ rows. A thick left border as side marker was flagged as an AI-UI tell and duplicated the club tint + team name. | On phones, feeds that carry names use one full-width column (mirrored layout from `sm:`); the score is the first thing on screen (no hero) and docks as a sticky bar. Don't add a second encoding for what text already says. Test narrow layouts in a 360 px iframe (`resize_window` does not change the viewport) against `scripts/mock-nuliga.mjs`. |
 | 2026-10-20 | CMS data | The "Unsere Halle" section on /ueberuns was gated on `venueLat/venueLng`, which are null in production, so it never rendered. I only noticed when checking the live data. | Before building on an optional CMS section, query the real document (Sanity MCP) to see which fields are filled; make the map optional instead of gating the whole section on coordinates. |
 | 2026-10-22 | Live ticker UX | The "neue Ereignisse" pill was keyed to the scoreboard leaving the screen, so it fired for fans already looking at the newest row. A first fix that mounted its observed sentinel only once the feed had entries would never have attached for fans who opened the page before kickoff. Also, a stale mock on port 4555 survived a restart (`netstat` kill failed), so the test replayed a finished game. | Key "unseen" indicators to the position of the thing that holds the new content (feed top), and count only when it is scrolled past, not merely off-screen below. Observed elements must be mounted unconditionally. Kill test servers by port with `Get-NetTCPConnection … Stop-Process` and confirm the mock's start time before trusting a replay. |
+| 2026-10-22 | Game archive | Anonymising youth games (names blanked, shirt numbers kept) made the roster key `"#7 "` differ from the feed key `"#7"`, so every youth player showed a second zero row. A test doc written to the production dataset by the mock replay also had to be deleted by hand. | Build labels through one trimmed helper (`playerLabel`). Test privacy transforms end-to-end on a sample (`npx tsx`), not by eye. Mock-driven tests write to the real Sanity dataset: delete the test `matchArchive-9000001` afterwards. |
+| 2026-10-22 | Mobile rows / Tailwind v4 | Result rows kept three actions in a right-hand grid column, squeezing team names to ~80 px at 360 px (visible only once a third button was added). The `scrollbar-hide` class used by the filter bars was never defined in Tailwind v4, so desktop browsers showed native scrollbars. | When a row gains an action, check it at 360 px with the longest real team names; on phones put results' actions on their own line. A utility class that appears in no CSS is a silent no-op: grep `globals.css` (`@utility`) before relying on v3 utilities. |
 
 ### Active Rules Derived from Past Mistakes
 

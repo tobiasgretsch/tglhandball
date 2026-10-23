@@ -91,6 +91,9 @@ export const teamDetailQuery = groq`
 
 // ─── Matches (Spielplan) ─────────────────────────────────────────────────────
 
+/** Joins a match to its permanent game page, if one exists (`hasArchive` = a page worth linking). */
+const ARCHIVE_PROJECTION = `"archive": *[_type == "matchArchive" && meetingId == ^.meetingId][0]{ highlights, indexable }`;
+
 export const spielplanQuery = groq`
   *[_type == "match"] | order(date asc) {
     _id,
@@ -101,7 +104,9 @@ export const spielplanQuery = groq`
     meetingId,
     team->{ _id, name, slug },
     venue,
+    league,
     isHomeGame,
+    ${ARCHIVE_PROJECTION},
   }
 `;
 
@@ -214,6 +219,7 @@ export const latestResultQuery = groq`
     venue,
     isHomeGame,
     team->{ _id, name, slug },
+    ${ARCHIVE_PROJECTION},
   }
 `;
 
@@ -266,6 +272,7 @@ export const teamRecentResultsQuery = groq`
     result,
     meetingId,
     isHomeGame,
+    ${ARCHIVE_PROJECTION},
   }
 `;
 

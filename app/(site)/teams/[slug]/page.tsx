@@ -23,6 +23,7 @@ import { toPersonPhoto } from "@/lib/personPhoto";
 import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
+import { gamePagePath } from "@/lib/match";
 import PricingSection from "@/components/sections/PricingSection";
 import StandingsTable from "@/components/sections/StandingsTable";
 import GalleryRow from "@/components/sections/GalleryRow";
@@ -464,7 +465,15 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
           </span>
         )}
         {isResult && match.meetingId && (
-          <span className="ml-auto">
+          <span className="ml-auto flex items-center gap-2">
+            {gamePagePath(match) && (
+              <Link
+                href={gamePagePath(match) ?? "/spielplan"}
+                className="press inline-flex min-h-9 items-center rounded-full border border-gray-200 px-3 text-xs font-bold text-text transition-colors hover:border-primary hover:text-brand-red dark:border-gray-600 dark:text-gray-100"
+              >
+                Spielverlauf
+              </Link>
+            )}
             <MatchReportButton meetingId={match.meetingId} />
           </span>
         )}

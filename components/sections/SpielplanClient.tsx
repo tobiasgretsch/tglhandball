@@ -1,23 +1,36 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { MapPin } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import type { Match } from "@/types";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
-import { OUTCOME_LABEL, tgOutcome, type Outcome } from "@/lib/match";
-import MatchReportButton from "@/components/ui/MatchReportButton";
-import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
-import { LiveMatchBadge } from "@/components/live/LiveBadge";
+import { findGameForFixture } from "@/lib/live/fixture";
+import {
+  balanceOf,
+  countDetailFilters,
+  hasAnyFilter,
+  matchesFilters,
+  monthKey,
+  seasonOf,
+} from "@/lib/spielplanFilter";
 import FilterPill from "@/components/ui/FilterPill";
+import { useLiveGames } from "@/components/live/LiveProvider";
+import SpielplanFilterPanel from "./spielplan/SpielplanFilterPanel";
+import SpielplanMatchRow from "./spielplan/SpielplanMatchRow";
+import SpielplanSummary from "./spielplan/SpielplanSummary";
+import { useSpielplanFilters } from "./spielplan/useSpielplanFilters";
 
 interface TeamOption {
   _id: string;
   name: string;
+  slug: string;
 }
 
 interface SpielplanClientProps {
   matches: Match[];
   teams: TeamOption[];
+  /** Season (first year) of "today", decided on the server so the first paint is the same everywhere. */
+  currentSeason: number;
 }
 
 interface DayGroup {
@@ -26,6 +39,9 @@ interface DayGroup {
   label: string;
   matches: Match[];
 }
+
+/** Rows shown per section before "Alle anzeigen" — keeps a long season light on phones. */
+const INITIAL_ROWS = 20;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -39,11 +55,14 @@ const dayLabelFormat = new Intl.DateTimeFormat("de-DE", {
   timeZone: CLUB_TIME_ZONE,
 });
 
-const timeFormat = new Intl.DateTimeFormat("de-DE", {
-  hour: "2-digit",
-  minute: "2-digit",
+const monthLabelFormat = new Intl.DateTimeFormat("de-DE", {
+  month: "short",
+  year: "2-digit",
   timeZone: CLUB_TIME_ZONE,
 });
+
+/** "2026-10" → "Okt. 26" (noon on the 15th is the same month in every time zone). */
+const monthLabel = (key: string) => monthLabelFormat.format(new Date(`${key}-15T12:00:00Z`));
 
 /** Groups already-sorted matches by calendar day, preserving order. */
 function groupByDay(matches: Match[]): DayGroup[] {
@@ -61,73 +80,184 @@ function groupByDay(matches: Match[]): DayGroup[] {
   return groups;
 }
 
+const unique = <T,>(values: Array<T | undefined>): T[] => [...new Set(values.filter((v): v is T => v !== undefined))];
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function SpielplanClient({ matches, teams }: SpielplanClientProps) {
-  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+export default function SpielplanClient({ matches, teams, currentSeason }: SpielplanClientProps) {
+  const { filters, search, update, reset } = useSpielplanFilters();
+  const { liveGames } = useLiveGames();
+  const [panelOpen, setPanelOpen] = useState(false);
+
+  const context = useMemo(() => {
+    const liveIds = new Set(matches.filter((m) => findGameForFixture(liveGames, m)).map((m) => m._id));
+    return { currentSeason, isLive: (match: Match) => liveIds.has(match._id) };
+  }, [matches, liveGames, currentSeason]);
 
   const filtered = useMemo(
-    () =>
-      selectedTeamId
-        ? matches.filter((m) => m.team?._id === selectedTeamId)
-        : matches,
-    [matches, selectedTeamId]
+    () => matches.filter((m) => matchesFilters(m, filters, context)),
+    [matches, filters, context],
   );
-
-  const upcoming = useMemo(
-    () => filtered.filter((m) => !m.result),
-    [filtered]
-  );
-
+  const upcoming = useMemo(() => filtered.filter((m) => !m.result), [filtered]);
   const results = useMemo(
     () =>
       filtered
         .filter((m) => Boolean(m.result))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 10),
-    [filtered]
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [filtered],
   );
+
+  // Option lists come from the games of the chosen team and season, so a chip never leads to an empty list.
+  const scope = useMemo(
+    () =>
+      matches.filter((m) =>
+        matchesFilters(m, filters, context, ["monat", "ort", "ergebnis", "liga", "status", "tag", "q"]),
+      ),
+    [matches, filters, context],
+  );
+  const months = useMemo(() => unique(scope.map((m) => monthKey(m.date))).sort(), [scope]);
+  const leagues = useMemo(() => unique(scope.map((m) => m.league)).sort(), [scope]);
+  const seasons = useMemo(
+    () =>
+      unique(
+        matches
+          .filter((m) => matchesFilters(m, filters, context, ["saison", "monat", "ort", "ergebnis", "liga", "status", "tag", "q"]))
+          .map((m) => seasonOf(m.date)),
+      ).sort((a, b) => b - a),
+    [matches, filters, context],
+  );
+  const balance = useMemo(() => balanceOf(results), [results]);
+
+  const detailCount = countDetailFilters(filters);
+  const nothingFound = upcoming.length === 0 && results.length === 0;
 
   return (
     <div className="bg-background dark:bg-gray-900 min-h-[60vh]">
-      {/* ── Filter bar ───────────────────────────────────────────────── */}
+      {/* ── Team bar ─────────────────────────────────────────────────── */}
       <div className="material-bar sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
             <FilterPill
               label="Alle Teams"
-              active={selectedTeamId === null}
-              onClick={() => setSelectedTeamId(null)}
+              active={filters.team === null}
+              onClick={() => update({ team: null, liga: null })}
             />
             {teams.map((team) => (
               <FilterPill
                 key={team._id}
                 label={team.name}
-                active={selectedTeamId === team._id}
-                onClick={() =>
-                  setSelectedTeamId(
-                    selectedTeamId === team._id ? null : team._id
-                  )
-                }
+                active={filters.team === team.slug}
+                onClick={() => update({ team: filters.team === team.slug ? null : team.slug, liga: null })}
               />
             ))}
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 space-y-14">
-        <MatchSection
-          title="Kommende Spiele"
-          matches={upcoming}
-          emptyText="Keine bevorstehenden Spiele gefunden."
-          isResult={false}
-        />
-        <MatchSection
-          title="Ergebnisse"
-          matches={results}
-          emptyText="Keine Ergebnisse gefunden."
-          isResult={true}
-        />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+        {/* ── Search and filters ───────────────────────────────────── */}
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="relative min-w-0 flex-1 basis-56">
+              <span className="sr-only">Gegner suchen</span>
+              <Search
+                size={16}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted"
+              />
+              <input
+                type="search"
+                value={filters.q}
+                onChange={(event) => update({ q: event.target.value })}
+                placeholder="Gegner suchen …"
+                autoComplete="off"
+                className="min-h-11 w-full rounded-full border border-gray-200 bg-white py-2 pl-10 pr-4 text-base text-text placeholder:text-muted dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => setPanelOpen((open) => !open)}
+              aria-expanded={panelOpen}
+              aria-controls="spielplan-filter-panel"
+              className="press inline-flex min-h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+            >
+              <SlidersHorizontal size={16} aria-hidden="true" />
+              Filter
+              {detailCount > 0 && (
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-black text-white">
+                  {detailCount}
+                  <span className="sr-only"> aktiv</span>
+                </span>
+              )}
+            </button>
+            {hasAnyFilter(filters) && (
+              <button
+                type="button"
+                onClick={reset}
+                className="press inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-brand-red underline-offset-4 hover:underline"
+              >
+                <X size={14} aria-hidden="true" />
+                Zurücksetzen
+              </button>
+            )}
+          </div>
+
+          {panelOpen && (
+            <SpielplanFilterPanel
+              filters={filters}
+              onChange={update}
+              leagues={leagues}
+              seasons={seasons}
+              currentSeason={currentSeason}
+            />
+          )}
+
+          {months.length > 1 && (
+            <div
+              role="group"
+              aria-label="Monat"
+              className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5"
+            >
+              {months.map((key) => (
+                <FilterPill
+                  key={key}
+                  label={monthLabel(key)}
+                  active={filters.monat === key}
+                  onClick={() => update({ monat: filters.monat === key ? null : key })}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <SpielplanSummary balance={balance} />
+
+        {nothingFound ? (
+          <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
+            <p className="font-bold text-text dark:text-gray-100">Keine Spiele gefunden.</p>
+            <p className="mt-1 text-sm text-muted">
+              {hasAnyFilter(filters) ? "Mit diesen Filtern gibt es keine Treffer." : "Es sind noch keine Spiele eingetragen."}
+            </p>
+            {hasAnyFilter(filters) && (
+              <button
+                type="button"
+                onClick={reset}
+                className="press mt-4 inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-bold text-white hover:bg-primary-light"
+              >
+                Filter zurücksetzen
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-14">
+            {upcoming.length > 0 && (
+              <MatchSection title="Kommende Spiele" matches={upcoming} isResult={false} resetKey={search} />
+            )}
+            {results.length > 0 && (
+              <MatchSection title="Ergebnisse" matches={results} isResult={true} resetKey={search} />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -138,143 +268,61 @@ export default function SpielplanClient({ matches, teams }: SpielplanClientProps
 function MatchSection({
   title,
   matches,
-  emptyText,
   isResult,
+  resetKey,
 }: {
   title: string;
   matches: Match[];
-  emptyText: string;
   isResult: boolean;
+  /** Collapses the section again whenever the filters change. */
+  resetKey: string;
 }) {
-  const groups = useMemo(() => groupByDay(matches), [matches]);
+  const [expandedFor, setExpandedFor] = useState<string | null>(null);
+  const expanded = expandedFor === resetKey;
+  const visible = expanded ? matches : matches.slice(0, INITIAL_ROWS);
+  const groups = useMemo(() => groupByDay(visible), [visible]);
 
   return (
     <section aria-label={title}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-6">
         <span
           aria-hidden="true"
-          className={`block w-2 h-2 rounded-full shrink-0 ${
-            isResult ? "bg-accent" : "bg-primary"
-          }`}
+          className={`block w-2 h-2 rounded-full shrink-0 ${isResult ? "bg-accent" : "bg-primary"}`}
         />
         <h2 className="font-display font-bold italic uppercase text-2xl md:text-3xl tracking-[-0.02em] text-text dark:text-gray-100">
           {title}
         </h2>
-        {matches.length > 0 && (
-          <span className="inline-flex items-center gap-2 text-xs text-muted sm:ml-auto">
-            <span aria-hidden="true" className="block w-1 h-4 rounded-full bg-primary" />
-            Heimspiel
-          </span>
-        )}
+        <span className="text-xs text-muted tabular-nums">{matches.length}</span>
+        <span className="inline-flex items-center gap-2 text-xs text-muted sm:ml-auto">
+          <span aria-hidden="true" className="block w-1 h-4 rounded-full bg-primary" />
+          Heimspiel
+        </span>
       </div>
 
-      {groups.length === 0 ? (
-        <p className="text-muted text-sm py-6">{emptyText}</p>
-      ) : (
-        <div className="space-y-6">
-          {groups.map((group) => (
-            <div key={group.key}>
-              <h3 className="px-1 mb-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">
-                {group.label}
-              </h3>
-              <ul className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-20px_rgb(0_0_0/0.2)] overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
-                {group.matches.map((match) => (
-                  <MatchRow key={match._id} match={match} isResult={isResult} />
-                ))}
-              </ul>
-            </div>
-          ))}
+      <div className="space-y-6">
+        {groups.map((group) => (
+          <div key={group.key}>
+            <h3 className="px-1 mb-2 text-xs font-bold uppercase tracking-[0.12em] text-muted">{group.label}</h3>
+            <ul className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-20px_rgb(0_0_0/0.2)] overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
+              {group.matches.map((match) => (
+                <SpielplanMatchRow key={match._id} match={match} isResult={isResult} />
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {!expanded && matches.length > INITIAL_ROWS && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setExpandedFor(resetKey)}
+            className="press inline-flex min-h-11 items-center rounded-full border border-gray-200 bg-white px-5 text-sm font-bold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+          >
+            Alle {matches.length} anzeigen
+          </button>
         </div>
       )}
     </section>
-  );
-}
-
-// ─── Match row ────────────────────────────────────────────────────────────────
-
-const OUTCOME_CLASS: Record<Outcome, string> = {
-  sieg: "text-primary dark:text-primary-glow",
-  niederlage: "text-muted",
-  unentschieden: "text-text dark:text-gray-100",
-};
-
-/** One layout for all breakpoints: lead (time/score) · matchup · venue · actions. */
-function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
-  const outcome = isResult ? tgOutcome(match) : null;
-  const tgIsHome = match.isHomeGame === true;
-  const tgIsAway = match.isHomeGame === false;
-  const sideClass = (isTg: boolean) =>
-    isTg
-      ? "font-bold text-text dark:text-gray-100"
-      : "font-medium text-text/70 dark:text-gray-300";
-
-  return (
-    <li
-      className={`grid grid-cols-[3.75rem_minmax(0,1fr)_auto] md:grid-cols-[5rem_minmax(0,1fr)_15rem_auto] items-center gap-x-3 md:gap-x-5 gap-y-1 py-3.5 pr-3 md:pr-5 border-l-4 hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition-colors ${
-        tgIsHome ? "border-primary pl-3 md:pl-4" : "border-transparent pl-3 md:pl-4"
-      }`}
-    >
-      {/* Lead: kick-off time, or the score for results */}
-      <div className="row-span-2 md:row-span-1 text-center">
-        {isResult ? (
-          <>
-            <span
-              className={`text-lg font-black tabular-nums ${
-                outcome ? OUTCOME_CLASS[outcome] : "text-text dark:text-gray-100"
-              }`}
-            >
-              {match.result ?? "–:–"}
-            </span>
-            {outcome && <span className="sr-only"> {OUTCOME_LABEL[outcome]}</span>}
-          </>
-        ) : (
-          <>
-            <span className="text-lg font-black tabular-nums text-text dark:text-gray-100">
-              {timeFormat.format(new Date(match.date))}
-            </span>
-            <span className="block text-[11px] leading-none text-muted">
-              Uhr
-            </span>
-          </>
-        )}
-      </div>
-
-      {/* Matchup */}
-      <div className="min-w-0">
-        {match.team?.name && (
-          <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-primary dark:text-primary-glow leading-tight mb-0.5">
-            {match.team.name}
-            {match.isHomeGame !== undefined && (
-              <span className="sr-only">{tgIsHome ? ", Heimspiel" : ", Auswärtsspiel"}</span>
-            )}
-          </p>
-        )}
-        <p className="text-sm leading-snug text-balance">
-          <span className={sideClass(tgIsHome)}>{match.homeTeam}</span>
-          <span className="mx-1.5 text-muted" aria-hidden="true">
-            –
-          </span>
-          <span className="sr-only"> gegen </span>
-          <span className={sideClass(tgIsAway)}>{match.awayTeam}</span>
-        </p>
-      </div>
-
-      {/* Venue — below the matchup on mobile, own column on desktop */}
-      <div className="col-start-2 md:col-start-3 md:row-start-1 min-w-0">
-        {match.venue && (
-          <span className="flex items-center gap-1.5 text-xs text-muted">
-            <MapPin size={12} className="shrink-0" aria-hidden="true" />
-            <span className="truncate">{match.venue}</span>
-          </span>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="col-start-3 row-start-1 row-span-2 md:col-start-4 md:row-span-1 flex items-center justify-end gap-2">
-        <LiveMatchBadge match={match} />
-        {isResult && match.meetingId && <MatchReportButton meetingId={match.meetingId} />}
-        {!isResult && <AddToCalendarButton match={match} compact />}
-      </div>
-    </li>
   );
 }

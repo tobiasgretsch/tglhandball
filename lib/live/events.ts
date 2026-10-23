@@ -131,7 +131,7 @@ export function deriveScore(
 /** "#7 Nicolas Schühle"; falls back to the name alone when there is no shirt number. */
 export function playerLabel(number: string, firstName: string, lastName: string): string {
   const name = [firstName, lastName].filter(Boolean).join(" ");
-  return number ? `#${number} ${name}` : name;
+  return number ? `#${number} ${name}`.trim() : name;
 }
 
 function playerLine(event: RawEvent, players: Map<string, RawPlayer>): string {

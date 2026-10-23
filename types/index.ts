@@ -135,7 +135,11 @@ export interface Match {
   meetingId?: string;
   team?: Pick<Team, "_id" | "name" | "slug">;
   venue?: string;
+  /** nuLiga league name; set by the sync. */
+  league?: string;
   isHomeGame?: boolean;
+  /** Present once the finished game has its own page (`/spielplan/[meetingId]`). */
+  archive?: { highlights?: string[]; indexable?: boolean } | null;
 }
 
 // ─── Magazine ─────────────────────────────────────────────────────────────────

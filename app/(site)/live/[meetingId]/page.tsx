@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { after } from "next/server";
+import { notFound, redirect } from "next/navigation";
+import { getArchivedGame } from "@/lib/live/archive";
+import { archiveQuietly } from "@/lib/live/archiveWrite";
 import { getTicker } from "@/lib/live/ticker";
 import type { TickerSnapshot } from "@/lib/live/types";
 import LiveTicker from "@/components/live/LiveTicker";
@@ -41,11 +44,14 @@ const TICKER_SKELETON_ROWS = 2;
 async function TickerSection({ meetingId }: { meetingId: string }) {
   const result = await lookup(meetingId);
   if (!result.found) notFound();
+  if (result.snapshot?.status === "finished") after(() => archiveQuietly(meetingId));
   return <LiveTicker meetingId={meetingId} initial={result.snapshot} />;
 }
 
 export default async function LiveTickerPage({ params }: PageProps) {
   const { meetingId } = await params;
+  // A finished game lives on its permanent page; shared live links keep working through this redirect.
+  if (await getArchivedGame(meetingId)) redirect(`/spielplan/${meetingId}`);
   // No hero image: on a phone the score has to be the first thing on screen.
   return (
     <section className="bg-background dark:bg-gray-900">

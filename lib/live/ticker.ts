@@ -2,16 +2,25 @@
 import { coalesce, withStaleFallback } from "./coalesce";
 import { buildEntries, deriveScore, deriveStatus } from "./events";
 import { isClubTeam } from "./fixture";
-import { isValidMeetingId } from "./parse";
+import { isValidMeetingId, type RawEvent, type RawPlayer } from "./parse";
 import { buildStats } from "./stats";
 import { fetchTableFor } from "./table";
 import { getLiveSummary } from "./schedule";
-import type { TickerSnapshot } from "./types";
+import type { LiveGame, TickerSnapshot } from "./types";
 import { fetchEvents, fetchGroupName, fetchMeeting, fetchPlayers } from "./upstream";
 
 const TICKER_TTL_MS = 4_000;
 
-async function buildTicker(meetingId: string): Promise<TickerSnapshot | null> {
+/** Everything nuLiga tells us about one game — the input of `deriveSnapshot` and the archive's payload. */
+export interface RawGame {
+  game: LiveGame;
+  events: RawEvent[];
+  players: RawPlayer[];
+  table?: TickerSnapshot["table"];
+}
+
+/** `null` when the id is unknown or not a TG game. Does not apply the live-window gate. */
+export async function fetchRawGame(meetingId: string): Promise<RawGame | null> {
   const meeting = await fetchMeeting(meetingId);
   // Only our own games: keeps this from becoming an open proxy for all of nuLiga.
   if (!meeting || !(isClubTeam(meeting.homeTeam) || isClubTeam(meeting.awayTeam))) return null;
@@ -25,8 +34,11 @@ async function buildTicker(meetingId: string): Promise<TickerSnapshot | null> {
     fetchTableFor(meeting.groupId, meeting.homeTeam, meeting.awayTeam).catch(() => undefined),
   ]);
 
-  const game = { ...meeting, league };
-  const now = Date.now();
+  return { game: { ...meeting, league }, events, players, table };
+}
+
+/** Pure: the same raw data always yields the same snapshot, so archived games pick up later improvements. */
+export function deriveSnapshot({ game, events, players, table }: RawGame, now: number): TickerSnapshot {
   const { status, label } = deriveStatus(game, events, now);
   const score = deriveScore(game, events);
   const entries = buildEntries(game, events, players);
@@ -42,6 +54,11 @@ async function buildTicker(meetingId: string): Promise<TickerSnapshot | null> {
     table,
     updatedAt: now,
   };
+}
+
+async function buildTicker(meetingId: string): Promise<TickerSnapshot | null> {
+  const raw = await fetchRawGame(meetingId);
+  return raw ? deriveSnapshot(raw, Date.now()) : null;
 }
 
 /**

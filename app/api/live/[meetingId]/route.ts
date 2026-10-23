@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
+import { archiveQuietly } from "@/lib/live/archiveWrite";
 import { getTicker } from "@/lib/live/ticker";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ mee
         { status: 404, headers: { "Cache-Control": NOT_FOUND_CACHE_HEADER } },
       );
     }
+    // The final whistle is in: keep the game for good (idempotent, runs after the response is sent).
+    if (result.snapshot.status === "finished" && !result.stale) after(() => archiveQuietly(meetingId));
     return NextResponse.json(
       { ...result.snapshot, stale: result.stale },
       { headers: { "Cache-Control": result.stale ? "no-store" : CACHE_HEADER } },

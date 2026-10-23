@@ -34,12 +34,16 @@ module.exports = {
       apiVersion: "2024-01-01",
     });
 
-    const [newsSlugs, teamSlugs] = await Promise.all([
+    const [newsSlugs, teamSlugs, gameIds] = await Promise.all([
       sanityClient
         .fetch(`*[_type == "news" && defined(slug.current)]{ "slug": slug.current, "updated": _updatedAt }`)
         .catch(() => []),
       sanityClient
         .fetch(`*[_type == "team" && defined(slug.current)]{ "slug": slug.current, "updated": _updatedAt }`)
+        .catch(() => []),
+      // Youth games are archived without player names but kept out of search engines.
+      sanityClient
+        .fetch(`*[_type == "matchArchive" && indexable == true]{ meetingId, "updated": archivedAt }`)
         .catch(() => []),
     ]);
 
@@ -57,6 +61,13 @@ module.exports = {
       lastmod: updated,
     }));
 
-    return [...newsPaths, ...teamPaths];
+    const gamePaths = gameIds.map(({ meetingId, updated }) => ({
+      loc: `/spielplan/${meetingId}`,
+      changefreq: "never",
+      priority: 0.4,
+      lastmod: updated,
+    }));
+
+    return [...newsPaths, ...teamPaths, ...gamePaths];
   },
 };

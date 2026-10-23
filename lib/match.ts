@@ -25,3 +25,8 @@ export const OUTCOME_LABEL: Record<Outcome, string> = {
   niederlage: "Niederlage",
   unentschieden: "Unentschieden",
 };
+
+/** Path of the permanent game page; `null` while the game has none. */
+export function gamePagePath(match: Pick<Match, "meetingId" | "archive">): string | null {
+  return match.meetingId && match.archive ? `/spielplan/${match.meetingId}` : null;
+}

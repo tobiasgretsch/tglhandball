@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { client } from "@/lib/sanity";
 import JsonLd from "@/components/ui/JsonLd";
 import { DEFAULT_OG_IMAGE, breadcrumbJsonLd, fixturesJsonLd } from "@/lib/seo";
+import { seasonOf } from "@/lib/spielplanFilter";
 import { spielplanQuery, allTeamsQuery, pageHeroSlidesQuery, settingsQuery } from "@/lib/queries";
 import type { Match, Team, SanityImage, Settings } from "@/types";
 import SpielplanClient from "@/components/sections/SpielplanClient";
@@ -47,7 +48,7 @@ export default async function SpielplanPage() {
     fixturesJsonLd(matches, settings),
   ].filter((entry): entry is Record<string, unknown> => entry !== null);
 
-  const teamOptions = teams.map((t) => ({ _id: t._id, name: t.name }));
+  const teamOptions = teams.map((t) => ({ _id: t._id, name: t.name, slug: t.slug.current }));
 
   return (
     <>
@@ -58,7 +59,7 @@ export default async function SpielplanPage() {
         subtitle="Alle Spiele und Ergebnisse der TG MIPA Landshut-Mannschaften."
       />
 
-      <SpielplanClient matches={matches} teams={teamOptions} />
+      <SpielplanClient matches={matches} teams={teamOptions} currentSeason={seasonOf(new Date().toISOString())} />
     </>
   );
 }
