@@ -48,7 +48,7 @@ export default async function SpielplanPage() {
     fixturesJsonLd(matches, settings),
   ].filter((entry): entry is Record<string, unknown> => entry !== null);
 
-  const teamOptions = teams.map((t) => ({ _id: t._id, name: t.name, slug: t.slug.current }));
+  const teamOptions = teams.map((t) => ({ _id: t._id, name: t.name, slug: t.slug.current, hasTable: t.hasTable === true }));
 
   return (
     <>

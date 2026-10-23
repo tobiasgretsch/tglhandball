@@ -120,6 +120,8 @@ export interface Team {
   trainingTimes?: TrainingTime[];
   pricingSection?: PricingSection;
   nuligaTableUrl?: string;
+  /** Set by `allTeamsQuery` only: whether the team page can show a league table. */
+  hasTable?: boolean;
   order?: number;
 }
 

@@ -235,7 +235,7 @@ export default async function TeamDetailPage({ params }: Props) {
               )}
             </div>
             <Link
-              href="/spielplan"
+              href={`/spielplan?team=${slug}`}
               className="btn btn-primary press mt-10"
             >
               Gesamter Spielplan <ArrowRight size={14} aria-hidden="true" />
@@ -249,7 +249,7 @@ export default async function TeamDetailPage({ params }: Props) {
 
       {/* ── 4. Tabelle (nuLiga) ───────────────────────────────────────── */}
       {team.nuligaTableUrl && standings.length > 0 && (
-        <section className="bg-background dark:bg-gray-900 py-14 md:py-20">
+        <section id="tabelle" className="bg-background dark:bg-gray-900 py-14 md:py-20 scroll-mt-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading label="Tabelle" />
             <StandingsTable rows={standings} sourceUrl={team.nuligaTableUrl} />

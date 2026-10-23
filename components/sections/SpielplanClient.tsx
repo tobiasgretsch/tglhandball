@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import Link from "next/link";
+import { ListOrdered, Search, SlidersHorizontal, X } from "lucide-react";
 import type { Match } from "@/types";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import { findGameForFixture } from "@/lib/live/fixture";
@@ -24,6 +25,7 @@ interface TeamOption {
   _id: string;
   name: string;
   slug: string;
+  hasTable: boolean;
 }
 
 interface SpielplanClientProps {
@@ -131,6 +133,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
   );
   const balance = useMemo(() => balanceOf(results), [results]);
 
+  const selectedTeam = teams.find((team) => team.slug === filters.team);
   const detailCount = countDetailFilters(filters);
   const nothingFound = upcoming.length === 0 && results.length === 0;
 
@@ -154,6 +157,15 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
               />
             ))}
           </div>
+          {selectedTeam?.hasTable && (
+            <Link
+              href={`/teams/${selectedTeam.slug}#tabelle`}
+              className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-link underline-offset-4 hover:underline"
+            >
+              <ListOrdered size={14} aria-hidden="true" />
+              Tabelle {selectedTeam.name}
+            </Link>
+          )}
         </div>
       </div>
 

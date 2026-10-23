@@ -40,6 +40,7 @@ export const allTeamsQuery = groq`
     category,
     headerImage { ..., "lqip": asset->metadata.lqip },
     order,
+    "hasTable": defined(nuligaTableUrl),
   }
 `;
 
