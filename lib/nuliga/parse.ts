@@ -8,6 +8,8 @@ import { decodeEntities, toText } from "./html";
 export interface NuligaMatch {
   /** Stable identifier — survives rescheduling, unique per fixture. */
   key: string;
+  /** nuLiga game number ("20011001"); unique within a league, also shown on the group pages. */
+  number: string;
   /** ISO-8601 with Europe/Berlin offset, or null for "Termin offen". */
   date: string | null;
   league: string;
@@ -27,21 +29,27 @@ const SCORE_PATTERN = /^\d+:\d+$/;
 const UNPLAYED_SCORE = "0:0";
 const DATE_PATTERN = /^(\d{2})\.(\d{2})\.(\d{4})$/;
 const TIME_PATTERN = /^(\d{2}):(\d{2})/;
-const MEETING_REPORT_MARKER = "clubMeetingReport";
+/** Matches both "clubMeetingReport" (club page) and "groupMeetingReport" (group page). */
+const MEETING_REPORT_MARKER = "MeetingReport";
 const MEETING_REPORT_LINK = /dokument=meetingReportHB&(?:amp;)?meeting=(\d+)/;
 const OPEN_DATE_COLSPAN = /colspan="2"/;
 
 /** Column positions once the two date cells are normalised (see `readCells`). */
-const COL = {
-  date: 1,
-  time: 2,
-  venue: 3,
-  number: 4,
-  league: 5,
-  home: 6,
-  away: 7,
-  score: 8,
-} as const;
+interface Columns {
+  date: number;
+  time: number;
+  venue: number;
+  number: number;
+  /** Only the club page has a league column; group pages are one league each. */
+  league: number | null;
+  home: number;
+  away: number;
+  score: number;
+}
+
+const CLUB_COLUMNS: Columns = { date: 1, time: 2, venue: 3, number: 4, league: 5, home: 6, away: 7, score: 8 };
+const GROUP_COLUMNS: Columns = { date: 1, time: 2, venue: 3, number: 4, league: null, home: 5, away: 6, score: 7 };
+const GAME_NUMBER = /^\d+$/;
 
 interface Cell {
   attrs: string;
@@ -123,19 +131,29 @@ function readVenue(cell: Cell | undefined): string | undefined {
   return title ? decodeEntities(title).trim() || undefined : undefined;
 }
 
-/** Parses every fixture row on the page (both "Rückschau" and "Vorschau"). */
-export function parseClubPage(html: string): NuligaMatch[] {
+interface RowOptions {
+  columns: Columns;
+  /** League for pages that do not name it per row. */
+  league?: string;
+  /** Group pages also hold table rows; only rows that carry a game number are fixtures. */
+  requireGameNumber?: boolean;
+}
+
+function parseFixtureRows(html: string, { columns: COL, league: fixedLeague, requireGameNumber }: RowOptions): NuligaMatch[] {
   const matches: NuligaMatch[] = [];
   let currentDay: string | null = null;
 
   for (const row of html.split(/<tr[\s>]/).slice(1)) {
     const cells = readCells(row);
-    if (cells.length <= COL.away) continue; // header row or layout row
+    if (cells.length <= Math.max(COL.away, COL.score)) continue; // header row or layout row
 
-    const league = cells[COL.league].text;
+    const league = fixedLeague ?? (COL.league === null ? "" : cells[COL.league].text);
     const homeTeam = cells[COL.home].text;
     const awayTeam = cells[COL.away].text;
     if (!league || !homeTeam || !awayTeam) continue;
+
+    const number = cells[COL.number].text;
+    if (requireGameNumber && !GAME_NUMBER.test(number)) continue;
 
     const dayText = cells[COL.date].text;
     const isDateRow = DATE_PATTERN.test(dayText);
@@ -143,12 +161,12 @@ export function parseClubPage(html: string): NuligaMatch[] {
     if (isDateRow) currentDay = dayText;
     const day = isOpenRow ? null : currentDay;
 
-    const number = cells[COL.number].text;
     const time = cells[COL.time].text;
     const date = day && TIME_PATTERN.test(time) ? berlinToIso(day, time) : null;
 
     matches.push({
       key: buildKey(number, league, awayTeam, day),
+      number,
       date,
       league,
       homeTeam,
@@ -160,4 +178,19 @@ export function parseClubPage(html: string): NuligaMatch[] {
     });
   }
   return matches;
+}
+
+/** Parses every fixture row on the page (both "Rückschau" and "Vorschau"). */
+export function parseClubPage(html: string): NuligaMatch[] {
+  return parseFixtureRows(html, { columns: CLUB_COLUMNS });
+}
+
+/**
+ * Parses the whole-season game list of one league ("Gesamtspielplan"), keeping only our own
+ * games. `league` is the abbreviation the club page uses, so both sources yield the same keys.
+ */
+export function parseGroupPage(html: string, league: string): NuligaMatch[] {
+  return parseFixtureRows(html, { columns: GROUP_COLUMNS, league, requireGameNumber: true }).filter(
+    (m) => m.homeTeam.startsWith(CLUB_NAME_PREFIX) || m.awayTeam.startsWith(CLUB_NAME_PREFIX),
+  );
 }
