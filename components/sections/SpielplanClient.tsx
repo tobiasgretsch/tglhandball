@@ -157,15 +157,6 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
               />
             ))}
           </div>
-          {selectedTeam?.hasTable && (
-            <Link
-              href={`/teams/${selectedTeam.slug}#tabelle`}
-              className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-link underline-offset-4 hover:underline"
-            >
-              <ListOrdered size={14} aria-hidden="true" />
-              Tabelle {selectedTeam.name}
-            </Link>
-          )}
         </div>
       </div>
 
@@ -205,6 +196,15 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
                 </span>
               )}
             </button>
+            {selectedTeam?.hasTable && (
+              <Link
+                href={`/teams/${selectedTeam.slug}#tabelle`}
+                className="press inline-flex min-h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              >
+                <ListOrdered size={16} aria-hidden="true" />
+                Tabelle {selectedTeam.name}
+              </Link>
+            )}
             {hasAnyFilter(filters) && (
               <button
                 type="button"
