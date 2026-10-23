@@ -21,7 +21,6 @@ import type { Team, Match, GalleryItem, Betreuer, Settings, TrainingDay, Trainin
 import PersonCard from "@/components/ui/PersonCard";
 import { toPersonPhoto } from "@/lib/personPhoto";
 import PortableText from "@/components/ui/PortableText";
-import CollapsibleList from "@/components/ui/CollapsibleList";
 import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
 import { gamePagePath } from "@/lib/match";
@@ -88,9 +87,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-
-/** Games shown per list before "Alle anzeigen". */
-const COLLAPSED_MATCHES = 1;
 
 export const revalidate = 3600;
 
@@ -218,13 +214,11 @@ export default async function TeamDetailPage({ params }: Props) {
               {upcoming.length > 0 && (
                 <div>
                   <SectionHeading label="Nächste Spiele" />
-                  <CollapsibleList
-                    className="mt-6 space-y-3"
-                    initialCount={COLLAPSED_MATCHES}
-                    items={upcoming.map((match) => (
+                  <ul className="mt-6 space-y-3">
+                    {upcoming.map((match) => (
                       <MatchRow key={match._id} match={match} isResult={false} />
                     ))}
-                  />
+                  </ul>
                 </div>
               )}
 
@@ -232,13 +226,11 @@ export default async function TeamDetailPage({ params }: Props) {
               {results.length > 0 && (
                 <div>
                   <SectionHeading label="Letzte Ergebnisse" />
-                  <CollapsibleList
-                    className="mt-6 space-y-3"
-                    initialCount={COLLAPSED_MATCHES}
-                    items={results.map((match) => (
+                  <ul className="mt-6 space-y-3">
+                    {results.map((match) => (
                       <MatchRow key={match._id} match={match} isResult={true} />
                     ))}
-                  />
+                  </ul>
                 </div>
               )}
             </div>

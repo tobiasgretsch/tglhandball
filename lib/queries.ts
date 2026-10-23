@@ -253,7 +253,7 @@ export const homeMagazineQuery = groq`
 
 export const teamUpcomingMatchesQuery = groq`
   *[_type == "match" && team._ref == $teamId && date > $now && !defined(result)]
-  | order(date asc) [0...10] {
+  | order(date asc) [0...1] {
     _id,
     date,
     homeTeam,
@@ -265,7 +265,7 @@ export const teamUpcomingMatchesQuery = groq`
 
 export const teamRecentResultsQuery = groq`
   *[_type == "match" && team._ref == $teamId && defined(result)]
-  | order(date desc) [0...10] {
+  | order(date desc) [0...1] {
     _id,
     date,
     homeTeam,
