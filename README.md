@@ -1,150 +1,94 @@
 # TG MIPA Landshut – Vereinswebsite
 
-Offizielle Website des TG MIPA Landshut e.V. – Handball mit Leidenschaft seit Jahrzehnten.
+Offizielle Website der Handballabteilung der TG MIPA Landshut: öffentliche Vereinsseiten, Spielplan mit Ergebnissen, Live-Ticker und ein Spielarchiv.
 
-## Tech-Stack
+- **Live:** https://tglhandball.vercel.app/ (`tglhandball.de` zeigt noch die alte WordPress-Seite)
+- **Repository:** https://github.com/tobiasgretsch/tglhandball
 
-| Bereich | Technologie |
-|---|---|
-| Framework | Next.js 16 (App Router, Turbopack) |
-| UI | React 19, Tailwind CSS 4, Framer Motion |
-| CMS | Sanity v5 (eingebettetes Studio unter `/studio`) |
-| Analytics | Vercel Speed Insights |
-| Sitemap | next-sitemap (wird nach jedem Build generiert) |
+## Tech Stack
 
----
+Next.js 16 (App Router, Turbopack) · React 19 · TypeScript (strict) · Tailwind CSS 4 (CSS-first, Konfiguration in `app/globals.css`) · Framer Motion · Sanity v5 als CMS · Hosting auf Vercel (Region `fra1`) · Node.js 24 LTS
 
-## Lokale Entwicklung
-
-### 1. Voraussetzungen
-
-- **Node.js 24 LTS** – `node -v` sollte `v24.x.x` zeigen
-- **npm** (wird mit Node.js mitgeliefert)
-
-### 2. Repository klonen
+## Loslegen
 
 ```bash
-git clone https://github.com/tobiasgretsch/tglhandball.git
-cd tglhandball
+cp .env.local.example .env.local   # Werte eintragen
 npm install
+npm run dev                        # http://localhost:3000
 ```
 
-### 3. Umgebungsvariablen konfigurieren
-
-```bash
-cp .env.local.example .env.local
-```
-
-Dann `.env.local` ausfüllen:
-
-| Variable | Beschreibung |
+| Befehl | Zweck |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | Öffentliche URL der Website, z. B. `https://tglhandball.de` |
-| `NEXT_PUBLIC_SANITY_PROJECT_ID` | Sanity-Projekt-ID (aus dem Sanity-Dashboard) |
-| `NEXT_PUBLIC_SANITY_DATASET` | Sanity-Dataset, Standard: `production` |
-| `SANITY_API_TOKEN` | Sanity API-Token mit Schreibrechten |
+| `npm run dev` | Dev-Server mit Turbopack |
+| `npm run build` | Produktions-Build, TypeScript-Check; `postbuild` erzeugt `sitemap.xml` und `robots.txt` |
+| `npm run start` | Produktionsserver (nach dem Build) |
+| `npm run lint` | ESLint (Flat Config, `eslint.config.mjs`) |
 
-### 4. Entwicklungsserver starten
+### Umgebungsvariablen
 
-```bash
-npm run dev
-```
+| Variable | Zweck |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Kanonische URL (Metadaten, Sitemap, OG-Tags) |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` | Sanity-Projekt und Dataset (Standard: `production`) |
+| `SANITY_API_TOKEN` | Sanity-Schreibtoken für den nuLiga-Sync und das Spielarchiv |
+| `CRON_SECRET` | Schützt `/api/cron/sync-matches` |
+| `NULIGA_LIVE_REST_BASE`, `NULIGA_CLUB_TEAMS_URL` | Optional: Live-Ticker auf einen Mock umleiten |
 
-Die Website ist dann unter [http://localhost:3000](http://localhost:3000) erreichbar.
-Das Sanity Studio findet sich unter [http://localhost:3000/studio](http://localhost:3000/studio).
+## Seiten
 
----
+Alle öffentlichen Seiten liegen unter `app/(site)/`:
 
-## Verfügbare Befehle
+| Route | Inhalt |
+|---|---|
+| `/` | Startseite: Hero, Spiele, News, Partner |
+| `/news`, `/news/[slug]` | News mit Kategoriefilter |
+| `/teams`, `/teams/[slug]` | Mannschaften, Kader, Trainer, Spiele und Ergebnisse |
+| `/spielplan` | Spielplan und Ergebnisse mit Filtern (Team, Saison, Monat, Heim/Auswärts, Ergebnis, Liga, Suche), Filter-Zustand in der URL |
+| `/spielplan/[meetingId]` | Dauerhafte Seite eines beendeten Spiels aus dem Archiv (Jugend: `noindex`, ohne Spielernamen) |
+| `/live`, `/live/[meetingId]` | Live-Übersicht und Ticker für ein Spiel (Spielverlauf, Statistik, Tabelle) |
+| `/spieltagsmagazin` | PDF-Archiv des Spieltagsmagazins |
+| `/impressionen` | Fotogalerie |
+| `/ueberuns` | Verein, Vorstand, Halle, Kontakt (`/verein` und `/kontakt` leiten hierher um) |
+| `/partner`, `/foerderverein`, `/fanshop` | Partner, Förderverein, Fanshop |
+| `/impressum`, `/datenschutz` | Rechtliches |
+| `/studio` | Sanity Studio (CMS) |
 
-```bash
-npm run dev       # Entwicklungsserver starten (mit Turbopack)
-npm run build     # Produktions-Build + TypeScript-Check + Sitemap-Generierung
-npm run start     # Produktionsserver starten (nach build)
-npm run lint      # ESLint-Prüfung
-```
+## Daten und Live-Ticker
 
-Nach `npm run build` wird automatisch `next-sitemap` ausgeführt und `public/sitemap.xml` sowie `public/robots.txt` generiert.
-
----
-
-## Deployment auf Vercel
-
-1. **Repository mit Vercel verbinden** – Im [Vercel-Dashboard](https://vercel.com) „Add New Project" → GitHub-Repository auswählen.
-
-2. **Umgebungsvariablen setzen** – In den Projekteinstellungen unter „Environment Variables" alle Variablen aus `.env.local.example` eintragen.
-
-3. **Automatisches Deployment** – Jeder Push auf `main` löst automatisch einen neuen Build aus.
-
-4. **Domain konfigurieren** – Unter „Domains" die gewünschte Domain eintragen. Den Wert `NEXT_PUBLIC_SITE_URL` entsprechend anpassen.
-
-> **Hinweis:** Sanity-Webhooks können eingerichtet werden, um On-Demand-Revalidierung zu triggern, damit Inhaltsänderungen sofort live gehen.
-
----
-
-## Sanity Studio
-
-Das Sanity Studio ist direkt in die Website eingebettet und unter `/studio` erreichbar.
-
-- **Lokaler Zugang:** [http://localhost:3000/studio](http://localhost:3000/studio)
-- **Produktions-Zugang:** `https://tglhandball.de/studio`
-- **Zugang:** Nur Accounts mit Zugriff auf das Sanity-Projekt können das Studio nutzen.
-
----
-
-## Redakteursleitfaden
-
-### News-Artikel hinzufügen
-
-1. Studio öffnen → **„News"** → **„Neues Dokument"**
-2. Felder ausfüllen:
-   - **Titel** – Überschrift des Artikels
-   - **Slug** – wird automatisch aus dem Titel generiert (auf „Generieren" klicken)
-   - **Kategorie** – Herren, Damen, Jugend oder Verein
-   - **Veröffentlicht am** – Datum/Uhrzeit der Veröffentlichung
-   - **Titelbild** – Empfohlenes Format: 16:9, mind. 1280 × 720 px
-   - **Teaser** – Kurzbeschreibung (erscheint in Karten und Meta-Tags)
-   - **Inhalt** – Fließtext im Portable-Text-Editor
-3. **„Veröffentlichen"** klicken
-
-### Spielergebnis eintragen
-
-1. Studio → **„Spiele"** → bestehendes Spiel öffnen oder neues anlegen
-2. Heim-/Auswärtsteam, Datum und Spielstätte eintragen
-3. Nach dem Spiel: Feld **„Ergebnis"** ausfüllen (z. B. `28:24`)
-4. **„Veröffentlichen"**
-
-### Spieltagsmagazin hochladen
-
-1. Studio → **„Spieltagsmagazine"** → **„Neues Dokument"**
-2. Titel, Saison und Ausgabennummer eintragen
-3. Unter **„PDF-Datei"** das Magazin hochladen
-4. Optional: Titelbild für die Vorschau hochladen
-5. **„Veröffentlichen"**
-
----
-
-## Projektstruktur (vereinfacht)
+Inhalte kommen aus Sanity (Schemas in `sanity/schemas/`, GROQ-Abfragen in `lib/queries.ts`). Spieldaten stammen von nuLiga:
 
 ```
-app/
-  (site)/          # Öffentliche Website (News, Teams, Spielplan, …)
-  api/             # API-Routen (nuLiga-Sync, Cron)
-  studio/          # Eingebettetes Sanity Studio
-components/
-  layout/          # Header, Footer, Navigation
-  sections/        # Seitenabschnitte (Hero, NewsClient, …)
-  ui/              # Primitive UI-Komponenten
-lib/
-  sanity.ts        # Sanity-Client + urlFor()-Helfer
-  queries.ts       # Alle GROQ-Abfragen
-sanity/schemas/    # Sanity-Dokumenttypen
-types/index.ts     # TypeScript-Typen
-next-sitemap.config.js  # Sitemap-Konfiguration
+nuLiga ──► /api/cron/sync-matches (täglich 21:30 UTC) ──► Sanity `match` (Spielplan)
+nuLiga Live-REST ──► lib/live ──► /api/live, /api/live/[meetingId] ──► /live
+beendetes Spiel ──► lib/live/archiveWrite ──► Sanity `matchArchive` ──► /spielplan/[meetingId]
 ```
 
----
+- **Nächtlicher Cron** (`vercel.json`) liest den vollen Saisonspielplan (`lib/nuliga/sync.ts`), aktualisiert Tabellen und archiviert beendete Spiele. Spiele, die schon aus der nuLiga-Gruppenliste gefallen sind, werden über den eigenen Spielplan nachgeholt.
+- **Live-Ticker** (`lib/live/`) holt Daten mit 15-s-Zeitfenstern von der nuScoreLive-REST-API, fasst gleiche Anfragen zusammen (`coalesce.ts`) und fällt bei Ausfällen auf den letzten Stand zurück. Die API-Routen sind per CDN gecacht (10 s bzw. 4 s) und bedienen nur Spiele aus der eigenen Spielliste.
+- **Archiv** speichert die rohen nuLiga-Daten dauerhaft in `matchArchive`; geschrieben wird beim Aufruf eines beendeten Spiels und beim nächtlichen Sweep.
+- **Lokal testen:** `node scripts/mock-nuliga.mjs [port]` startet einen nuLiga-Mock, der ein Spiel Ereignis für Ereignis abspielt. Dafür die beiden `NULIGA_*`-Variablen auf den Mock setzen. Achtung: Der Mock schreibt in das echte Sanity-Dataset, das Test-Dokument `matchArchive-9000001` danach löschen.
 
-## Lizenz
+## Projektstruktur
 
-Privates Vereinsprojekt – alle Rechte vorbehalten.
+```
+app/              Routen, API, Studio, globals.css (Design-Tokens)
+components/       layout/ (Header, Footer), sections/ (Seitenabschnitte), ui/ (Bausteine)
+lib/              queries.ts, sanity*.ts, seo.ts, dates.ts, spielplanFilter.ts, nuliga/, live/
+sanity/schemas/   news, team, match, matchArchive, partner, gallery, magazine, settings, …
+scripts/          mock-nuliga.mjs
+types/            Domain-Typen
+```
+
+## Hinweise
+
+- **Zeitzone:** Datums- und Zeitformatierung in Client-Komponenten immer mit `timeZone: CLUB_TIME_ZONE` (`lib/dates.ts`), sonst gibt es Hydration-Fehler auf Vercel (UTC).
+- **Sanity Studio** muss in Server-Seite und `'use client'`-Wrapper (`_studio-client.tsx`) getrennt bleiben.
+- **PDF-Magazin lokal** nur auf Port 3000 testen; die Sanity-CORS-Liste kennt andere Origins nicht. Vor dem Umzug auf eine neue Domain diese dort eintragen.
+- **Kein Login-Bereich:** Der Mitgliederbereich (Clerk) wurde entfernt und soll ohne ausdrückliche Anfrage nicht zurückkehren.
+
+## Weiterführende Dokumente
+
+- `CLAUDE.md` – Arbeitsregeln und Architektur für Claude Code
+- `lessons.md` – Fehler und daraus abgeleitete Regeln
+- `PRODUCT.md`, `DESIGN.md` – Produktziel, Zielgruppen und Design-System
+- `SECURITY-REVIEW.md` – Ergebnis der Sicherheitsprüfung
