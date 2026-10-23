@@ -29,7 +29,7 @@ const CLUB_TEAMS_URL =
   "https://bhv-handball.liga.nu/cgi-bin/WebObjects/nuLigaHBDE.woa/wa/clubTeams?club=30760";
 const USER_AGENT = "TGL-Handball-Website/1.0 (+https://tglhandball.de)";
 
-const REQUEST_TIMEOUT_MS = 6_000;
+const REQUEST_TIMEOUT_MS = 3_000;
 const RETRY_DELAY_MS = 250;
 const MAX_ATTEMPTS = 2;
 const HTTP_NOT_FOUND = 404;

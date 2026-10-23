@@ -23,7 +23,7 @@ const SOON_MS = 6 * HOUR_MS;
 const GROUP_CONCURRENCY = 6;
 const SUMMARY_TTL_MS = 5_000;
 /** A cold read of every group must answer well inside the serverless time limit, even when nuLiga hangs. */
-const READ_BUDGET_MS = 8_000;
+const READ_BUDGET_MS = 5_000;
 /** This many group reads failing before any succeeds means nuLiga is down: stop asking. */
 const GIVE_UP_AFTER_FAILURES = GROUP_CONCURRENCY;
 /** After giving up, serve the last known games for this long before trying nuLiga again. */
@@ -132,8 +132,10 @@ async function buildSummary(now: number): Promise<LiveSummary> {
     downUntil = Date.now() + DOWN_BACKOFF_MS;
     return summaryWhileDown(now);
   }
-  const slow = await loadGames(groups, "slow", deadline);
-  if (groups.length > 0 && slow.succeeded === 0) {
+  // In-flight requests (and their retry) can outlive the deadline, so the whole phase is capped too.
+  const remaining = () => Math.max(deadline - Date.now(), 0);
+  const slow = await withinBudget(loadGames(groups, "slow", deadline), remaining());
+  if (!slow || (groups.length > 0 && slow.succeeded === 0)) {
     downUntil = Date.now() + DOWN_BACKOFF_MS;
     return summaryWhileDown(now);
   }
@@ -143,11 +145,11 @@ async function buildSummary(now: number): Promise<LiveSummary> {
   const byId = new Map(slow.games.map((g) => [g.meetingId, g]));
 
   if (hotGroupIds.size > 0) {
-    const fast = await loadGames(
-      groups.filter((g) => hotGroupIds.has(g.id)),
-      "fast",
-      deadline,
-    );
+    const hotGroups = groups.filter((g) => hotGroupIds.has(g.id));
+    const fast = (await withinBudget(loadGames(hotGroups, "fast", deadline), remaining())) ?? {
+      games: [],
+      failed: hotGroups,
+    };
     failures += fast.failed.length;
     for (const game of fast.games) byId.set(game.meetingId, game);
 
