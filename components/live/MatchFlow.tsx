@@ -214,6 +214,10 @@ function LayoutToggle({ layout, onChange }: { layout: Layout; onChange: (next: L
  * Score lead over the whole game; from `sm` up the events are added underneath
  * with category filters. Phones get the graph alone.
  */
+/** Shown above the plot on phones so the finger does not cover it, below the axis on desktop. */
+const HOVER_LABEL_CLASS =
+  "pointer-events-none absolute z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-900 px-2.5 py-0.5 text-xs font-bold text-white shadow dark:bg-gray-100 dark:text-gray-900";
+
 export default function MatchFlow({ snapshot }: { snapshot: TickerSnapshot }) {
   const { game, entries } = snapshot;
   const [plotEl, setPlotEl] = useState<HTMLDivElement | null>(null);
@@ -246,6 +250,13 @@ export default function MatchFlow({ snapshot }: { snapshot: TickerSnapshot }) {
   const hoverStep =
     hoverFraction !== null && hoverFraction * length <= endSecond ? stepAt(steps, hoverFraction * length) : null;
   const hoverTone = hoverStep && hoverStep.lead < 0 ? guestTone : homeTone;
+  const hoverLabel =
+    hoverStep && hoverFraction !== null
+      ? `${Math.floor((hoverFraction * length) / SECONDS_PER_MINUTE)}′ · ${hoverStep.scoreHome}:${hoverStep.scoreGuest} · ${
+          hoverStep.lead > 0 ? `+${hoverStep.lead}` : hoverStep.lead < 0 ? `−${-hoverStep.lead}` : "±0"
+        }`
+      : null;
+  const hoverLabelLeft = `${Math.min(0.9, Math.max(0.1, hoverFraction ?? 0)) * 100}%`;
   const trackPointer = (event: PointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setHoverFraction(Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)));
@@ -289,7 +300,7 @@ export default function MatchFlow({ snapshot }: { snapshot: TickerSnapshot }) {
         </div>
       </div>
 
-      <div className="mt-4 pl-9 pr-3">
+      <div className="mt-10 pl-9 pr-3 sm:mt-4">
         <div ref={setPlotEl}>
           {layout === "split" && (
             <div className="mb-2 hidden sm:block">
@@ -304,6 +315,15 @@ export default function MatchFlow({ snapshot }: { snapshot: TickerSnapshot }) {
             onPointerLeave={() => setHoverFraction(null)}
             onPointerCancel={() => setHoverFraction(null)}
           >
+            {hoverLabel && (
+              <span
+                className={`${HOVER_LABEL_CLASS} bottom-full mb-1.5 sm:hidden`}
+                style={{ left: hoverLabelLeft }}
+                aria-hidden="true"
+              >
+                {hoverLabel}
+              </span>
+            )}
             <div className="pointer-events-none absolute inset-y-0 -left-9 w-8 text-[11px] font-semibold tabular-nums text-muted" aria-hidden="true">
               {axisValues.map((value) => (
                 <span key={value} className="absolute right-0 -translate-y-1/2" style={{ top: `${yPercent(value)}%` }}>
@@ -436,13 +456,12 @@ export default function MatchFlow({ snapshot }: { snapshot: TickerSnapshot }) {
                 {minute}′
               </span>
             ))}
-            {hoverStep && hoverFraction !== null && (
+            {hoverLabel && (
               <span
-                className="absolute top-0 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-900 px-2.5 py-0.5 text-xs font-bold text-white shadow dark:bg-gray-100 dark:text-gray-900"
-                style={{ left: `${Math.min(0.9, Math.max(0.1, hoverFraction)) * 100}%` }}
+                className={`${HOVER_LABEL_CLASS} top-0 hidden sm:block`}
+                style={{ left: hoverLabelLeft }}
               >
-                {Math.floor((hoverFraction * length) / SECONDS_PER_MINUTE)}′ · {hoverStep.scoreHome}:{hoverStep.scoreGuest} ·{" "}
-                {hoverStep.lead > 0 ? `+${hoverStep.lead}` : hoverStep.lead < 0 ? `−${-hoverStep.lead}` : "±0"}
+                {hoverLabel}
               </span>
             )}
           </div>
