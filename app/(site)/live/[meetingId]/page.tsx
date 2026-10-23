@@ -55,7 +55,7 @@ export default async function LiveTickerPage({ params }: PageProps) {
   // No hero image: on a phone the score has to be the first thing on screen.
   return (
     <section className="bg-background dark:bg-gray-900">
-      <div className="mx-auto max-w-3xl px-4 pb-20 pt-20 sm:px-6 lg:pt-24">
+      <div className="mx-auto max-w-3xl px-4 pb-20 pt-8 sm:px-6 lg:pt-10">
         <div className="mb-4 flex items-center justify-between gap-4">
           <h1 className="font-display text-2xl font-bold uppercase italic tracking-[-0.02em] text-text dark:text-gray-100">
             Live-Ticker
