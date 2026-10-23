@@ -40,5 +40,8 @@
     "postcss": "^8",
     "tailwindcss": "^4.2.1",
     "typescript": "^5"
+  },
+  "overrides": {
+    "tar": "^7.5.22"
   }
 }
