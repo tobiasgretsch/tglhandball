@@ -16,7 +16,7 @@ import {
 } from "@/lib/spielplanFilter";
 import FilterPill from "@/components/ui/FilterPill";
 import { useLiveGames } from "@/components/live/LiveProvider";
-import SpielplanFilterPanel from "./spielplan/SpielplanFilterPanel";
+import SpielplanFilterSheet from "./spielplan/SpielplanFilterSheet";
 import SpielplanMatchRow from "./spielplan/SpielplanMatchRow";
 import SpielplanSummary from "./spielplan/SpielplanSummary";
 import { useSpielplanFilters } from "./spielplan/useSpielplanFilters";
@@ -120,7 +120,10 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
       ),
     [matches, filters, context],
   );
-  const months = useMemo(() => unique(scope.map((m) => monthKey(m.date))).sort(), [scope]);
+  const months = useMemo(
+    () => unique(scope.map((m) => monthKey(m.date))).sort().map((key) => ({ key, label: monthLabel(key) })),
+    [scope],
+  );
   const leagues = useMemo(() => unique(scope.map((m) => m.league)).sort(), [scope]);
   const seasons = useMemo(
     () =>
@@ -142,7 +145,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
       {/* ── Team bar ─────────────────────────────────────────────────── */}
       <div className="material-bar sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
+          <div className="scroll-fade-x flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5 pr-8">
             <FilterPill
               label="Alle Teams"
               active={filters.team === null}
@@ -163,8 +166,8 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
         {/* ── Search and filters ───────────────────────────────────── */}
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <label className="relative min-w-0 flex-1 basis-56">
+          <div className="flex items-center gap-2">
+            <label className="relative min-w-0 flex-1">
               <span className="sr-only">Gegner suchen</span>
               <Search
                 size={16}
@@ -182,70 +185,64 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
             </label>
             <button
               type="button"
-              onClick={() => setPanelOpen((open) => !open)}
-              aria-expanded={panelOpen}
-              aria-controls="spielplan-filter-panel"
-              className="press inline-flex min-h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              onClick={() => setPanelOpen(true)}
+              aria-haspopup="dialog"
+              aria-label={detailCount > 0 ? `Filter, ${detailCount} aktiv` : "Filter"}
+              className="press relative inline-flex size-11 shrink-0 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white text-sm font-semibold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 sm:w-auto sm:px-4"
             >
-              <SlidersHorizontal size={16} aria-hidden="true" />
-              Filter
+              <SlidersHorizontal size={18} aria-hidden="true" />
+              <span className="hidden sm:inline">Filter</span>
               {detailCount > 0 && (
-                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-black text-white">
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-black text-white sm:static sm:size-5"
+                >
                   {detailCount}
-                  <span className="sr-only"> aktiv</span>
                 </span>
               )}
             </button>
-            {selectedTeam?.hasTable && (
-              <Link
-                href={`/teams/${selectedTeam.slug}#tabelle`}
-                className="press inline-flex min-h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-              >
-                <ListOrdered size={16} aria-hidden="true" />
-                Tabelle {selectedTeam.name}
-              </Link>
-            )}
-            {hasAnyFilter(filters) && (
-              <button
-                type="button"
-                onClick={reset}
-                className="press inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-brand-red underline-offset-4 hover:underline"
-              >
-                <X size={14} aria-hidden="true" />
-                Zurücksetzen
-              </button>
-            )}
           </div>
 
-          {panelOpen && (
-            <SpielplanFilterPanel
-              filters={filters}
-              onChange={update}
-              leagues={leagues}
-              seasons={seasons}
-              currentSeason={currentSeason}
-            />
-          )}
-
-          {months.length > 1 && (
-            <div
-              role="group"
-              aria-label="Monat"
-              className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5"
-            >
-              {months.map((key) => (
-                <FilterPill
-                  key={key}
-                  label={monthLabel(key)}
-                  active={filters.monat === key}
-                  onClick={() => update({ monat: filters.monat === key ? null : key })}
-                />
-              ))}
+          {(selectedTeam?.hasTable || hasAnyFilter(filters)) && (
+            <div className="flex flex-wrap items-center gap-2">
+              {selectedTeam?.hasTable && (
+                <Link
+                  href={`/teams/${selectedTeam.slug}#tabelle`}
+                  className="press inline-flex min-h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                >
+                  <ListOrdered size={16} aria-hidden="true" />
+                  Tabelle {selectedTeam.name}
+                </Link>
+              )}
+              {hasAnyFilter(filters) && (
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="press inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-brand-red underline-offset-4 hover:underline"
+                >
+                  <X size={14} aria-hidden="true" />
+                  Zurücksetzen
+                </button>
+              )}
             </div>
           )}
         </div>
 
-        <SpielplanSummary balance={balance} />
+        <SpielplanFilterSheet
+          open={panelOpen}
+          onClose={() => setPanelOpen(false)}
+          onReset={reset}
+          canReset={hasAnyFilter(filters)}
+          resultCount={filtered.length}
+          months={months}
+          filters={filters}
+          onChange={update}
+          leagues={leagues}
+          seasons={seasons}
+          currentSeason={currentSeason}
+        />
+
+        {hasAnyFilter(filters) && <SpielplanSummary balance={balance} />}
 
         {nothingFound ? (
           <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
