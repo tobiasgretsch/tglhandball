@@ -602,7 +602,7 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
   const visible = (players: PlayerLine[]): PlayerLine[] => (showAll ? players : players.filter(hasEvents));
   const hasPlayers = stats.home.players.length + stats.guest.players.length > 0;
   return (
-    <details className="group rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_1px_2px_rgb(0_0_0/0.05)] dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+    <details className="group rounded-3xl border border-gray-100 bg-white px-5 py-1.5 shadow-[0_1px_2px_rgb(0_0_0/0.05)] dark:border-gray-700 dark:bg-gray-800 sm:px-6">
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-display text-lg font-bold uppercase italic text-text dark:text-gray-100 [&::-webkit-details-marker]:hidden">
         Statistik
         <ChevronDown
@@ -611,7 +611,7 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
           aria-hidden="true"
         />
       </summary>
-      <table className="mt-3 w-full text-sm">
+      <table className="my-3 w-full text-sm">
         <caption className="sr-only">
           Mannschaftsstatistik {game.homeTeam} gegen {game.awayTeam}
         </caption>
@@ -949,7 +949,7 @@ function TickerView({
       {snapshot.entries.length > 0 && <StatsPanel snapshot={snapshot} />}
 
       {/* Always mounted so the observer is attached even when the first event arrives mid-visit. */}
-      <div ref={feedTopRef} aria-hidden="true" className="-mb-4 h-px" />
+      <div ref={feedTopRef} aria-hidden="true" className="-mt-4 h-px" />
       {!snapshot.game.scoreboardEnabled && snapshot.entries.length === 0 ? (
         <p className="rounded-2xl bg-white p-6 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
           Für dieses Spiel wird kein Live-Ticker geführt. Das Ergebnis erscheint nach dem Spiel im Spielplan.
