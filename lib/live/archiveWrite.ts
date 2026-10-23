@@ -61,6 +61,10 @@ export async function archiveGame(meetingId: string): Promise<ArchiveOutcome> {
   // No electronic score sheet: nothing to tell beyond the score, which the schedule has.
   if (raw.events.length === 0) return "no-events";
 
+  // A failed league lookup comes back empty and would count as youth, stripping the names of an adult game for good.
+  // Skip instead: the nightly sweep retries.
+  if (raw.game.league.trim() === "") return "unknown";
+
   const youth = isYouthGame(raw.game.league);
   const stored = youth ? anonymize(raw) : raw;
   const { game } = stored;
