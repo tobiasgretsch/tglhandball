@@ -43,6 +43,9 @@ interface DayGroup {
 /** Rows shown per section before "Alle anzeigen" — keeps a long season light on phones. */
 const INITIAL_ROWS = 20;
 
+/** With a team chosen, only the next games matter; the rest of the season stays collapsed. */
+const INITIAL_ROWS_TEAM_UPCOMING = 2;
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const dayKeyFormat = new Intl.DateTimeFormat("en-CA", { timeZone: CLUB_TIME_ZONE });
@@ -251,10 +254,22 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
         ) : (
           <div className="space-y-14">
             {upcoming.length > 0 && (
-              <MatchSection title="Kommende Spiele" matches={upcoming} isResult={false} resetKey={search} />
+              <MatchSection
+                title="Kommende Spiele"
+                matches={upcoming}
+                isResult={false}
+                resetKey={search}
+                initialRows={filters.team ? INITIAL_ROWS_TEAM_UPCOMING : INITIAL_ROWS}
+              />
             )}
             {results.length > 0 && (
-              <MatchSection title="Ergebnisse" matches={results} isResult={true} resetKey={search} />
+              <MatchSection
+                title="Ergebnisse"
+                matches={results}
+                isResult={true}
+                resetKey={search}
+                initialRows={INITIAL_ROWS}
+              />
             )}
           </div>
         )}
@@ -270,16 +285,19 @@ function MatchSection({
   matches,
   isResult,
   resetKey,
+  initialRows,
 }: {
   title: string;
   matches: Match[];
   isResult: boolean;
   /** Collapses the section again whenever the filters change. */
   resetKey: string;
+  /** Rows shown before "Alle anzeigen". */
+  initialRows: number;
 }) {
   const [expandedFor, setExpandedFor] = useState<string | null>(null);
   const expanded = expandedFor === resetKey;
-  const visible = expanded ? matches : matches.slice(0, INITIAL_ROWS);
+  const visible = expanded ? matches : matches.slice(0, initialRows);
   const groups = useMemo(() => groupByDay(visible), [visible]);
 
   return (
@@ -312,7 +330,7 @@ function MatchSection({
         ))}
       </div>
 
-      {!expanded && matches.length > INITIAL_ROWS && (
+      {!expanded && matches.length > initialRows && (
         <div className="mt-6 flex justify-center">
           <button
             type="button"
