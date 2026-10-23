@@ -13,3 +13,5 @@
 2026-10-16 · UI polish · Live components had no press feedback and a looping pulse on new ticker entries · Give every tappable live element an instant `:active` scale (disabled under reduced motion) and use one-shot fading highlights instead of infinite animations.
 
 2026-10-23 · Hosting · The live summary still took 13–23 s in production during a nuLiga outage: only the group-list read was budgeted, while in-flight requests (6 s timeout × 2 attempts) outlived the deadline; functions also ran in iad1 (US) by default. · Rule: cap every phase with `withinBudget`, keep per-request timeouts (3 s) well below the budget (5 s), set `regions: ["fra1"]` in vercel.json, and test cold starts against an unroutable host (10.255.255.1).
+
+2026-10-23 · Dependencies · Next 16.1.6 carried critical advisories (image-optimizer RCE, cache poisoning, DoS) for months because nothing flagged them; the upgrade to 16.4.2 also made eslint-config-next's react-hooks rules flag a deliberate post-mount setState. · Rule: run `npm audit --omit=dev` before each release, enable Dependabot, and justify any new lint suppression in a comment.

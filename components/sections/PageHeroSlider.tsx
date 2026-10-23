@@ -40,6 +40,8 @@ export default function PageHeroSlider({
   // Randomise the starting slide after hydration to avoid SSR mismatch.
   useEffect(() => {
     if (slides.length > 1) {
+      // Deliberately after mount: a random value during render would differ between server and client.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrent(Math.floor(Math.random() * slides.length));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
