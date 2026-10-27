@@ -1,0 +1,22 @@
+{
+  "legal": {
+    "impressum": {
+      "title": "Legal notice",
+      "description": "Legal notice and legal information of TG MIPA Landshut.",
+      "hero": {
+        "title": "Legal notice",
+        "subtitle": "Legal information about TG MIPA Landshut."
+      },
+      "note": "The legal notice is only legally binding in German."
+    },
+    "datenschutz": {
+      "title": "Privacy",
+      "description": "Privacy policy and information on data processing at TG MIPA Landshut.",
+      "hero": {
+        "title": "Privacy",
+        "subtitle": "How we handle your data."
+      },
+      "note": "The privacy policy is only legally binding in German."
+    }
+  }
+}

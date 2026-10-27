@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { useTranslations } from "next-intl";
 
 export type LegalBlock =
   | { type: "h2" | "h3" | "h4" | "p" | "strong" | "address"; text: string }
@@ -37,6 +38,7 @@ function Linkified({ text }: { text: string }) {
 }
 
 function Block({ block }: { block: LegalBlock }) {
+  const t = useTranslations("legalDocument");
   switch (block.type) {
     case "h2":
       return <h2 className={H2_CLASS}>{block.text}</h2>;
@@ -67,8 +69,8 @@ function Block({ block }: { block: LegalBlock }) {
         <table className="mb-4 w-full max-w-[65ch] text-left text-sm text-text dark:text-gray-300">
           <thead>
             <tr className="border-b border-gray-300 dark:border-gray-700">
-              <th scope="col" className="py-2 pr-4 font-semibold">Name des Cookies</th>
-              <th scope="col" className="py-2 font-semibold">Speicherdauer</th>
+              <th scope="col" className="py-2 pr-4 font-semibold">{t("cookieName")}</th>
+              <th scope="col" className="py-2 font-semibold">{t("duration")}</th>
             </tr>
           </thead>
           <tbody>

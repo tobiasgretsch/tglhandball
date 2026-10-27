@@ -1,0 +1,22 @@
+{
+  "legal": {
+    "impressum": {
+      "title": "Impressum",
+      "description": "Impressum und rechtliche Informationen des TG MIPA Landshut.",
+      "hero": {
+        "title": "Impressum",
+        "subtitle": "Rechtliche Angaben des TG MIPA Landshut."
+      },
+      "note": "Rechtlich verbindlich ist nur die deutsche Fassung des Impressums."
+    },
+    "datenschutz": {
+      "title": "Datenschutz",
+      "description": "Datenschutzerklärung und Informationen zur Datenverarbeitung des TG MIPA Landshut.",
+      "hero": {
+        "title": "Datenschutz",
+        "subtitle": "Wie wir mit deinen Daten umgehen."
+      },
+      "note": "Rechtlich verbindlich ist nur die deutsche Fassung der Datenschutzerklärung."
+    }
+  }
+}

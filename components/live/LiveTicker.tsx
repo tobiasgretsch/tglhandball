@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ArrowUp,
   Check,
@@ -13,7 +14,8 @@ import {
   WifiOff,
 } from "lucide-react";
 import FilterPill from "@/components/ui/FilterPill";
-import { CLUB_TIME_ZONE } from "@/lib/dates";
+import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
+import { dateFormatter } from "@/lib/i18n/format";
 import { formatGameClock } from "@/lib/live/events";
 import { isClubTeam } from "@/lib/live/fixture";
 import type {
@@ -27,6 +29,7 @@ import type {
   TickerSnapshot,
 } from "@/lib/live/types";
 import MatchFlow from "./MatchFlow";
+import { useLiveLabels } from "./useLiveLabels";
 import { useChangeCount, useClock, useShare, useWakeLock } from "./useTickerEnv";
 
 interface LiveTickerProps {
@@ -84,25 +87,18 @@ function isSnapshot(value: unknown): value is TickerSnapshot {
   );
 }
 
-const timeFormat = new Intl.DateTimeFormat("de-DE", {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  timeZone: CLUB_TIME_ZONE,
-});
-const kickoffFormat = new Intl.DateTimeFormat("de-DE", {
-  weekday: "long",
-  day: "2-digit",
-  month: "long",
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: CLUB_TIME_ZONE,
-});
-const kickoffTimeFormat = new Intl.DateTimeFormat("de-DE", {
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: CLUB_TIME_ZONE,
-});
+/** Locale-aware formatters, rebuilt only when the language changes (the ticker re-renders every few seconds). */
+function useTickerFormats() {
+  const tag = LOCALE_TAGS[useLocale() as Locale];
+  return useMemo(
+    () => ({
+      time: dateFormatter(tag, { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+      kickoff: dateFormatter(tag, { weekday: "long", day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" }),
+      kickoffTime: dateFormatter(tag, { hour: "2-digit", minute: "2-digit" }),
+    }),
+    [tag],
+  );
+}
 
 function useTickerPolling(meetingId: string, initial: TickerSnapshot | null) {
   const [snapshot, setSnapshot] = useState<TickerSnapshot | null>(initial);
@@ -249,26 +245,14 @@ function useBelowHeaderVisibility(ref: RefObject<HTMLElement | null>, newestIdx:
 }
 
 /** "ca. 47′" while the game runs; the clock of the latest entry is the best minute nuLiga gives us. */
-function gameMinuteLabel(snapshot: TickerSnapshot): string | null {
+function useGameMinuteLabel(snapshot: TickerSnapshot): string | null {
+  const t = useTranslations("liveTicker");
   if (snapshot.status !== "running" || snapshot.entries.length === 0) return null;
-  return `ca. ${Math.floor(snapshot.entries[0].second / SECONDS_PER_MINUTE)}′`;
-}
-
-function freshnessLabel(ageSeconds: number): string {
-  if (ageSeconds < JUST_NOW_SECONDS) return "gerade eben";
-  if (ageSeconds < SECONDS_PER_MINUTE) return `vor ${ageSeconds} s`;
-  return `vor ${Math.floor(ageSeconds / SECONDS_PER_MINUTE)} Min.`;
-}
-
-function countdownLabel(scheduled: string, now: number): string {
-  const minutes = Math.ceil((new Date(scheduled).getTime() - now) / MS_PER_SECOND / SECONDS_PER_MINUTE);
-  if (minutes <= 0) return "Anpfiff gleich";
-  if (minutes < MINUTES_PER_HOUR) return `Anpfiff in ${minutes} Min.`;
-  const hours = Math.floor(minutes / MINUTES_PER_HOUR);
-  return `Anpfiff in ${hours} Std. ${minutes % MINUTES_PER_HOUR} Min.`;
+  return t("approxMinute", { minute: Math.floor(snapshot.entries[0].second / SECONDS_PER_MINUTE) });
 }
 
 function StatusChip({ status, label }: { status: GameStatus; label: string }) {
+  const t = useTranslations("liveTicker");
   const running = status === "running";
   return (
     <span
@@ -282,7 +266,7 @@ function StatusChip({ status, label }: { status: GameStatus; label: string }) {
           <span className="relative inline-flex size-2 rounded-full bg-white" />
         </span>
       )}
-      {running ? "Live" : label}
+      {running ? t("live") : label}
       {running && <span className="font-bold normal-case tracking-normal opacity-90">· {label}</span>}
     </span>
   );
@@ -290,14 +274,21 @@ function StatusChip({ status, label }: { status: GameStatus; label: string }) {
 
 /** How old the data is — the fan's answer to "is this still live?". Silent until the clock is available. */
 function Freshness({ status, updatedAt, now }: { status: GameStatus; updatedAt: number; now: number | null }) {
+  const t = useTranslations("liveTicker");
   if (now === null || status === "finished") return null;
   const age = Math.max(0, Math.floor((now - updatedAt) / MS_PER_SECOND));
   const outdated = status === "running" && age > OUTDATED_AFTER_SECONDS;
+  const ageLabel =
+    age < JUST_NOW_SECONDS
+      ? t("justNow")
+      : age < SECONDS_PER_MINUTE
+        ? t("secondsAgo", { seconds: age })
+        : t("minutesAgo", { minutes: Math.floor(age / SECONDS_PER_MINUTE) });
   return (
     <span
       className={`text-xs font-semibold tabular-nums ${outdated ? "text-amber-700 dark:text-amber-300" : "text-muted"}`}
     >
-      Aktualisiert {freshnessLabel(age)}
+      {t("updated", { age: ageLabel })}
     </span>
   );
 }
@@ -306,6 +297,7 @@ const LOGO_ENDPOINT = "/api/live/logo";
 
 /** White plate keeps the logos' white JPEG backdrop invisible in dark mode too. */
 function TeamLogo({ logoId, name }: { logoId: string | null; name: string }) {
+  const t = useTranslations("liveTicker");
   const [failed, setFailed] = useState(false);
   if (!logoId || failed) return null;
   return (
@@ -313,7 +305,7 @@ function TeamLogo({ logoId, name }: { logoId: string | null; name: string }) {
       {/* eslint-disable-next-line @next/next/no-img-element -- tiny proxied logos; next/image would re-encode 50px JPEGs */}
       <img
         src={`${LOGO_ENDPOINT}/${logoId}`}
-        alt={`Logo ${name}`}
+        alt={t("logoAlt", { name })}
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}
@@ -336,6 +328,7 @@ function TeamColumn({
   align: "left" | "right";
   standing?: TableStanding | null;
 }) {
+  const t = useTranslations("liveTicker");
   const isRight = align === "right";
   return (
     <div
@@ -354,7 +347,7 @@ function TeamColumn({
         </p>
         {standing && (
           <p className="mt-1 text-xs text-muted">
-            Platz {standing.rank} · {standing.points} Pkt.
+            {t("standing", { rank: standing.rank, points: standing.points })}
           </p>
         )}
       </div>
@@ -377,15 +370,21 @@ const ACTION_BUTTON_CLASS =
 
 /** Share the score; keep the phone awake while following the game. */
 function ActionBar({ snapshot }: { snapshot: TickerSnapshot }) {
+  const t = useTranslations("liveTicker");
   const { game } = snapshot;
   const { share, copied } = useShare();
   const wakeLock = useWakeLock();
-  const shareText = `${game.homeTeam} ${snapshot.scoreHome}:${snapshot.scoreGuest} ${game.awayTeam} – Live-Ticker`;
+  const shareText = t("shareText", {
+    home: game.homeTeam,
+    scoreHome: snapshot.scoreHome,
+    scoreGuest: snapshot.scoreGuest,
+    away: game.awayTeam,
+  });
   return (
     <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
       <button type="button" onClick={() => share(shareText, shareText)} className={ACTION_BUTTON_CLASS}>
         {copied ? <Check size={16} aria-hidden="true" /> : <Share2 size={16} aria-hidden="true" />}
-        {copied ? "Link kopiert" : "Teilen"}
+        {copied ? t("linkCopied") : t("share")}
       </button>
       {wakeLock.supported && snapshot.status !== "finished" && (
         <button
@@ -395,7 +394,7 @@ function ActionBar({ snapshot }: { snapshot: TickerSnapshot }) {
           className={`${ACTION_BUTTON_CLASS} ${wakeLock.active ? "!border-primary !text-primary dark:!text-primary-glow" : ""}`}
         >
           <Smartphone size={16} aria-hidden="true" />
-          {wakeLock.active ? "Display bleibt an" : "Display anlassen"}
+          {wakeLock.active ? t("awakeOn") : t("keepAwake")}
         </button>
       )}
     </div>
@@ -411,19 +410,34 @@ function Scoreboard({
   now: number | null;
   scoreRef: RefObject<HTMLDivElement | null>;
 }) {
+  const t = useTranslations("liveTicker");
+  const formats = useTickerFormats();
+  const { statusLabel } = useLiveLabels();
   const { game } = snapshot;
   const scheduled = snapshot.status === "scheduled";
   const showHalftime = !scheduled && (game.halftimeHome > 0 || game.halftimeGuest > 0);
-  const minute = gameMinuteLabel(snapshot);
-  const progress = [minute, showHalftime ? `Halbzeit ${game.halftimeHome}:${game.halftimeGuest}` : null].filter(Boolean);
+  const minute = useGameMinuteLabel(snapshot);
+  const progress = [
+    minute,
+    showHalftime ? t("halftimeScore", { home: game.halftimeHome, guest: game.halftimeGuest }) : null,
+  ].filter(Boolean);
+  const kickoffDate = formats.kickoff.format(new Date(game.scheduled));
+  const countdown = (): string => {
+    const minutes = Math.ceil(
+      (new Date(game.scheduled).getTime() - (now ?? 0)) / MS_PER_SECOND / SECONDS_PER_MINUTE,
+    );
+    if (minutes <= 0) return t("kickoffSoon");
+    if (minutes < MINUTES_PER_HOUR) return t("kickoffInMinutes", { minutes });
+    return t("kickoffInHours", { hours: Math.floor(minutes / MINUTES_PER_HOUR), minutes: minutes % MINUTES_PER_HOUR });
+  };
   return (
     <section
-      aria-label="Spielstand"
+      aria-label={t("scoreboard")}
       className="rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_1px_2px_rgb(0_0_0/0.05)] dark:border-gray-700 dark:bg-gray-800 sm:p-8"
     >
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <StatusChip status={snapshot.status} label={snapshot.statusLabel} />
+          <StatusChip status={snapshot.status} label={statusLabel(snapshot)} />
           <Freshness status={snapshot.status} updatedAt={snapshot.updatedAt} now={now} />
         </div>
         {game.league && (
@@ -436,12 +450,12 @@ function Scoreboard({
         {scheduled ? (
           <div className="shrink-0 text-center">
             <p className="font-display text-3xl font-bold tabular-nums text-text dark:text-gray-100 sm:text-5xl">
-              {kickoffTimeFormat.format(new Date(game.scheduled))}
-              <span className="ml-1 text-base font-semibold text-muted sm:text-xl">Uhr</span>
+              {t.rich("kickoffTime", {
+                time: formats.kickoffTime.format(new Date(game.scheduled)),
+                small: (chunks) => <span className="ml-1 text-base font-semibold text-muted sm:text-xl">{chunks}</span>,
+              })}
             </p>
-            {now !== null && (
-              <p className="mt-1 text-xs font-semibold text-muted">{countdownLabel(game.scheduled, now)}</p>
-            )}
+            {now !== null && <p className="mt-1 text-xs font-semibold text-muted">{countdown()}</p>}
           </div>
         ) : (
           <p
@@ -449,12 +463,12 @@ function Scoreboard({
             aria-live="polite"
             aria-atomic="true"
           >
-            <span className="sr-only">Spielstand </span>
+            <span className="sr-only">{t("scoreSr")} </span>
             <ScoreDigit value={snapshot.scoreHome} />
             <span className="mx-1.5 text-brand-red" aria-hidden="true">
               :
             </span>
-            <span className="sr-only"> zu </span>
+            <span className="sr-only"> {t("scoreSrTo")} </span>
             <ScoreDigit value={snapshot.scoreGuest} />
           </p>
         )}
@@ -467,8 +481,9 @@ function Scoreboard({
         </p>
       )}
       <p className="mt-3 text-center text-xs text-muted">
-        {kickoffFormat.format(new Date(game.scheduled))} Uhr
-        {game.venue ? ` · ${game.venue}` : ""}
+        {game.venue
+          ? t("kickoffDateVenue", { date: kickoffDate, venue: game.venue })
+          : t("kickoffDate", { date: kickoffDate })}
       </p>
 
       <ActionBar snapshot={snapshot} />
@@ -479,7 +494,7 @@ function Scoreboard({
 /** Compact score that docks under the site header once the scoreboard has scrolled away. */
 function StickyScore({ snapshot, visible }: { snapshot: TickerSnapshot; visible: boolean }) {
   const { game } = snapshot;
-  const minute = gameMinuteLabel(snapshot);
+  const minute = useGameMinuteLabel(snapshot);
   const nameClass = (name: string) => `min-w-0 flex-1 truncate text-sm font-bold ${isClubTeam(name) ? "text-primary dark:text-primary-glow" : "text-text dark:text-gray-100"}`;
   return (
     <div
@@ -503,6 +518,8 @@ function StickyScore({ snapshot, visible }: { snapshot: TickerSnapshot; visible:
   );
 }
 
+type Translator = ReturnType<typeof useTranslations<"liveTicker">>;
+
 interface StatRow {
   label: string;
   home: string;
@@ -512,25 +529,25 @@ interface StatRow {
   guestValue?: number;
 }
 
-function statRows(home: TeamStats, guest: TeamStats): StatRow[] {
+function statRows(home: TeamStats, guest: TeamStats, t: Translator): StatRow[] {
   const sevenMeter = (t: TeamStats) => `${t.sevenMeterGoals}/${t.sevenMeterAttempts}`;
   const rows: StatRow[] = [
     {
-      label: "Tore 1. / 2. Halbzeit",
+      label: t("statGoalsByHalf"),
       home: `${home.goalsFirstHalf} · ${home.goalsSecondHalf}`,
       guest: `${guest.goalsFirstHalf} · ${guest.goalsSecondHalf}`,
     },
-    { label: "7-Meter", home: sevenMeter(home), guest: sevenMeter(guest), homeValue: home.sevenMeterGoals, guestValue: guest.sevenMeterGoals },
-    { label: "Höchste Führung", home: String(home.biggestLead), guest: String(guest.biggestLead), homeValue: home.biggestLead, guestValue: guest.biggestLead },
-    { label: "2-Minuten-Strafen", home: String(home.timePenalties), guest: String(guest.timePenalties), homeValue: home.timePenalties, guestValue: guest.timePenalties },
-    { label: "Auszeiten", home: String(home.timeouts), guest: String(guest.timeouts), homeValue: home.timeouts, guestValue: guest.timeouts },
+    { label: t("statSevenMeter"), home: sevenMeter(home), guest: sevenMeter(guest), homeValue: home.sevenMeterGoals, guestValue: guest.sevenMeterGoals },
+    { label: t("statBiggestLead"), home: String(home.biggestLead), guest: String(guest.biggestLead), homeValue: home.biggestLead, guestValue: guest.biggestLead },
+    { label: t("statTimePenalties"), home: String(home.timePenalties), guest: String(guest.timePenalties), homeValue: home.timePenalties, guestValue: guest.timePenalties },
+    { label: t("statTimeouts"), home: String(home.timeouts), guest: String(guest.timeouts), homeValue: home.timeouts, guestValue: guest.timeouts },
   ];
   // Rare events only earn a row once something happened.
   if (home.warnings + guest.warnings > 0) {
-    rows.push({ label: "Verwarnungen", home: String(home.warnings), guest: String(guest.warnings) });
+    rows.push({ label: t("statWarnings"), home: String(home.warnings), guest: String(guest.warnings) });
   }
   if (home.disqualifications + guest.disqualifications > 0) {
-    rows.push({ label: "Disqualifikationen", home: String(home.disqualifications), guest: String(guest.disqualifications) });
+    rows.push({ label: t("statDisqualifications"), home: String(home.disqualifications), guest: String(guest.disqualifications) });
   }
   return rows;
 }
@@ -552,11 +569,13 @@ function ComparisonBar({ row, homeIsClub, guestIsClub }: { row: StatRow; homeIsC
 
 /** Small upright card in the referee's colour, with a count when a player has more than one. */
 function CardBadge({ count, className, label }: { count: number; className: string; label: string }) {
+  const t = useTranslations("liveTicker");
+  const text = t("cardCount", { count, label });
   return (
-    <span className="inline-flex items-center gap-0.5" title={`${count}× ${label}`}>
+    <span className="inline-flex items-center gap-0.5" title={text}>
       <span className={`inline-block h-3.5 w-2.5 rounded-[2px] ${className}`} aria-hidden="true" />
       {count > 1 && <span className="text-xs font-bold tabular-nums">{count}</span>}
-      <span className="sr-only">{`${count}× ${label}`}</span>
+      <span className="sr-only">{text}</span>
     </span>
   );
 }
@@ -564,6 +583,7 @@ function CardBadge({ count, className, label }: { count: number; className: stri
 const hasEvents = (p: PlayerLine): boolean => p.goals + p.timePenalties + p.warnings + p.disqualifications > 0;
 
 function PlayerList({ players, align }: { players: PlayerLine[]; align: "left" | "right" }) {
+  const t = useTranslations("liveTicker");
   if (players.length === 0) {
     return <p className={`text-xs text-muted ${align === "right" ? "sm:text-right" : ""}`}>–</p>;
   }
@@ -576,14 +596,14 @@ function PlayerList({ players, align }: { players: PlayerLine[]; align: "left" |
             {p.timePenalties > 0 && (
               <span
                 className="text-xs font-bold tabular-nums text-muted"
-                title={`${p.timePenalties}× 2 Minuten`}
+                title={t("twoMinutes", { count: p.timePenalties })}
               >
-                {p.timePenalties}×2′<span className="sr-only"> Zeitstrafe</span>
+                {p.timePenalties}×2′<span className="sr-only"> {t("timePenaltySr")}</span>
               </span>
             )}
-            {p.warnings > 0 && <CardBadge count={p.warnings} className="bg-yellow-400" label="Verwarnung" />}
+            {p.warnings > 0 && <CardBadge count={p.warnings} className="bg-yellow-400" label={t("warning")} />}
             {p.disqualifications > 0 && (
-              <CardBadge count={p.disqualifications} className="bg-red-600" label="Disqualifikation" />
+              <CardBadge count={p.disqualifications} className="bg-red-600" label={t("disqualification")} />
             )}
             <span className="w-5 text-right font-bold tabular-nums">{p.goals}</span>
           </span>
@@ -594,8 +614,9 @@ function PlayerList({ players, align }: { players: PlayerLine[]; align: "left" |
 }
 
 function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
+  const t = useTranslations("liveTicker");
   const { game, stats } = snapshot;
-  const rows = statRows(stats.home, stats.guest);
+  const rows = statRows(stats.home, stats.guest, t);
   const homeIsClub = isClubTeam(game.homeTeam);
   const guestIsClub = isClubTeam(game.awayTeam);
   const [showAll, setShowAll] = useState(false);
@@ -604,7 +625,7 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
   return (
     <details className="group rounded-3xl border border-gray-100 bg-white px-5 py-1.5 shadow-[0_1px_2px_rgb(0_0_0/0.05)] dark:border-gray-700 dark:bg-gray-800 sm:px-6">
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between font-display text-lg font-bold uppercase italic text-text dark:text-gray-100 [&::-webkit-details-marker]:hidden">
-        Statistik
+        {t("stats")}
         <ChevronDown
           size={18}
           className="text-muted transition-transform group-open:rotate-180 motion-reduce:transition-none dark:text-gray-400"
@@ -613,12 +634,12 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
       </summary>
       <table className="my-3 w-full text-sm">
         <caption className="sr-only">
-          Mannschaftsstatistik {game.homeTeam} gegen {game.awayTeam}
+          {t("statsCaption", { home: game.homeTeam, away: game.awayTeam })}
         </caption>
         <thead className="sr-only">
           <tr>
             <th scope="col">{game.homeTeam}</th>
-            <th scope="col">Wert</th>
+            <th scope="col">{t("statsValue")}</th>
             <th scope="col">{game.awayTeam}</th>
           </tr>
         </thead>
@@ -658,7 +679,7 @@ function StatsPanel({ snapshot }: { snapshot: TickerSnapshot }) {
             aria-expanded={showAll}
             className="mt-4 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full text-sm font-bold text-link transition-transform duration-100 active:scale-[0.97] motion-reduce:active:scale-100"
           >
-            {showAll ? "Nur Spieler mit Ereignissen" : "Alle Spieler anzeigen"}
+            {showAll ? t("onlyWithEvents") : t("showAllPlayers")}
             <ChevronDown
               size={14}
               className={`transition-transform motion-reduce:transition-none ${showAll ? "rotate-180" : ""}`}
@@ -753,6 +774,7 @@ function EntryText({
   align: "left" | "right";
   teamName?: string;
 }) {
+  const { entryLabel } = useLiveLabels();
   const major = SCORING_KINDS.has(entry.kind);
   const minor = MINOR_KINDS.has(entry.kind);
   const headline = `font-bold ${major ? "text-base" : ""}`;
@@ -761,7 +783,7 @@ function EntryText({
     <div className={`min-w-0 break-words leading-snug ${minor ? "text-xs" : "text-sm"} ${align === "right" ? "text-right" : "text-left"}`}>
       {entry.detail && <p className={headline}>{entry.detail}</p>}
       <p className={entry.detail ? subline : headline}>
-        {entry.label}
+        {entryLabel(entry)}
         {teamName && <span className="font-normal text-muted dark:text-gray-300"> · {teamName}</span>}
       </p>
     </div>
@@ -796,6 +818,7 @@ function ClockAndScore({ entry }: { entry: TickerEntry }) {
 }
 
 function EntryRow({ entry, game, fresh }: { entry: TickerEntry; game: LiveGame; fresh: boolean }) {
+  const { entryLabel } = useLiveLabels();
   const isPeriod = entry.kind === "period";
   const teamName = entry.side === "home" ? game.homeTeam : entry.side === "guest" ? game.awayTeam : undefined;
   const padding = MINOR_KINDS.has(entry.kind) ? "py-2" : "py-3";
@@ -807,7 +830,7 @@ function EntryRow({ entry, game, fresh }: { entry: TickerEntry; game: LiveGame; 
     >
       {isPeriod ? (
         <p className="text-center text-sm font-bold uppercase tracking-wide">
-          {entry.label}
+          {entryLabel(entry)}
           <span className="ml-2 font-mono text-xs font-normal normal-case tracking-normal tabular-nums text-muted dark:text-gray-300">
             {formatGameClock(entry.second)}
           </span>
@@ -834,12 +857,10 @@ function EntryRow({ entry, game, fresh }: { entry: TickerEntry; game: LiveGame; 
   );
 }
 
-const FILTER_EMPTY_TEXT: Record<Exclude<FeedFilter, "all">, string> = {
-  goals: "Noch keine Tore gefallen.",
-  penalties: "Bisher keine Strafen.",
-};
+const FILTER_EMPTY_KEY = { goals: "emptyGoals", penalties: "emptyPenalties" } as const;
 
 function Feed({ snapshot, fresh }: { snapshot: TickerSnapshot; fresh: ReadonlySet<number> }) {
+  const t = useTranslations("liveTicker");
   const [filter, setFilter] = useState<FeedFilter>("all");
   const [limit, setLimit] = useState(FEED_PAGE_SIZE);
   const { entries, game } = snapshot;
@@ -855,18 +876,18 @@ function Feed({ snapshot, fresh }: { snapshot: TickerSnapshot; fresh: ReadonlySe
 
   return (
     <div className="space-y-3">
-      <div role="group" aria-label="Ereignisse filtern" className="flex flex-wrap gap-2">
-        <FilterPill label="Alle" active={filter === "all"} onClick={() => pick("all")} />
-        <FilterPill label={`Tore · ${count("goals")}`} active={filter === "goals"} onClick={() => pick("goals")} />
-        <FilterPill label={`Strafen · ${count("penalties")}`} active={filter === "penalties"} onClick={() => pick("penalties")} />
+      <div role="group" aria-label={t("filterLabel")} className="flex flex-wrap gap-2">
+        <FilterPill label={t("filterAll")} active={filter === "all"} onClick={() => pick("all")} />
+        <FilterPill label={t("filterGoals", { count: count("goals") })} active={filter === "goals"} onClick={() => pick("goals")} />
+        <FilterPill label={t("filterPenalties", { count: count("penalties") })} active={filter === "penalties"} onClick={() => pick("penalties")} />
       </div>
 
       {filter !== "all" && count(filter) === 0 && (
         <p className="rounded-2xl bg-white p-5 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
-          {FILTER_EMPTY_TEXT[filter]}
+          {t(FILTER_EMPTY_KEY[filter])}
         </p>
       )}
-      <ol className="space-y-2" aria-label="Spielverlauf, neueste Ereignisse zuerst">
+      <ol className="space-y-2" aria-label={t("feedLabel")}>
         {shown.map((entry) => (
           <EntryRow key={entry.idx} entry={entry} game={game} fresh={fresh.has(entry.idx)} />
         ))}
@@ -877,7 +898,7 @@ function Feed({ snapshot, fresh }: { snapshot: TickerSnapshot; fresh: ReadonlySe
           onClick={() => setLimit((l) => l + FEED_PAGE_SIZE)}
           className="press flex min-h-11 w-full items-center justify-center gap-1.5 rounded-full text-sm font-bold text-link"
         >
-          Ältere Ereignisse anzeigen ({hidden})
+          {t("olderEvents", { count: hidden })}
           <ChevronDown size={14} aria-hidden="true" />
         </button>
       )}
@@ -887,6 +908,7 @@ function Feed({ snapshot, fresh }: { snapshot: TickerSnapshot; fresh: ReadonlySe
 
 /** "3 neue Ereignisse ↑" — only while the fan has scrolled away from the top of the feed. */
 function NewEventsPill({ count }: { count: number }) {
+  const t = useTranslations("liveTicker");
   if (count === 0) return null;
   const scrollToTop = () => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -899,7 +921,7 @@ function NewEventsPill({ count }: { count: number }) {
       className="press fixed bottom-5 left-1/2 z-40 inline-flex min-h-11 whitespace-nowrap -translate-x-1/2 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-white shadow-lg"
     >
       <ArrowUp size={16} aria-hidden="true" />
-      {count === 1 ? "1 neues Ereignis" : `${count} neue Ereignisse`}
+      {t("newEvents", { count })}
     </button>
   );
 }
@@ -913,6 +935,8 @@ function TickerView({
   connection: Connection;
   failures: number;
 }) {
+  const t = useTranslations("liveTicker");
+  const formats = useTickerFormats();
   const now = useClock();
   const fresh = useFreshEntries(snapshot.entries);
   const scoreRef = useRef<HTMLDivElement | null>(null);
@@ -938,7 +962,7 @@ function TickerView({
           className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-900/30 dark:text-amber-100"
         >
           <WifiOff size={16} aria-hidden="true" />
-          Verbindung unterbrochen – Stand von {timeFormat.format(new Date(snapshot.updatedAt))} Uhr. Wir versuchen es weiter.
+          {t("connectionLost", { time: formats.time.format(new Date(snapshot.updatedAt)) })}
         </p>
       )}
 
@@ -952,32 +976,32 @@ function TickerView({
       <div ref={feedTopRef} aria-hidden="true" className="-mt-4 h-px" />
       {!snapshot.game.scoreboardEnabled && snapshot.entries.length === 0 ? (
         <p className="rounded-2xl bg-white p-6 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
-          Für dieses Spiel wird kein Live-Ticker geführt. Das Ergebnis erscheint nach dem Spiel im Spielplan.
+          {t("noTicker")}
         </p>
       ) : snapshot.entries.length === 0 ? (
         <p className="rounded-2xl bg-white p-6 text-center text-sm text-muted dark:bg-gray-800 dark:text-gray-300">
-          Sobald das Spiel angepfiffen wird, erscheinen hier alle Tore, Strafen und Auszeiten.
+          {t("beforeKickoff")}
         </p>
       ) : (
         <Feed snapshot={snapshot} fresh={fresh} />
       )}
 
       <p className="text-center text-xs text-muted">
-        {snapshot.status === "finished" ? "Das Spiel ist beendet. " : "Wird automatisch aktualisiert. "}
-        Daten: nuLiga nuScore
+        {snapshot.status === "finished" ? t("footerFinished") : t("footerRunning")}
       </p>
     </div>
   );
 }
 
 export default function LiveTicker({ meetingId, initial }: LiveTickerProps) {
+  const t = useTranslations("liveTicker");
   const { snapshot, connection, failures } = useTickerPolling(meetingId, initial);
   const retry = useCallback(() => window.location.reload(), []);
 
   if (connection === "not-found") {
     return (
       <p className="rounded-2xl bg-white p-6 text-center text-muted dark:bg-gray-800 dark:text-gray-300">
-        Zu diesem Spiel gibt es keinen Live-Ticker.
+        {t("notFound")}
       </p>
     );
   }
@@ -986,17 +1010,17 @@ export default function LiveTicker({ meetingId, initial }: LiveTickerProps) {
     return (
       <div className="rounded-2xl bg-white p-8 text-center dark:bg-gray-800" role="status">
         <p className="font-bold text-text dark:text-gray-100">
-          {connection === "retrying" ? "Der Ticker ist gerade nicht erreichbar." : "Ticker wird geladen …"}
+          {connection === "retrying" ? t("unreachable") : t("loading")}
         </p>
         {connection === "retrying" && (
           <>
-            <p className="mt-2 text-sm text-muted dark:text-gray-300">Wir versuchen es automatisch erneut.</p>
+            <p className="mt-2 text-sm text-muted dark:text-gray-300">{t("retryAuto")}</p>
             <button
               type="button"
               onClick={retry}
               className="mt-4 rounded-full bg-primary px-5 py-2 text-sm font-bold text-white transition-transform duration-100 hover:bg-primary-light active:scale-[0.97] motion-reduce:active:scale-100"
             >
-              Seite neu laden
+              {t("reload")}
             </button>
           </>
         )}

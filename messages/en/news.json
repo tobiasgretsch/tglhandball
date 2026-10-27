@@ -1,0 +1,32 @@
+{
+  "newsCategories": {
+    "all": "All",
+    "herren": "Men",
+    "damen": "Women",
+    "jugend": "Youth",
+    "verein": "Club"
+  },
+  "newsPage": {
+    "metaTitle": "News",
+    "metaDescription": "Latest news, match reports and club news from TG MIPA Landshut.",
+    "ogTitle": "News | TG MIPA Landshut",
+    "heroTitle": "News",
+    "heroSubtitle": "Match reports, club news and everything about TG MIPA Landshut.",
+    "empty": "No articles found in this category.",
+    "loadMore": "Load more",
+    "count": "{shown} of {total, plural, one {# article} other {# articles}}"
+  },
+  "newsCard": {
+    "readMore": "Read more",
+    "placeholder": "NEWS"
+  },
+  "newsDetail": {
+    "fallbackTitle": "News | TG MIPA Landshut",
+    "breadcrumbHome": "Home",
+    "breadcrumbNews": "News",
+    "backToAll": "All news",
+    "by": "By <b>{author}</b>",
+    "relatedHeading": "More news",
+    "allNews": "All news"
+  }
+}

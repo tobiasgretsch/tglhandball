@@ -1,5 +1,6 @@
-import Link from "next/link";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { Instagram, Facebook, Youtube, Mail, MapPin } from "lucide-react";
 import CookieSettingsButton from "@/components/ui/CookieSettingsButton";
 import PartnerBand, { type PartnerBandItem } from "@/components/sections/PartnerBand";
@@ -8,13 +9,13 @@ import { settingsQuery, premiumPartnersQuery, standardPartnersQuery } from "@/li
 import type { Settings, Partner } from "@/types";
 
 const QUICK_LINKS = [
-  { label: "News", href: "/news" },
-  { label: "Teams", href: "/teams" },
-  { label: "Live-Ticker", href: "/live" },
-  { label: "Partner", href: "/partner" },
-  { label: "Fanshop", href: "/fanshop" },
-  { label: "Abteilung", href: "/ueberuns" },
-];
+  { key: "news", href: "/news" },
+  { key: "teams", href: "/teams" },
+  { key: "live", href: "/live" },
+  { key: "partner", href: "/partner" },
+  { key: "fanshop", href: "/fanshop" },
+  { key: "club", href: "/ueberuns" },
+] as const;
 
 const PARTNER_LOGO_WIDTH = 352; // 2x the 176px premium logo box, sharp on retina
 const PARTNER_LOGO_HEIGHT = 128;
@@ -31,6 +32,7 @@ function toBandItem(p: Partner): PartnerBandItem {
 }
 
 export default async function Footer() {
+  const t = await getTranslations("footer");
   const [settings, premiumPartners, standardPartners] = await Promise.all([
     client
       .fetch<Settings>(settingsQuery, {}, { next: { revalidate: 3600 } })
@@ -94,8 +96,7 @@ export default async function Footer() {
               </span>
             </div>
             <p className="text-white/95 text-sm leading-relaxed mb-6 max-w-[240px]">
-              Handball in Landshut — Leidenschaft, Teamgeist und Sport auf
-              höchstem Niveau.
+              {t("tagline")}
             </p>
             <div className="flex gap-2">
               {settings?.instagramUrl && (
@@ -137,7 +138,7 @@ export default async function Footer() {
           {/* Quick links */}
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-white/95 mb-5">
-              Schnelllinks
+              {t("quickLinks")}
             </h3>
             <ul className="space-y-2.5">
               {QUICK_LINKS.map((link) => (
@@ -146,7 +147,7 @@ export default async function Footer() {
                     href={link.href}
                     className="text-white/95 hover:text-white text-sm font-medium transition-colors"
                   >
-                    {link.label}
+                    {t(`links.${link.key}`)}
                   </Link>
                 </li>
               ))}
@@ -156,7 +157,7 @@ export default async function Footer() {
           {/* Contact info */}
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-white/95 mb-5">
-              Kontakt
+              {t("contact")}
             </h3>
             <div className="space-y-3">
               {settings?.contactEmail && (
@@ -176,7 +177,7 @@ export default async function Footer() {
               )}
               {!settings?.contactEmail && !settings?.venueAddress && (
                 <p className="text-white/95 text-sm">
-                  Kontaktdaten werden im CMS konfiguriert.
+                  {t("contactMissing")}
                 </p>
               )}
             </div>
@@ -188,20 +189,20 @@ export default async function Footer() {
       <div className="relative border-t border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-white/95 text-xs">
-            © {year} TG MIPA Landshut
+            {t("copyright", { year })}
           </p>
           <div className="flex gap-5">
             <Link
               href="/impressum"
               className="text-white/95 hover:text-white text-xs transition-colors"
             >
-              Impressum
+              {t("imprint")}
             </Link>
             <Link
               href="/datenschutz"
               className="text-white/95 hover:text-white text-xs transition-colors"
             >
-              Datenschutz
+              {t("privacy")}
             </Link>
             <CookieSettingsButton className="text-white/95 hover:text-white text-xs transition-colors" />
           </div>

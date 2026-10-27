@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import {
   animate,
   motion,
@@ -10,8 +10,10 @@ import {
 } from "framer-motion";
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 import type { Match, Team } from "@/types";
-import { CLUB_TIME_ZONE } from "@/lib/dates";
-import { OUTCOME_LABEL, gamePagePath, parseResult, tgOutcome } from "@/lib/match";
+import { Link } from "@/i18n/navigation";
+import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
+import { dateFormatter } from "@/lib/i18n/format";
+import { gamePagePath, parseResult, tgOutcome } from "@/lib/match";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
 import { LiveMatchBadge } from "@/components/live/LiveBadge";
@@ -27,10 +29,10 @@ interface MatchdaySectionProps {
 const SPRING = { type: "spring", bounce: 0, duration: 0.8 } as const;
 
 const COUNTDOWN_UNITS = [
-  { key: "days", label: "Tage" },
-  { key: "hours", label: "Std" },
-  { key: "minutes", label: "Min" },
-  { key: "seconds", label: "Sek" },
+  { key: "days", label: "countdownDays" },
+  { key: "hours", label: "countdownHours" },
+  { key: "minutes", label: "countdownMinutes" },
+  { key: "seconds", label: "countdownSeconds" },
 ] as const;
 
 type CountdownParts = Record<(typeof COUNTDOWN_UNITS)[number]["key"], number>;
@@ -47,21 +49,21 @@ function partsUntil(target: Date): CountdownParts | null {
   };
 }
 
-function formatMatchDate(date: string): string {
-  return new Intl.DateTimeFormat("de-DE", {
+function formatMatchDate(date: string, locale: Locale): string {
+  return dateFormatter(LOCALE_TAGS[locale], {
     weekday: "short",
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: CLUB_TIME_ZONE,
   }).format(new Date(date));
 }
 
 // ─── Countdown ────────────────────────────────────────────────────────────────
 
 function Countdown({ date }: { date: string }) {
+  const t = useTranslations("matchday");
   // Rendered only after mount — the server can't know the client's clock,
   // so pre-mount we show fixed-size placeholders to avoid hydration mismatch.
   const [parts, setParts] = useState<CountdownParts | null | "pending">("pending");
@@ -77,7 +79,7 @@ function Countdown({ date }: { date: string }) {
   if (parts === null) return null; // match has started — no countdown
 
   return (
-    <div className="flex gap-2 sm:gap-3" role="timer" aria-label="Countdown bis zum nächsten Spiel">
+    <div className="flex gap-2 sm:gap-3" role="timer" aria-label={t("countdownLabel")}>
       {COUNTDOWN_UNITS.map(({ key, label }) => (
         <div
           key={key}
@@ -87,7 +89,7 @@ function Countdown({ date }: { date: string }) {
             {parts === "pending" ? "–" : String(parts[key]).padStart(2, "0")}
           </span>
           <span className="text-xs font-bold uppercase tracking-[0.12em] text-accent-sky mt-1">
-            {label}
+            {t(label)}
           </span>
         </div>
       ))}
@@ -123,6 +125,8 @@ function AnimatedScore({ value }: { value: number }) {
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 export default function MatchdaySection({ upcoming, lastResult, otherTeams }: MatchdaySectionProps) {
+  const t = useTranslations("matchday");
+  const locale = useLocale() as Locale;
   const reduced = useReducedMotion() ?? false;
   const nextMatch = upcoming[0] ?? null;
   const followingMatch = upcoming[1] ?? null;
@@ -152,7 +156,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
         aria-hidden="true"
         className="absolute -right-6 top-10 font-display font-bold italic uppercase text-[7rem] md:text-[11rem] leading-none text-white/[0.04] select-none pointer-events-none whitespace-nowrap"
       >
-        Spieltag
+        {t("heading")}
       </span>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -166,7 +170,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
             id="matchday-heading"
             className="font-display font-bold italic uppercase text-4xl md:text-5xl tracking-[-0.02em]"
           >
-            Spieltag
+            {t("heading")}
           </h2>
         </motion.div>
 
@@ -182,7 +186,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
             >
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent-sky">
-                  Nächstes Spiel
+                  {t("nextGame")}
                 </p>
                 <LiveMatchBadge match={nextMatch} />
               </div>
@@ -190,7 +194,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
               <p className="mt-6 font-display font-bold uppercase leading-[0.95] text-3xl sm:text-4xl md:text-5xl text-balance">
                 {nextMatch.homeTeam}
                 <span className="block font-display italic text-primary-glow text-2xl sm:text-3xl my-1.5">
-                  vs.
+                  {t("versus")}
                 </span>
                 {nextMatch.awayTeam}
               </p>
@@ -198,7 +202,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
               <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/85">
                 <span className="inline-flex items-center gap-2">
                   <CalendarDays size={15} className="text-accent-sky" aria-hidden="true" />
-                  {formatMatchDate(nextMatch.date)} Uhr
+                  {t("kickoff", { date: formatMatchDate(nextMatch.date, locale) })}
                 </span>
                 {nextMatch.venue && (
                   <span className="inline-flex items-center gap-2">
@@ -219,15 +223,15 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
               {followingMatch && (
                 <div className="mt-8 pt-6 border-t border-white/15">
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-accent-sky mb-1.5">
-                    Danach
+                    {t("following")}
                   </p>
                   <p className="font-display font-bold uppercase text-lg leading-tight">
                     {followingMatch.homeTeam}{" "}
-                    <span className="italic text-white/60">vs.</span>{" "}
+                    <span className="italic text-white/60">{t("versus")}</span>{" "}
                     {followingMatch.awayTeam}
                   </p>
                   <p className="text-sm text-white/70 mt-1">
-                    {formatMatchDate(followingMatch.date)} Uhr
+                    {t("kickoff", { date: formatMatchDate(followingMatch.date, locale) })}
                     {followingMatch.venue ? ` · ${followingMatch.venue}` : ""}
                   </p>
                   <div className="mt-3">
@@ -249,7 +253,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
             >
               <div className="flex items-center gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-accent-sky">
-                  Letztes Ergebnis
+                  {t("lastResult")}
                 </p>
                 {outcome && (
                   <span
@@ -257,13 +261,13 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
                       outcome === "sieg" ? "bg-primary text-white" : "bg-white/15 text-white/90"
                     }`}
                   >
-                    {OUTCOME_LABEL[outcome]}
+                    {t(`outcome.${outcome}`)}
                   </span>
                 )}
               </div>
 
               {score ? (
-                <p className="mt-6 font-display font-bold leading-none text-7xl sm:text-8xl tabular-nums" aria-label={`Endstand ${lastResult.result}`}>
+                <p className="mt-6 font-display font-bold leading-none text-7xl sm:text-8xl tabular-nums" aria-label={t("finalScore", { score: lastResult.result ?? "" })}>
                   <AnimatedScore value={score[0]} />
                   <span className="text-primary-glow mx-1">:</span>
                   <AnimatedScore value={score[1]} />
@@ -276,18 +280,18 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
 
               <p className="mt-5 font-display font-bold uppercase text-xl leading-tight text-white/90 text-balance">
                 {lastResult.homeTeam}{" "}
-                <span className="italic text-white/60">vs.</span>{" "}
+                <span className="italic text-white/60">{t("versus")}</span>{" "}
                 {lastResult.awayTeam}
               </p>
               <p className="text-sm text-white/70 mt-1.5">
-                {formatMatchDate(lastResult.date)} Uhr
+                {t("kickoff", { date: formatMatchDate(lastResult.date, locale) })}
                 {lastResult.team?.name ? ` · ${lastResult.team.name}` : ""}
               </p>
               {lastResult.meetingId && (
                 <div className="mt-5 flex flex-wrap gap-3">
                   {gamePagePath(lastResult) && (
                     <Link href={gamePagePath(lastResult) ?? "/spielplan"} className="btn btn-glass">
-                      Spielverlauf
+                      {t("gameTimeline")}
                     </Link>
                   )}
                   <MatchReportButton meetingId={lastResult.meetingId} tone="glass" />
@@ -304,7 +308,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
               id="other-teams-heading"
               className="text-xs font-semibold uppercase tracking-[0.12em] text-accent-sky"
             >
-              Spiele &amp; Ergebnisse unserer Teams
+              {t("otherTeams")}
             </h3>
             <ul className="mt-4 flex flex-wrap gap-2">
               {otherTeams.map((team) => (
@@ -327,7 +331,7 @@ export default function MatchdaySection({ upcoming, lastResult, otherTeams }: Ma
             href="/spielplan"
             className="btn btn-primary"
           >
-            Kompletter Spielplan
+            {t("fullSchedule")}
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </div>

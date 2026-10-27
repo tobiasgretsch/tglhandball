@@ -1,0 +1,29 @@
+{
+  "gallery": {
+    "meta": {
+      "title": "Impressionen",
+      "description": "Fotos und Eindrücke von Spielen, Training und Events des TG MIPA Landshut."
+    },
+    "hero": {
+      "title": "Impressionen",
+      "subtitle": "Fotos und Eindrücke von Spielen, Training und Events."
+    },
+    "clubLabel": "Verein",
+    "filters": {
+      "all": "Alle"
+    },
+    "count": "{count, plural, one {# Bild} other {# Bilder}}",
+    "empty": "Keine Bilder in dieser Auswahl.",
+    "imageAlt": "Galeriebild",
+    "lightbox": {
+      "close": "Schließen",
+      "previous": "Vorheriges Bild",
+      "next": "Nächstes Bild"
+    },
+    "row": {
+      "title": "Galerie",
+      "viewAll": "Alle ansehen",
+      "photoAlt": "Foto"
+    }
+  }
+}

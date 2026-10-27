@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowRight } from "lucide-react";
 import type { NewsArticle, NewsCategory } from "@/types";
 import Reveal from "@/components/ui/Reveal";
@@ -13,13 +14,7 @@ const PAGE_SIZE = 9;
 
 type FilterCategory = NewsCategory | "all";
 
-const FILTERS: { value: FilterCategory; label: string }[] = [
-  { value: "all",    label: "Alle"   },
-  { value: "herren", label: "Herren" },
-  { value: "damen",  label: "Damen"  },
-  { value: "jugend", label: "Jugend" },
-  { value: "verein", label: "Verein" },
-];
+const FILTERS: readonly FilterCategory[] = ["all", "herren", "damen", "jugend", "verein"];
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
@@ -28,6 +23,8 @@ interface NewsClientProps {
 }
 
 export default function NewsClient({ articles }: NewsClientProps) {
+  const t = useTranslations("newsPage");
+  const tCategories = useTranslations("newsCategories");
   const [activeCategory, setActiveCategory] = useState<FilterCategory>("all");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
@@ -53,10 +50,10 @@ export default function NewsClient({ articles }: NewsClientProps) {
       <div className="material-bar sticky top-[54px] lg:top-[60px] z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
-            {FILTERS.map(({ value, label }) => (
+            {FILTERS.map((value) => (
               <FilterPill
                 key={value}
-                label={label}
+                label={tCategories(value)}
                 active={activeCategory === value}
                 onClick={() => handleFilterChange(value)}
               />
@@ -69,7 +66,7 @@ export default function NewsClient({ articles }: NewsClientProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         {filtered.length === 0 ? (
           <p className="text-muted text-sm py-10">
-            Keine Artikel in dieser Kategorie gefunden.
+            {t("empty")}
           </p>
         ) : (
           <>
@@ -87,14 +84,14 @@ export default function NewsClient({ articles }: NewsClientProps) {
                   onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
                   className="btn btn-primary"
                 >
-                  Mehr laden
+                  {t("loadMore")}
                   <ArrowRight size={16} aria-hidden="true" />
                 </button>
               </div>
             )}
 
             <p className="text-center text-muted text-xs mt-5">
-              {Math.min(visibleCount, filtered.length)} von {filtered.length} Artikeln
+              {t("count", { shown: Math.min(visibleCount, filtered.length), total: filtered.length })}
             </p>
           </>
         )}

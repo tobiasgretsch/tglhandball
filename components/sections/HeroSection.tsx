@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Newspaper } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { heroFadeUp } from "@/lib/motion";
 
 interface HeroSectionProps {
@@ -15,6 +16,7 @@ interface HeroSectionProps {
 const HERO_RISE_PX = 28;
 
 export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubName }: HeroSectionProps) {
+  const t = useTranslations("hero");
   const prefersReduced = useReducedMotion() ?? false;
   const fadeUp = heroFadeUp(prefersReduced, HERO_RISE_PX);
 
@@ -65,9 +67,9 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
           className="font-display font-bold italic text-6xl sm:text-7xl md:text-8xl text-white uppercase tracking-[-0.03em] leading-[0.88] mb-6"
         >
           <span className="sr-only">TG MIPA Landshut: </span>
-          Handball
+          {t("headlineTop")}
           <br />
-          <span className="text-primary-glow">in Landshut</span>
+          <span className="text-primary-glow">{t("headlineBottom")}</span>
         </motion.h1>
 
         <motion.p
@@ -77,7 +79,7 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
           animate="show"
           className="text-white/85 text-lg md:text-xl font-normal max-w-xl mb-10 leading-relaxed"
         >
-          TG MIPA Landshut — Leidenschaft seit Jahrzehnten.
+          {t("tagline")}
         </motion.p>
 
         <motion.div
@@ -92,13 +94,13 @@ export default function HeroSection({ heroImageUrl, heroImageBlurDataURL, clubNa
             className="btn btn-primary"
           >
             <Newspaper size={16} aria-hidden="true" />
-            Neuigkeiten
+            {t("news")}
           </Link>
           <Link
             href="/teams"
             className="btn btn-glass"
           >
-            Zu den Teams
+            {t("teams")}
             <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </motion.div>

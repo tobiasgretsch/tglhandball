@@ -1,0 +1,102 @@
+{
+  "foerderverein": {
+    "meta": {
+      "title": "Supporters’ association",
+      "description": "The supporters’ association (Förderverein) of TG MIPA Landshut: together for handball in Landshut."
+    },
+    "hero": {
+      "title": "Supporters’ association",
+      "subtitle": "Stronger together, for handball in Landshut."
+    },
+    "intro": {
+      "title": "Become part of the Förderverein",
+      "text": "The Förderverein of TG MIPA Landshut supports our teams and enables children and young people to play handball. Every membership helps keep the sport alive in our city."
+    },
+    "features": {
+      "community": {
+        "title": "Community",
+        "text": "As a member of the Förderverein you are part of a strong community that supports handball in Landshut."
+      },
+      "support": {
+        "title": "Support",
+        "text": "Your membership enables young players to take part in club sport."
+      },
+      "success": {
+        "title": "Success",
+        "text": "Together we promote top performance and strengthen Landshut as a handball location for the long term."
+      }
+    },
+    "signup": {
+      "title": "Become a member now",
+      "text": "Fill in the form and give us a SEPA direct debit mandate for the annual fee."
+    },
+    "form": {
+      "requiredHint": "* Required field",
+      "sections": {
+        "personal": "Personal details",
+        "fee": "Annual fee",
+        "mandate": "SEPA direct debit mandate"
+      },
+      "salutation": {
+        "placeholder": "Please choose",
+        "frau": "Ms",
+        "herr": "Mr",
+        "divers": "Diverse"
+      },
+      "fields": {
+        "anrede": "Title",
+        "geburtsdatum": "Date of birth (optional)",
+        "vorname": "First name",
+        "nachname": "Last name",
+        "strasse": "Street and house number",
+        "plz": "Postcode",
+        "ort": "Town or city",
+        "email": "Email",
+        "telefon": "Phone (optional)",
+        "iban": "IBAN",
+        "kontoinhaber": "Account holder (if different)",
+        "bank": "Bank (optional)"
+      },
+      "fee": {
+        "placeholder": "[amount]",
+        "text": "The annual fee is <b>{fee}</b> and is collected once a year by SEPA direct debit."
+      },
+      "mandate": {
+        "creditor": "Creditor: {name}, {street}, {city}",
+        "creditorId": "Creditor identifier: {id}",
+        "text": "I authorise {name} to collect payments from my account by SEPA Core direct debit. At the same time, I instruct my bank to honour the direct debits drawn on my account by {name}. Note: I can request a refund of the amount debited within eight weeks, starting from the date of debit. The terms agreed with my bank apply. The mandate reference will be sent to me separately."
+      },
+      "consent": {
+        "mandate": "I give the SEPA direct debit mandate for the annual membership fee. *",
+        "privacy": "I have read the <link>privacy policy</link> and agree to my data being processed. *"
+      },
+      "errors": {
+        "required": "Required field",
+        "email": "Please enter a valid email address",
+        "plz": "Please enter a 5-digit postcode",
+        "iban": "This IBAN is not valid. Please check it for typos",
+        "mandat": "Please give the SEPA direct debit mandate",
+        "datenschutz": "Please agree to the privacy policy"
+      },
+      "submit": {
+        "label": "Become a member (binding)",
+        "sending": "Sending…"
+      },
+      "submitError": "Your application could not be submitted just now. Your entries have been kept, so please try again in a moment.",
+      "success": {
+        "title": "Thank you, {name}!",
+        "text": "We have received your application. We will send a confirmation to <b>{email}</b>.",
+        "debit": "Collected by SEPA direct debit from <mono>{iban}</mono>"
+      }
+    }
+  },
+  "pricing": {
+    "defaultHeading": "Admission prices",
+    "free": "free",
+    "columns": {
+      "ticket": "Ticket",
+      "normal": "Standard",
+      "discounted": "Concessions"
+    }
+  }
+}

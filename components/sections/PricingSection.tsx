@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import type { PricingSection as PricingSectionData } from "@/types";
 import Reveal from "@/components/ui/Reveal";
 
@@ -6,17 +7,19 @@ interface Props {
 }
 
 function PriceCell({ value }: { value?: string }) {
+  const t = useTranslations("pricing");
   if (!value) {
     return <span className="text-muted">–</span>;
   }
   if (value.trim().toLowerCase() === "frei") {
-    return <span className="font-bold text-emerald-600 dark:text-emerald-400">frei</span>;
+    return <span className="font-bold text-emerald-600 dark:text-emerald-400">{t("free")}</span>;
   }
   return <span>{value}</span>;
 }
 
 export default function PricingSection({ data }: Props) {
-  const { heading = "Eintrittspreise", rows, footnote, infoBox } = data;
+  const t = useTranslations("pricing");
+  const { heading = t("defaultHeading"), rows, footnote, infoBox } = data;
 
   if (!rows || rows.length === 0) return null;
 
@@ -37,13 +40,13 @@ export default function PricingSection({ data }: Props) {
             <thead>
               <tr className="bg-primary text-white">
                 <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em]">
-                  Ticket
+                  {t("columns.ticket")}
                 </th>
                 <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em]">
-                  Normal
+                  {t("columns.normal")}
                 </th>
                 <th className="text-right px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em]">
-                  Ermäßigt
+                  {t("columns.discounted")}
                 </th>
               </tr>
             </thead>
@@ -85,7 +88,7 @@ export default function PricingSection({ data }: Props) {
               <div className="flex gap-6">
                 <div className="flex-1">
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted mb-0.5">
-                    Normal
+                    {t("columns.normal")}
                   </p>
                   <p className="text-sm tabular-nums text-text dark:text-gray-100">
                     <PriceCell value={row.normalPrice} />
@@ -93,7 +96,7 @@ export default function PricingSection({ data }: Props) {
                 </div>
                 <div className="flex-1">
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted mb-0.5">
-                    Ermäßigt
+                    {t("columns.discounted")}
                   </p>
                   <p className="text-sm tabular-nums text-text dark:text-gray-100">
                     <PriceCell value={row.discountedPrice} />

@@ -53,7 +53,7 @@ export async function fetchRawGame(meetingId: string, optionalBudgetMs?: number)
 
 /** Pure: the same raw data always yields the same snapshot, so archived games pick up later improvements. */
 export function deriveSnapshot({ game, events, players, table }: RawGame, now: number): TickerSnapshot {
-  const { status, label } = deriveStatus(game, events, now);
+  const { status, label, period } = deriveStatus(game, events, now);
   const score = deriveScore(game, events);
   const entries = buildEntries(game, events, players);
 
@@ -61,6 +61,7 @@ export function deriveSnapshot({ game, events, players, table }: RawGame, now: n
     game,
     status,
     statusLabel: label,
+    statusPeriod: period,
     scoreHome: score.home,
     scoreGuest: score.guest,
     entries,

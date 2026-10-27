@@ -1,10 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { ListOrdered, Search, SlidersHorizontal, X } from "lucide-react";
 import type { Match } from "@/types";
+import { Link } from "@/i18n/navigation";
+import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
+import { dateFormatter } from "@/lib/i18n/format";
 import { findGameForFixture } from "@/lib/live/fixture";
 import {
   balanceOf,
@@ -52,25 +55,8 @@ const INITIAL_ROWS_TEAM_UPCOMING = 2;
 
 const dayKeyFormat = new Intl.DateTimeFormat("en-CA", { timeZone: CLUB_TIME_ZONE });
 
-const dayLabelFormat = new Intl.DateTimeFormat("de-DE", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  timeZone: CLUB_TIME_ZONE,
-});
-
-const monthLabelFormat = new Intl.DateTimeFormat("de-DE", {
-  month: "short",
-  year: "2-digit",
-  timeZone: CLUB_TIME_ZONE,
-});
-
-/** "2026-10" → "Okt. 26" (noon on the 15th is the same month in every time zone). */
-const monthLabel = (key: string) => monthLabelFormat.format(new Date(`${key}-15T12:00:00Z`));
-
 /** Groups already-sorted matches by calendar day, preserving order. */
-function groupByDay(matches: Match[]): DayGroup[] {
+function groupByDay(matches: Match[], dayLabelFormat: Intl.DateTimeFormat): DayGroup[] {
   const groups: DayGroup[] = [];
   for (const match of matches) {
     const date = new Date(match.date);
@@ -90,6 +76,8 @@ const unique = <T,>(values: Array<T | undefined>): T[] => [...new Set(values.fil
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function SpielplanClient({ matches, teams, currentSeason }: SpielplanClientProps) {
+  const t = useTranslations("spielplanClient");
+  const tag = LOCALE_TAGS[useLocale() as Locale];
   const { filters, search, update, reset } = useSpielplanFilters();
   const { liveGames } = useLiveGames();
   const [panelOpen, setPanelOpen] = useState(false);
@@ -120,10 +108,13 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
       ),
     [matches, filters, context],
   );
-  const months = useMemo(
-    () => unique(scope.map((m) => monthKey(m.date))).sort().map((key) => ({ key, label: monthLabel(key) })),
-    [scope],
-  );
+  const months = useMemo(() => {
+    const monthLabelFormat = dateFormatter(tag, { month: "short", year: "2-digit" });
+    // "2026-10" → "Okt. 26" (noon on the 15th is the same month in every time zone)
+    return unique(scope.map((m) => monthKey(m.date)))
+      .sort()
+      .map((key) => ({ key, label: monthLabelFormat.format(new Date(`${key}-15T12:00:00Z`)) }));
+  }, [scope, tag]);
   const leagues = useMemo(() => unique(scope.map((m) => m.league)).sort(), [scope]);
   const seasons = useMemo(
     () =>
@@ -147,7 +138,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="scroll-fade-x flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5 pr-8">
             <FilterPill
-              label="Alle Teams"
+              label={t("allTeams")}
               active={filters.team === null}
               onClick={() => update({ team: null, liga: null })}
             />
@@ -168,7 +159,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <label className="relative min-w-0 flex-1">
-              <span className="sr-only">Gegner suchen</span>
+              <span className="sr-only">{t("searchLabel")}</span>
               <Search
                 size={16}
                 aria-hidden="true"
@@ -178,7 +169,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
                 type="search"
                 value={filters.q}
                 onChange={(event) => update({ q: event.target.value })}
-                placeholder="Gegner suchen …"
+                placeholder={t("searchPlaceholder")}
                 autoComplete="off"
                 className="min-h-11 w-full rounded-full border border-gray-200 bg-white py-2 pl-10 pr-4 text-base text-text placeholder:text-muted dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
               />
@@ -187,11 +178,11 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
               type="button"
               onClick={() => setPanelOpen(true)}
               aria-haspopup="dialog"
-              aria-label={detailCount > 0 ? `Filter, ${detailCount} aktiv` : "Filter"}
+              aria-label={detailCount > 0 ? t("filterActive", { count: detailCount }) : t("filter")}
               className="press relative inline-flex size-11 shrink-0 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white text-sm font-semibold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 sm:w-auto sm:px-4"
             >
               <SlidersHorizontal size={18} aria-hidden="true" />
-              <span className="hidden sm:inline">Filter</span>
+              <span className="hidden sm:inline">{t("filter")}</span>
               {detailCount > 0 && (
                 <span
                   aria-hidden="true"
@@ -211,7 +202,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
                   className="press inline-flex min-h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-semibold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                 >
                   <ListOrdered size={16} aria-hidden="true" />
-                  Tabelle {selectedTeam.name}
+                  {t("tableLink", { team: selectedTeam.name })}
                 </Link>
               )}
               {hasAnyFilter(filters) && (
@@ -221,7 +212,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
                   className="press inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-brand-red underline-offset-4 hover:underline"
                 >
                   <X size={14} aria-hidden="true" />
-                  Zurücksetzen
+                  {t("reset")}
                 </button>
               )}
             </div>
@@ -246,9 +237,9 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
 
         {nothingFound ? (
           <div className="rounded-2xl border border-dashed border-gray-300 p-8 text-center dark:border-gray-600">
-            <p className="font-bold text-text dark:text-gray-100">Keine Spiele gefunden.</p>
+            <p className="font-bold text-text dark:text-gray-100">{t("nothingFound")}</p>
             <p className="mt-1 text-sm text-muted">
-              {hasAnyFilter(filters) ? "Mit diesen Filtern gibt es keine Treffer." : "Es sind noch keine Spiele eingetragen."}
+              {hasAnyFilter(filters) ? t("nothingFoundFiltered") : t("nothingFoundEmpty")}
             </p>
             {hasAnyFilter(filters) && (
               <button
@@ -256,7 +247,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
                 onClick={reset}
                 className="press mt-4 inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-bold text-white hover:bg-primary-light"
               >
-                Filter zurücksetzen
+                {t("resetFilters")}
               </button>
             )}
           </div>
@@ -264,7 +255,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
           <div className="space-y-14">
             {upcoming.length > 0 && (
               <MatchSection
-                title="Kommende Spiele"
+                title={t("upcoming")}
                 matches={upcoming}
                 isResult={false}
                 resetKey={search}
@@ -273,7 +264,7 @@ export default function SpielplanClient({ matches, teams, currentSeason }: Spiel
             )}
             {results.length > 0 && (
               <MatchSection
-                title="Ergebnisse"
+                title={t("results")}
                 matches={results}
                 isResult={true}
                 resetKey={search}
@@ -304,10 +295,15 @@ function MatchSection({
   /** Rows shown before "Alle anzeigen". */
   initialRows: number;
 }) {
+  const t = useTranslations("spielplanClient");
+  const tag = LOCALE_TAGS[useLocale() as Locale];
   const [expandedFor, setExpandedFor] = useState<string | null>(null);
   const expanded = expandedFor === resetKey;
   const visible = expanded ? matches : matches.slice(0, initialRows);
-  const groups = useMemo(() => groupByDay(visible), [visible]);
+  const groups = useMemo(() => {
+    const dayLabelFormat = dateFormatter(tag, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    return groupByDay(visible, dayLabelFormat);
+  }, [visible, tag]);
 
   return (
     <section aria-label={title}>
@@ -322,7 +318,7 @@ function MatchSection({
         <span className="text-xs text-muted tabular-nums">{matches.length}</span>
         <span className="inline-flex items-center gap-2 text-xs text-muted sm:ml-auto">
           <span aria-hidden="true" className="block w-1 h-4 rounded-full bg-primary" />
-          Heimspiel
+          {t("homeGame")}
         </span>
       </div>
 
@@ -346,7 +342,7 @@ function MatchSection({
             onClick={() => setExpandedFor(resetKey)}
             className="press inline-flex min-h-11 items-center rounded-full border border-gray-200 bg-white px-5 text-sm font-bold text-text transition-colors hover:border-primary dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
           >
-            Alle {matches.length} anzeigen
+            {t("showAll", { count: matches.length })}
           </button>
         </div>
       )}

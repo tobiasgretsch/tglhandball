@@ -1,0 +1,102 @@
+{
+  "foerderverein": {
+    "meta": {
+      "title": "Förderverein",
+      "description": "Der Förderverein des TG MIPA Landshut – gemeinsam für den Handball in Landshut."
+    },
+    "hero": {
+      "title": "Förderverein",
+      "subtitle": "Gemeinsam stark – für den Handball in Landshut."
+    },
+    "intro": {
+      "title": "Werde Teil des Fördervereins",
+      "text": "Der Förderverein des TG MIPA Landshut unterstützt unsere Mannschaften und ermöglicht Kindern und Jugendlichen die Ausübung des Handballs. Jede Mitgliedschaft hilft, den Sport in unserer Stadt lebendig zu halten."
+    },
+    "features": {
+      "community": {
+        "title": "Gemeinschaft",
+        "text": "Als Mitglied des Fördervereins bist du Teil einer starken Gemeinschaft, die den Handball in Landshut unterstützt."
+      },
+      "support": {
+        "title": "Unterstützung",
+        "text": "Deine Mitgliedschaft ermöglicht Nachwuchsspielerinnen und -spielern die Teilnahme am Vereinssport."
+      },
+      "success": {
+        "title": "Erfolg",
+        "text": "Gemeinsam fördern wir Spitzenleistungen und stärken den Handballstandort Landshut nachhaltig."
+      }
+    },
+    "signup": {
+      "title": "Jetzt Mitglied werden",
+      "text": "Fülle das Formular aus und erteile uns ein SEPA-Lastschriftmandat für den Jahresbeitrag."
+    },
+    "form": {
+      "requiredHint": "* Pflichtfeld",
+      "sections": {
+        "personal": "Persönliche Daten",
+        "fee": "Jahresbeitrag",
+        "mandate": "SEPA-Lastschriftmandat"
+      },
+      "salutation": {
+        "placeholder": "Bitte wählen",
+        "frau": "Frau",
+        "herr": "Herr",
+        "divers": "Divers"
+      },
+      "fields": {
+        "anrede": "Anrede",
+        "geburtsdatum": "Geburtsdatum (optional)",
+        "vorname": "Vorname",
+        "nachname": "Nachname",
+        "strasse": "Straße und Hausnummer",
+        "plz": "PLZ",
+        "ort": "Ort",
+        "email": "E-Mail",
+        "telefon": "Telefon (optional)",
+        "iban": "IBAN",
+        "kontoinhaber": "Kontoinhaber (falls abweichend)",
+        "bank": "Kreditinstitut (optional)"
+      },
+      "fee": {
+        "placeholder": "[Betrag]",
+        "text": "Der Jahresbeitrag beträgt <b>{fee}</b> und wird einmal jährlich per SEPA-Lastschrift eingezogen."
+      },
+      "mandate": {
+        "creditor": "Gläubiger: {name}, {street}, {city}",
+        "creditorId": "Gläubiger-Identifikationsnummer: {id}",
+        "text": "Ich ermächtige den {name}, Zahlungen von meinem Konto mittels SEPA-Basislastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die vom {name} auf mein Konto gezogenen Lastschriften einzulösen. Hinweis: Ich kann innerhalb von acht Wochen, beginnend mit dem Belastungsdatum, die Erstattung des belasteten Betrages verlangen. Es gelten dabei die mit meinem Kreditinstitut vereinbarten Bedingungen. Die Mandatsreferenz wird mir separat mitgeteilt."
+      },
+      "consent": {
+        "mandate": "Ich erteile das SEPA-Lastschriftmandat für den jährlichen Mitgliedsbeitrag. *",
+        "privacy": "Ich habe die <link>Datenschutzerklärung</link> gelesen und stimme der Verarbeitung meiner Daten zu. *"
+      },
+      "errors": {
+        "required": "Pflichtfeld",
+        "email": "Bitte eine gültige E-Mail-Adresse eingeben",
+        "plz": "Bitte eine 5-stellige PLZ eingeben",
+        "iban": "Diese IBAN ist ungültig – bitte prüfe sie auf Tippfehler",
+        "mandat": "Bitte erteile das SEPA-Lastschriftmandat",
+        "datenschutz": "Bitte stimme der Datenschutzerklärung zu"
+      },
+      "submit": {
+        "label": "Verbindlich Mitglied werden",
+        "sending": "Wird gesendet…"
+      },
+      "submitError": "Die Anmeldung konnte gerade nicht übermittelt werden. Deine Eingaben bleiben erhalten – bitte versuche es gleich noch einmal.",
+      "success": {
+        "title": "Vielen Dank, {name}!",
+        "text": "Deine Anmeldung ist eingegangen. Eine Bestätigung senden wir an <b>{email}</b>.",
+        "debit": "Abbuchung per SEPA-Lastschrift von <mono>{iban}</mono>"
+      }
+    }
+  },
+  "pricing": {
+    "defaultHeading": "Eintrittspreise",
+    "free": "frei",
+    "columns": {
+      "ticket": "Ticket",
+      "normal": "Normal",
+      "discounted": "Ermäßigt"
+    }
+  }
+}

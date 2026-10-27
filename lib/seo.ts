@@ -1,10 +1,27 @@
+import { DEFAULT_LOCALE, LOCALE_TAGS, routing, type Locale } from "@/i18n/routing";
+import { getPathname } from "@/i18n/navigation";
 import type { LiveGame } from "@/lib/live/types";
 import type { Match, Settings } from "@/types";
 
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://tglhandball.de").replace(/\/$/, "");
 export const CLUB_NAME = "TG MIPA Landshut";
-export const CLUB_DESCRIPTION =
-  "Handballverein aus Landshut mit Herren-, Damen- und Jugendmannschaften. Spielplan, Ergebnisse, News und Hallenadresse.";
+// Structured data is built outside React, so its few texts live here (typed per locale).
+const SEO_TEXT: Record<Locale, { clubDescription: string; finalScore: string; fixturesName: string }> = {
+  de: {
+    clubDescription:
+      "Handballverein aus Landshut mit Herren-, Damen- und Jugendmannschaften. Spielplan, Ergebnisse, News und Hallenadresse.",
+    finalScore: "Endergebnis",
+    fixturesName: "Spielplan & Ergebnisse TG MIPA Landshut",
+  },
+  en: {
+    clubDescription:
+      "Handball club from Landshut with men's, women's and youth teams. Fixtures, results, news and venue address.",
+    finalScore: "Final score",
+    fixturesName: "Fixtures & results TG MIPA Landshut",
+  },
+};
+
+export const CLUB_DESCRIPTION = SEO_TEXT[DEFAULT_LOCALE].clubDescription;
 
 const MAX_STRUCTURED_MATCHES = 40;
 const DEFAULT_MATCH_DURATION_MS = 90 * 60 * 1000;
@@ -13,6 +30,15 @@ type JsonLd = Record<string, unknown>;
 
 export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
+/** Canonical for this language plus hreflang links to every language (and x-default). Set per page, never in the root layout. */
+export function localizedAlternates(href: string, locale: Locale) {
+  const languages: Record<string, string> = Object.fromEntries(
+    routing.locales.map((l) => [LOCALE_TAGS[l], getPathname({ href, locale: l })]),
+  );
+  languages["x-default"] = getPathname({ href, locale: DEFAULT_LOCALE });
+  return { canonical: getPathname({ href, locale }), languages };
 }
 
 /** Splits "Straße 7\n84034 Landshut" into a schema.org PostalAddress. */
@@ -41,14 +67,14 @@ function venuePlace(settings: Settings | null): JsonLd | null {
   };
 }
 
-export function organizationJsonLd(settings: Settings | null, logoUrl: string | null): JsonLd[] {
+export function organizationJsonLd(settings: Settings | null, logoUrl: string | null, locale: Locale = DEFAULT_LOCALE): JsonLd[] {
   const organization: JsonLd = {
     "@context": "https://schema.org",
     "@type": "SportsOrganization",
     "@id": `${SITE_URL}/#organization`,
     name: settings?.clubName ?? CLUB_NAME,
     alternateName: ["TG MIPA Landshut Handball", "TGL Handball"],
-    description: CLUB_DESCRIPTION,
+    description: SEO_TEXT[locale].clubDescription,
     url: SITE_URL,
     sport: "Handball",
     areaServed: "Landshut",
@@ -64,7 +90,7 @@ export function organizationJsonLd(settings: Settings | null, logoUrl: string | 
     "@id": `${SITE_URL}/#website`,
     url: SITE_URL,
     name: "TG MIPA Landshut Handball",
-    inLanguage: "de-DE",
+    inLanguage: routing.locales.map((l) => LOCALE_TAGS[l]),
     publisher: { "@id": `${SITE_URL}/#organization` },
   };
 
@@ -91,7 +117,7 @@ export function newsArticleJsonLd(article: {
   publishedAt: string;
   author?: string;
   imageUrl?: string;
-}): JsonLd {
+}, locale: Locale = DEFAULT_LOCALE): JsonLd {
   return {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -99,7 +125,7 @@ export function newsArticleJsonLd(article: {
     mainEntityOfPage: absoluteUrl(article.path),
     datePublished: article.publishedAt,
     dateModified: article.publishedAt,
-    inLanguage: "de-DE",
+    inLanguage: LOCALE_TAGS[locale],
     ...(article.teaser && { description: article.teaser }),
     ...(article.imageUrl && { image: [article.imageUrl] }),
     author: article.author
@@ -122,7 +148,7 @@ export function sportsTeamJsonLd(team: { name: string; path: string; league?: st
   };
 }
 
-function matchJsonLd(match: Match, settings: Settings | null): JsonLd {
+function matchJsonLd(match: Match, settings: Settings | null, locale: Locale): JsonLd {
   const start = new Date(match.date);
   const homeVenue = venuePlace(settings);
   const location = match.isHomeGame && homeVenue
@@ -142,12 +168,12 @@ function matchJsonLd(match: Match, settings: Settings | null): JsonLd {
     homeTeam: { "@type": "SportsTeam", name: match.homeTeam },
     awayTeam: { "@type": "SportsTeam", name: match.awayTeam },
     ...(location && { location }),
-    ...(match.result && { description: `Endergebnis: ${match.result}` }),
+    ...(match.result && { description: `${SEO_TEXT[locale].finalScore}: ${match.result}` }),
   };
 }
 
 /** Upcoming fixtures first, then the most recent results, capped to keep pages light. */
-export function fixturesJsonLd(matches: Match[], settings: Settings | null): JsonLd | null {
+export function fixturesJsonLd(matches: Match[], settings: Settings | null, locale: Locale = DEFAULT_LOCALE): JsonLd | null {
   const now = Date.now();
   const time = (match: Match) => new Date(match.date).getTime();
   const upcoming = matches.filter((m) => time(m) >= now).sort((a, b) => time(a) - time(b));
@@ -158,17 +184,23 @@ export function fixturesJsonLd(matches: Match[], settings: Settings | null): Jso
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Spielplan & Ergebnisse TG MIPA Landshut",
+    name: SEO_TEXT[locale].fixturesName,
     itemListElement: selected.map((match, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      item: matchJsonLd(match, settings),
+      item: matchJsonLd(match, settings, locale),
     })),
   };
 }
 
 /** A finished game with its final score, for the game page. */
-export function finishedGameJsonLd(game: LiveGame, scoreHome: number, scoreGuest: number, path: string): JsonLd {
+export function finishedGameJsonLd(
+  game: LiveGame,
+  scoreHome: number,
+  scoreGuest: number,
+  path: string,
+  locale: Locale = DEFAULT_LOCALE,
+): JsonLd {
   const start = new Date(game.scheduled);
   return {
     "@context": "https://schema.org",
@@ -183,7 +215,7 @@ export function finishedGameJsonLd(game: LiveGame, scoreHome: number, scoreGuest
     homeTeam: { "@type": "SportsTeam", name: game.homeTeam },
     awayTeam: { "@type": "SportsTeam", name: game.awayTeam },
     ...(game.venue && { location: { "@type": "Place", name: game.venue } }),
-    description: `Endergebnis: ${scoreHome}:${scoreGuest}`,
+    description: `${SEO_TEXT[locale].finalScore}: ${scoreHome}:${scoreGuest}`,
   };
 }
 

@@ -1,0 +1,58 @@
+{
+  "homePage": {
+    "metaTitle": "TG MIPA Landshut Handball – fixtures, teams & news from Landshut",
+    "metaDescription": "Official website of TG MIPA Landshut: handball in Landshut with men, women and youth teams. Current fixtures, results, news and sports hall address.",
+    "ogDescription": "Handball in Landshut – fixtures, teams and news from TG MIPA Landshut.",
+    "newsHeading": "Latest news",
+    "allNews": "All news",
+    "newsEmpty": "No news yet. Please add articles in the CMS.",
+    "read": "Read",
+    "newsFallback": "News",
+    "teamsHeading": "Our teams",
+    "allTeams": "All teams",
+    "teamCount": "{count, plural, one {# team} other {# teams}}",
+    "teamPhotoAlt": "{label} – team photo",
+    "galleryHeading": "Gallery",
+    "toGallery": "View gallery",
+    "sponsorsHeading": "Exclusive partners",
+    "allPartners": "All partners",
+    "partnerOfDay": "Partner of the day",
+    "partnerOfDayLabel": "Partner of the day: {name}",
+    "visitWebsite": "Visit website",
+    "magazineHeading": "Matchday magazine",
+    "magazineMatchday": "Matchday {number}",
+    "magazineVersus": "vs. {opponent}",
+    "magazineFallbackTitle": "Matchday programme",
+    "magazineRead": "Read",
+    "allMagazines": "All magazines"
+  },
+  "hero": {
+    "tagline": "TG MIPA Landshut — passion for decades.",
+    "headlineTop": "Handball",
+    "headlineBottom": "in Landshut",
+    "news": "News",
+    "teams": "Meet the teams"
+  },
+  "matchday": {
+    "heading": "Matchday",
+    "nextGame": "Next game",
+    "following": "After that",
+    "lastResult": "Latest result",
+    "versus": "vs.",
+    "kickoff": "{date}",
+    "countdownLabel": "Countdown to the next game",
+    "countdownDays": "Days",
+    "countdownHours": "Hrs",
+    "countdownMinutes": "Min",
+    "countdownSeconds": "Sec",
+    "finalScore": "Final score {score}",
+    "outcome": {
+      "sieg": "Win",
+      "niederlage": "Defeat",
+      "unentschieden": "Draw"
+    },
+    "gameTimeline": "Game timeline",
+    "otherTeams": "Fixtures & results of our teams",
+    "fullSchedule": "Full fixtures"
+  }
+}

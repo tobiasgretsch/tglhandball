@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import * as pdfjsLib from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { X, ChevronLeft, Loader2, AlertCircle, ZoomIn, ZoomOut } from "lucide-react";
@@ -71,6 +72,7 @@ async function renderPageToDataUrl(
 }
 
 export default function PdfViewer({ url, onClose }: PdfViewerProps) {
+  const t = useTranslations("magazine.viewer");
   const [numPages, setNumPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -293,7 +295,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
         <button
           onClick={() => navigate(-1)}
           disabled={currentPage <= 1}
-          aria-label="Vorherige Seite"
+          aria-label={t("previousPage")}
           className="p-3 text-white/60 hover:text-white active:text-white disabled:opacity-20 transition-colors"
         >
           <ChevronLeft size={20} />
@@ -303,7 +305,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
           <button
             onClick={() => applyZoom(zoom / ZOOM_STEP)}
             disabled={zoom <= MIN_ZOOM}
-            aria-label="Verkleinern"
+            aria-label={t("zoomOut")}
             className="p-3 text-white/60 hover:text-white active:text-white disabled:opacity-20 transition-colors"
           >
             <ZoomOut size={20} />
@@ -314,7 +316,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
           <button
             onClick={() => applyZoom(zoom * ZOOM_STEP)}
             disabled={zoom >= MAX_ZOOM}
-            aria-label="Vergrößern"
+            aria-label={t("zoomIn")}
             className="p-3 text-white/60 hover:text-white active:text-white disabled:opacity-20 transition-colors"
           >
             <ZoomIn size={20} />
@@ -323,7 +325,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
 
         <button
           onClick={onClose}
-          aria-label="Schließen"
+          aria-label={t("close")}
           className="p-3 text-white/60 hover:text-white active:text-white transition-colors"
         >
           <X size={20} />
@@ -350,7 +352,7 @@ export default function PdfViewer({ url, onClose }: PdfViewerProps) {
         {status === "error" && (
           <div className="flex flex-col items-center gap-3 text-white/50">
             <AlertCircle size={36} />
-            <p className="text-sm">PDF konnte nicht geladen werden.</p>
+            <p className="text-sm">{t("loadError")}</p>
           </div>
         )}
 

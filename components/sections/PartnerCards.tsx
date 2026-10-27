@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { ArrowUpRight } from "lucide-react";
 import { urlFor } from "@/lib/sanity";
 import type { Partner } from "@/types";
@@ -22,13 +23,14 @@ function PartnerLink({
   className: string;
   children: ReactNode;
 }) {
+  const t = useTranslations("partnerCards");
   if (!partner.websiteUrl) return <div className={className}>{children}</div>;
   return (
     <a
       href={partner.websiteUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${partner.name} – Website besuchen`}
+      aria-label={t("visit", { name: partner.name })}
       className={`group press-card ${className}`}
     >
       {children}
@@ -85,11 +87,12 @@ function LogoPlate({
 }
 
 function VisitLabel({ className }: { className: string }) {
+  const t = useTranslations("partnerCards");
   return (
     <span
       className={`inline-flex items-center gap-1 text-sm font-semibold ${className}`}
     >
-      Website besuchen
+      {t("visitSite")}
       <ArrowUpRight
         size={16}
         aria-hidden="true"

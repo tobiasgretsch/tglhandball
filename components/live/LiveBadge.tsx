@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { findGameForFixture } from "@/lib/live/fixture";
 import type { LiveGame } from "@/lib/live/types";
 import { useLiveGames } from "./LiveProvider";
@@ -46,6 +47,7 @@ const tickerHref = (game: LiveGame) => `/live/${game.meetingId}`;
 
 /** Header badge: appears only while at least one TG game is live. */
 export function LiveNavBadge({ className = "" }: { className?: string }) {
+  const t = useTranslations("liveBadge");
   const { liveGames } = useLiveGames();
   if (liveGames.length === 0) return null;
 
@@ -55,12 +57,12 @@ export function LiveNavBadge({ className = "" }: { className?: string }) {
     <span className={className}>
       <LivePill
         href={single ? tickerHref(only) : "/live"}
-        label="Live"
+        label={t("live")}
         tone="light"
         ariaLabel={
           single
-            ? `Live-Ticker: ${only.homeTeam} gegen ${only.awayTeam}`
-            : `${liveGames.length} Spiele live – zum Live-Ticker`
+            ? t("single", { home: only.homeTeam, away: only.awayTeam })
+            : t("multiple", { count: liveGames.length })
         }
       />
     </span>
@@ -73,6 +75,7 @@ interface LiveMatchBadgeProps {
 
 /** Marks a fixture of our own schedule while its game is live, with the running score. */
 export function LiveMatchBadge({ match }: LiveMatchBadgeProps) {
+  const t = useTranslations("liveBadge");
   const { liveGames } = useLiveGames();
   const game = useMemo(
     () => findGameForFixture(liveGames, match),
@@ -83,9 +86,14 @@ export function LiveMatchBadge({ match }: LiveMatchBadgeProps) {
   return (
     <LivePill
       href={tickerHref(game)}
-      label={`Live ${game.scoreHome}:${game.scoreGuest}`}
+      label={t("liveScore", { home: game.scoreHome, guest: game.scoreGuest })}
       tone="solid"
-      ariaLabel={`Live-Ticker: ${game.homeTeam} gegen ${game.awayTeam}, Stand ${game.scoreHome} zu ${game.scoreGuest}`}
+      ariaLabel={t("withScore", {
+        home: game.homeTeam,
+        away: game.awayTeam,
+        scoreHome: game.scoreHome,
+        scoreGuest: game.scoreGuest,
+      })}
     />
   );
 }

@@ -3,7 +3,6 @@ import { playerLabel } from "./events";
 import type { RawPlayer } from "./parse";
 import type { EntryKind, MatchStats, PlayerLine, TeamSide, TeamStats, TickerEntry } from "./types";
 
-const HALFTIME_LABEL = "Halbzeit";
 const PLAYER_COUNTER: Partial<Record<EntryKind, "goals" | "timePenalties" | "warnings" | "disqualifications">> = {
   goal: "goals",
   "seven-meter-goal": "goals",
@@ -59,7 +58,7 @@ export function buildStats(
   let secondHalf = false;
 
   for (const entry of entries) {
-    if (entry.kind === "period" && entry.label === HALFTIME_LABEL) secondHalf = true;
+    if (entry.kind === "period" && entry.label === "halftime") secondHalf = true;
     if (!entry.side) continue;
     const team = teams[entry.side];
 

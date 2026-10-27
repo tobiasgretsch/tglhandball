@@ -1,18 +1,15 @@
-import Link from "next/link";
+import { useMemo } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Activity, MapPin } from "lucide-react";
 import type { Match } from "@/types";
-import { CLUB_TIME_ZONE } from "@/lib/dates";
-import { HIGHLIGHT_LABEL, isHighlight } from "@/lib/live/highlights";
-import { OUTCOME_LABEL, gamePagePath, tgOutcome, type Outcome } from "@/lib/match";
+import { Link } from "@/i18n/navigation";
+import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
+import { dateFormatter } from "@/lib/i18n/format";
+import { isHighlight } from "@/lib/live/highlights";
+import { gamePagePath, tgOutcome, type Outcome } from "@/lib/match";
 import MatchReportButton from "@/components/ui/MatchReportButton";
 import AddToCalendarButton from "@/components/ui/AddToCalendarButton";
 import { LiveMatchBadge } from "@/components/live/LiveBadge";
-
-const timeFormat = new Intl.DateTimeFormat("de-DE", {
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: CLUB_TIME_ZONE,
-});
 
 export const OUTCOME_CLASS: Record<Outcome, string> = {
   sieg: "text-primary dark:text-primary-glow",
@@ -22,6 +19,11 @@ export const OUTCOME_CLASS: Record<Outcome, string> = {
 
 /** One layout for all breakpoints: lead (time/score) · matchup · venue · actions. */
 export default function SpielplanMatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
+  const t = useTranslations("spielplanRow");
+  const outcomeT = useTranslations("outcome");
+  const highlightT = useTranslations("highlight");
+  const tag = LOCALE_TAGS[useLocale() as Locale];
+  const timeFormat = useMemo(() => dateFormatter(tag, { hour: "2-digit", minute: "2-digit" }), [tag]);
   const outcome = isResult ? tgOutcome(match) : null;
   const tgIsHome = match.isHomeGame === true;
   const tgIsAway = match.isHomeGame === false;
@@ -51,14 +53,14 @@ export default function SpielplanMatchRow({ match, isResult }: { match: Match; i
             >
               {match.result ?? "–:–"}
             </span>
-            {outcome && <span className="sr-only"> {OUTCOME_LABEL[outcome]}</span>}
+            {outcome && <span className="sr-only"> {outcomeT(outcome)}</span>}
           </>
         ) : (
           <>
             <span className="text-lg font-black tabular-nums text-text dark:text-gray-100">
               {timeFormat.format(new Date(match.date))}
             </span>
-            <span className="block text-[11px] leading-none text-muted">Uhr</span>
+            <span className="block text-[11px] leading-none text-muted">{t("kickoffSuffix")}</span>
           </>
         )}
       </div>
@@ -69,7 +71,7 @@ export default function SpielplanMatchRow({ match, isResult }: { match: Match; i
           <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-primary dark:text-primary-glow leading-tight mb-0.5">
             {match.team.name}
             {match.isHomeGame !== undefined && (
-              <span className="sr-only">{tgIsHome ? ", Heimspiel" : ", Auswärtsspiel"}</span>
+              <span className="sr-only">{tgIsHome ? t("homeGameSr") : t("awayGameSr")}</span>
             )}
           </p>
         )}
@@ -78,17 +80,17 @@ export default function SpielplanMatchRow({ match, isResult }: { match: Match; i
           <span className="mx-1.5 text-muted" aria-hidden="true">
             –
           </span>
-          <span className="sr-only"> gegen </span>
+          <span className="sr-only"> {t("versusSr")} </span>
           <span className={sideClass(tgIsAway)}>{match.awayTeam}</span>
         </p>
         {highlights.length > 0 && (
-          <ul className="mt-1.5 flex flex-wrap gap-1.5" aria-label="Besonderheiten">
-            {highlights.map((tag) => (
+          <ul className="mt-1.5 flex flex-wrap gap-1.5" aria-label={t("highlightsLabel")}>
+            {highlights.map((highlight) => (
               <li
-                key={tag}
+                key={highlight}
                 className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-brand-red"
               >
-                {HIGHLIGHT_LABEL[tag]}
+                {highlightT(highlight)}
               </li>
             ))}
           </ul>
@@ -118,12 +120,12 @@ export default function SpielplanMatchRow({ match, isResult }: { match: Match; i
         {gamePath && (
           <Link
             href={gamePath}
-            aria-label={`Spielverlauf: ${match.homeTeam} gegen ${match.awayTeam}`}
+            aria-label={t("historyLabel", { home: match.homeTeam, away: match.awayTeam })}
             className="press inline-flex min-h-9 items-center gap-1.5 rounded-full border border-gray-200 px-3 text-xs font-bold text-text transition-colors hover:border-primary hover:text-brand-red dark:border-gray-600 dark:text-gray-100"
           >
             <Activity size={14} aria-hidden="true" />
-            <span className="sm:hidden">Verlauf</span>
-            <span className="hidden sm:inline">Spielverlauf</span>
+            <span className="sm:hidden">{t("historyShort")}</span>
+            <span className="hidden sm:inline">{t("history")}</span>
           </Link>
         )}
         {isResult && match.meetingId && <MatchReportButton meetingId={match.meetingId} />}

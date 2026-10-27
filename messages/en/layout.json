@@ -1,0 +1,115 @@
+{
+  "header": {
+    "mainNav": "Main navigation",
+    "mobileNav": "Mobile navigation",
+    "drawerTitle": "Navigation",
+    "home": "Home",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "submenu": "{label} – submenu",
+    "allTeams": "All teams →",
+    "fanshop": "Fan shop",
+    "themeLight": "Switch to light theme",
+    "themeDark": "Switch to dark theme",
+    "nav": {
+      "news": "News",
+      "teams": "Teams",
+      "games": "Games",
+      "club": "Club",
+      "partner": "Partners"
+    },
+    "games": {
+      "schedule": "Fixtures & results",
+      "live": "Live ticker",
+      "magazine": "Matchday magazine"
+    },
+    "club": {
+      "about": "About us",
+      "gallery": "Gallery",
+      "supporters": "Supporters' association (Förderverein)",
+      "directions": "Directions"
+    },
+    "teamGroups": {
+      "herren": "Men",
+      "damen": "Women",
+      "jugend_m": "Youth boys",
+      "jugend_w": "Youth girls"
+    }
+  },
+  "footer": {
+    "tagline": "Handball in Landshut — passion, team spirit and sport at the highest level.",
+    "quickLinks": "Quick links",
+    "contact": "Contact",
+    "contactMissing": "Contact details are configured in the CMS.",
+    "copyright": "© {year} TG MIPA Landshut",
+    "imprint": "Legal notice (Impressum)",
+    "privacy": "Privacy policy",
+    "links": {
+      "news": "News",
+      "teams": "Teams",
+      "live": "Live ticker",
+      "partner": "Partners",
+      "fanshop": "Fan shop",
+      "club": "Handball department"
+    }
+  },
+  "switcher": {
+    "label": "Language"
+  },
+  "scrollToTop": {
+    "label": "Scroll to top"
+  },
+  "cookieSettings": {
+    "label": "Cookie settings"
+  },
+  "consent": {
+    "title": "Your privacy",
+    "text": "We only use additional services if you agree. Without your consent the website stays fully usable; embedded third-party content (tables, map) is then not loaded. You can change your choice at any time via “Cookie settings” in the footer. More in the <privacy>privacy policy</privacy> and the <imprint>legal notice</imprint>.",
+    "alwaysActive": "always active",
+    "necessaryTitle": "Necessary",
+    "necessaryText": "Stores your privacy choice and your light/dark theme preference in your browser. Without these settings the website does not work as intended.",
+    "statisticsTitle": "Statistics",
+    "statisticsText": "Vercel Web Analytics and Speed Insights anonymously measure page views and loading times to improve the website. Provider: Vercel Inc., USA.",
+    "externalTitle": "External content",
+    "externalText": "Tables and fixtures from handball.net and the map from OpenStreetMap. Your IP address is transmitted to the respective provider.",
+    "onlyNecessary": "Necessary only",
+    "saveSelection": "Save selection",
+    "acceptAll": "Accept all",
+    "customise": "Customise settings",
+    "close": "Close"
+  },
+  "consentGate": {
+    "notice": "<b>{label}</b> is provided by {provider}. Loading it transmits your IP address to {provider}.",
+    "allow": "Allow external content",
+    "settings": "Settings"
+  },
+  "calendarButton": {
+    "label": "Add to calendar",
+    "labelFor": "Add to calendar: {home} vs {away}"
+  },
+  "matchReport": {
+    "label": "Match report"
+  },
+  "legalDocument": {
+    "cookieName": "Cookie name",
+    "duration": "Storage period"
+  },
+  "partnerBand": {
+    "heading": "Our partners",
+    "all": "View all partners →",
+    "visit": "{name} – visit website"
+  },
+  "partnerCards": {
+    "visitSite": "Visit website",
+    "visit": "{name} – visit website"
+  },
+  "partnerInfo": {
+    "brochure": "TG MIPA Landshut brochure",
+    "supporters": "TG MIPA Landshut supporters' association (Förderverein)"
+  },
+  "personCard": {
+    "showSecond": "Show second photo of {name}",
+    "hideSecond": "Hide second photo of {name}",
+    "secondAlt": "{name} – second photo"
+  }
+}

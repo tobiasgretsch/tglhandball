@@ -1,0 +1,104 @@
+{
+  "spielplanPage": {
+    "breadcrumbHome": "Startseite",
+    "title": "Spielplan & Ergebnisse",
+    "description": "Alle Spiele, Termine und Ergebnisse der TG MIPA Landshut-Mannschaften auf einen Blick.",
+    "heroSubtitle": "Alle Spiele und Ergebnisse der TG MIPA Landshut-Mannschaften."
+  },
+  "spielplanClient": {
+    "allTeams": "Alle Teams",
+    "searchLabel": "Gegner suchen",
+    "searchPlaceholder": "Gegner suchen …",
+    "filter": "Filter",
+    "filterActive": "Filter, {count} aktiv",
+    "tableLink": "Tabelle {team}",
+    "reset": "Zurücksetzen",
+    "nothingFound": "Keine Spiele gefunden.",
+    "nothingFoundFiltered": "Mit diesen Filtern gibt es keine Treffer.",
+    "nothingFoundEmpty": "Es sind noch keine Spiele eingetragen.",
+    "resetFilters": "Filter zurücksetzen",
+    "upcoming": "Kommende Spiele",
+    "results": "Ergebnisse",
+    "homeGame": "Heimspiel",
+    "showAll": "Alle {count} anzeigen"
+  },
+  "spielplanFilters": {
+    "title": "Filter",
+    "reset": "Zurücksetzen",
+    "close": "Filter schließen",
+    "month": "Monat",
+    "status": "Status",
+    "statusLive": "Live",
+    "statusUpcoming": "Kommend",
+    "statusFinished": "Beendet",
+    "location": "Ort",
+    "home": "Heimspiele",
+    "away": "Auswärtsspiele",
+    "result": "Ergebnis aus Sicht der TG",
+    "wins": "Siege",
+    "draws": "Unentschieden",
+    "losses": "Niederlagen",
+    "highlights": "Besondere Spiele",
+    "league": "Liga",
+    "season": "Saison",
+    "showGames": "{count, plural, one {# Spiel anzeigen} other {# Spiele anzeigen}}"
+  },
+  "spielplanRow": {
+    "kickoffSuffix": "Uhr",
+    "homeGameSr": ", Heimspiel",
+    "awayGameSr": ", Auswärtsspiel",
+    "versusSr": "gegen",
+    "highlightsLabel": "Besonderheiten",
+    "historyLabel": "Spielverlauf: {home} gegen {away}",
+    "historyShort": "Verlauf",
+    "history": "Spielverlauf"
+  },
+  "spielplanSummary": {
+    "label": "Bilanz der angezeigten Spiele",
+    "games": "Spiele",
+    "record": "Bilanz (S-U-N)",
+    "goals": "Tore",
+    "form": "Form",
+    "formLabel": "Letzte Ergebnisse, ältestes zuerst",
+    "formLetter": {
+      "sieg": "S",
+      "unentschieden": "U",
+      "niederlage": "N"
+    }
+  },
+  "outcome": {
+    "sieg": "Sieg",
+    "unentschieden": "Unentschieden",
+    "niederlage": "Niederlage"
+  },
+  "highlight": {
+    "krimi": "Krimi",
+    "comeback": "Aufholjagd",
+    "kantersieg": "Kantersieg"
+  },
+  "gamePage": {
+    "breadcrumbHome": "Startseite",
+    "breadcrumbSchedule": "Spielplan & Ergebnisse",
+    "title": "Spielverlauf",
+    "metaDescription": "Spielverlauf, Torfolge und Statistik: {home} gegen {away} endete {scoreHome}:{scoreGuest}.",
+    "metaDescriptionLeague": "Spielverlauf, Torfolge und Statistik: {home} gegen {away} endete {scoreHome}:{scoreGuest} ({league}).",
+    "allGames": "Alle Spiele",
+    "highlightsLabel": "Besonderheiten dieses Spiels",
+    "otherGames": "Weitere Spiele",
+    "previous": "Vorheriges Spiel",
+    "next": "Nächstes Spiel"
+  },
+  "standingsTable": {
+    "caption": "Ligatabelle",
+    "rank": "#",
+    "team": "Mannschaft",
+    "played": "Sp.",
+    "won": "S",
+    "drawn": "U",
+    "lost": "N",
+    "goals": "Tore",
+    "goalDiff": "+/-",
+    "points": "Pkt.",
+    "source": "Quelle:"
+  }
+}

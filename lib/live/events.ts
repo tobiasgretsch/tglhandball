@@ -3,7 +3,7 @@
  * the current score and a readable feed. Pure — no I/O, `now` is a parameter.
  */
 import type { RawEvent, RawPlayer } from "./parse";
-import type { EntryKind, GameStatus, LiveGame, TeamSide, TickerEntry } from "./types";
+import type { EntryKind, EntryLabel, GameStatus, LiveGame, StatusLabel, TeamSide, TickerEntry } from "./types";
 
 /** Event codes of nuScoreLive (`GAME_TIME_START = 0` … `OFFICIAL_TO_PLAYER_SWITCH = 19`). */
 const CODE = {
@@ -27,29 +27,29 @@ const CODE = {
 const SCORING_CODES: ReadonlySet<number> = new Set([CODE.goal, CODE.sevenMeterGoal, CODE.ownGoal]);
 const PERIOD_CODES: ReadonlySet<number> = new Set([CODE.periodStart, CODE.periodStop, CODE.gameEnd]);
 const ANONYMOUS_NAME = "Anonym";
-const REGULAR_PERIODS = 2;
+export const REGULAR_PERIODS = 2;
 /** A game without "Spielende" this long after kick-off is treated as over. */
 const ABANDONED_AFTER_MS = 4 * 60 * 60 * 1000;
 const SECONDS_PER_MINUTE = 60;
 
 interface EntryStyle {
   kind: EntryKind;
-  label: string;
+  label: EntryLabel;
 }
 
 const ENTRY_STYLE: Partial<Record<number, EntryStyle>> = {
-  [CODE.goal]: { kind: "goal", label: "Tor" },
-  [CODE.sevenMeterGoal]: { kind: "seven-meter-goal", label: "7-Meter-Tor" },
-  [CODE.sevenMeterMiss]: { kind: "seven-meter-miss", label: "7-Meter verworfen" },
-  [CODE.ownGoal]: { kind: "own-goal", label: "Eigentor" },
-  [CODE.timePenalty]: { kind: "time-penalty", label: "2 Minuten" },
-  [CODE.warning]: { kind: "warning", label: "Verwarnung" },
-  [CODE.disqualificationReport]: { kind: "disqualification", label: "Disqualifikation (Blau)" },
-  [CODE.disqualificationNoReport]: { kind: "disqualification", label: "Disqualifikation (Rot)" },
-  [CODE.interruptionHome]: { kind: "timeout", label: "Auszeit" },
-  [CODE.interruptionGuest]: { kind: "timeout", label: "Auszeit" },
-  [CODE.teamPenaltyHome]: { kind: "team-penalty", label: "Bankstrafe" },
-  [CODE.teamPenaltyGuest]: { kind: "team-penalty", label: "Bankstrafe" },
+  [CODE.goal]: { kind: "goal", label: "goal" },
+  [CODE.sevenMeterGoal]: { kind: "seven-meter-goal", label: "sevenMeterGoal" },
+  [CODE.sevenMeterMiss]: { kind: "seven-meter-miss", label: "sevenMeterMiss" },
+  [CODE.ownGoal]: { kind: "own-goal", label: "ownGoal" },
+  [CODE.timePenalty]: { kind: "time-penalty", label: "timePenalty" },
+  [CODE.warning]: { kind: "warning", label: "warning" },
+  [CODE.disqualificationReport]: { kind: "disqualification", label: "disqualificationBlue" },
+  [CODE.disqualificationNoReport]: { kind: "disqualification", label: "disqualificationRed" },
+  [CODE.interruptionHome]: { kind: "timeout", label: "timeout" },
+  [CODE.interruptionGuest]: { kind: "timeout", label: "timeout" },
+  [CODE.teamPenaltyHome]: { kind: "team-penalty", label: "teamPenalty" },
+  [CODE.teamPenaltyGuest]: { kind: "team-penalty", label: "teamPenalty" },
 };
 
 const SIDE_FROM_CODE: Partial<Record<number, TeamSide>> = {
@@ -61,12 +61,9 @@ const SIDE_FROM_CODE: Partial<Record<number, TeamSide>> = {
 
 interface PeriodState {
   status: GameStatus;
-  label: string;
-}
-
-function ordinalPeriod(n: number): string {
-  if (n <= REGULAR_PERIODS) return `${n}. Halbzeit`;
-  return `Verlängerung ${n - REGULAR_PERIODS}`;
+  label: StatusLabel;
+  /** Period a `periodRunning` label refers to; 0 otherwise. */
+  period: number;
 }
 
 /**
@@ -92,25 +89,21 @@ export function deriveStatus(
   const last = periodEvents.at(-1);
   const stops = periodEvents.filter((e) => e.code === CODE.periodStop).length;
 
-  if (last?.code === CODE.gameEnd) return { status: "finished", label: "Beendet" };
+  if (last?.code === CODE.gameEnd) return { status: "finished", label: "finished", period: 0 };
 
   const overdue = now - new Date(game.scheduled).getTime() > ABANDONED_AFTER_MS;
-  if (!game.live && overdue && events.length > 0) return { status: "finished", label: "Beendet" };
+  if (!game.live && overdue && events.length > 0) return { status: "finished", label: "finished", period: 0 };
 
   if (last?.code === CODE.periodStart) {
-    return { status: "running", label: `${ordinalPeriod(stops + 1)} läuft` };
+    return { status: "running", label: "periodRunning", period: stops + 1 };
   }
   if (last?.code === CODE.periodStop) {
-    const label =
-      stops === 1
-        ? "Halbzeitpause"
-        : stops === REGULAR_PERIODS
-          ? "Ende der regulären Spielzeit"
-          : "Pause";
-    return { status: "break", label };
+    const label: StatusLabel =
+      stops === 1 ? "halftimeBreak" : stops === REGULAR_PERIODS ? "regularTimeEnd" : "break";
+    return { status: "break", label, period: 0 };
   }
-  if (game.live || events.length > 0) return { status: "running", label: "Läuft" };
-  return { status: "scheduled", label: "Noch nicht gestartet" };
+  if (game.live || events.length > 0) return { status: "running", label: "running", period: 0 };
+  return { status: "scheduled", label: "notStarted", period: 0 };
 }
 
 /** Scores only grow, so the larger total is the fresher one. */
@@ -155,15 +148,15 @@ function sideOf(event: RawEvent, previousScore: RawEvent | undefined): TeamSide 
   return event.teamHome ? "home" : "guest";
 }
 
-function periodLabel(events: RawEvent[], at: number): string {
+function periodLabel(events: RawEvent[], at: number): { label: EntryLabel; period: number } {
   const event = events[at];
   const n = events.slice(0, at + 1).filter((e) => e.code === event.code).length;
-  if (event.code === CODE.gameEnd) return "Spielende";
-  if (event.code === CODE.periodStart) return n === 1 ? "Anpfiff" : `Beginn ${ordinalPeriod(n)}`;
-  if (n === 1) return "Halbzeit";
-  return n === REGULAR_PERIODS
-    ? "Ende der regulären Spielzeit"
-    : `Ende Verlängerung ${n - REGULAR_PERIODS}`;
+  if (event.code === CODE.gameEnd) return { label: "gameEnd", period: 0 };
+  if (event.code === CODE.periodStart) {
+    return n === 1 ? { label: "kickoff", period: 0 } : { label: "periodStart", period: n };
+  }
+  if (n === 1) return { label: "halftime", period: 0 };
+  return n === REGULAR_PERIODS ? { label: "regularTimeEnd", period: 0 } : { label: "extraTimeEnd", period: n };
 }
 
 function teamName(game: LiveGame, side: TeamSide | null): string {
@@ -191,7 +184,7 @@ export function buildEntries(
       scoreGuest: event.pointsGuest,
     };
     if (PERIOD_CODES.has(event.code)) {
-      entries.push({ ...base, kind: "period", label: periodLabel(events, i), detail: "", side: null });
+      entries.push({ ...base, kind: "period", ...periodLabel(events, i), detail: "", side: null });
       return;
     }
     const style = ENTRY_STYLE[event.code];
@@ -203,7 +196,7 @@ export function buildEntries(
     const detail = isTeamEvent
       ? teamName(game, side)
       : playerLine(event, playerById) || teamName(game, side);
-    entries.push({ ...base, ...style, detail, side });
+    entries.push({ ...base, ...style, period: 0, detail, side });
   });
 
   return entries.reverse();

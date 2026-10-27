@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ClubLocation } from "@/types";
 import ConsentGate from "@/components/ui/ConsentGate";
 import FilterPill from "@/components/ui/FilterPill";
@@ -31,6 +32,7 @@ interface AnfahrtSectionProps {
 
 /** Location picker (game hall, training halls …) with address card and a map for the selected one. */
 export default function AnfahrtSection({ locations }: AnfahrtSectionProps) {
+  const t = useTranslations("anfahrtSection");
   const [selectedKey, setSelectedKey] = useState(locations[0]?._key);
   const selected = locations.find((l) => l._key === selectedKey) ?? locations[0];
   if (!selected) return null;
@@ -39,7 +41,7 @@ export default function AnfahrtSection({ locations }: AnfahrtSectionProps) {
   return (
     <>
       {locations.length > 1 && (
-        <div className="mt-8 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Standort wählen">
+        <div className="mt-8 flex gap-2 overflow-x-auto pb-1" role="group" aria-label={t("chooseLocation")}>
           {locations.map((location) => (
             <FilterPill
               key={location._key}
@@ -76,16 +78,16 @@ export default function AnfahrtSection({ locations }: AnfahrtSectionProps) {
             rel="noopener noreferrer"
             className="inline-flex min-h-11 items-center gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-accent dark:text-accent-sky hover:text-primary transition-colors"
           >
-            Route planen →
+            {t("route")}
           </a>
         </div>
 
         {coords && (
         <ConsentGate
-          label="Die Karte"
+          label={t("mapLabel")}
           provider="OpenStreetMap"
           className="h-[400px] md:h-[460px]"
-          fallbackLink={{ href: googleMapsUrl(coords), label: "Standort in Google Maps öffnen" }}
+          fallbackLink={{ href: googleMapsUrl(coords), label: t("openInGoogleMaps") }}
         >
           {/* key remounts the map: Leaflet reads center/zoom only on creation */}
           <VenueMap

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "i18n:check": "node scripts/check-i18n.mjs",
     "postbuild": "next-sitemap"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.577.0",
     "next": "^16.4.2",
+    "next-intl": "^4.14.9",
     "next-sanity": "^12.1.0",
     "next-sitemap": "^4.2.3",
     "pdfjs-dist": "^5.4.296",

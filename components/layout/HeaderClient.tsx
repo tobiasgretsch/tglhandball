@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef, useSyncExternalStore } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Menu, X, ChevronDown, Sun, Moon, ShoppingBag } from "lucide-react";
 import type { TeamCategory } from "@/types";
 import { LiveNavBadge } from "@/components/live/LiveBadge";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 /** The anti-flash script in the root layout sets `dark` on <html> before hydration. */
 function subscribeToTheme(onChange: () => void) {
@@ -26,12 +27,7 @@ interface TeamItem {
   category?: TeamCategory;
 }
 
-const TEAM_GROUPS: { key: TeamCategory; label: string }[] = [
-  { key: "herren",   label: "Herren" },
-  { key: "damen",    label: "Damen" },
-  { key: "jugend_m", label: "Jugend männlich" },
-  { key: "jugend_w", label: "Jugend weiblich" },
-];
+const TEAM_GROUPS: TeamCategory[] = ["herren", "damen", "jugend_m", "jugend_w"];
 
 interface HeaderClientProps {
   logoUrl: string | null;
@@ -40,38 +36,38 @@ interface HeaderClientProps {
 }
 
 interface StaticDropdownItem {
-  label: string;
+  labelKey: "games.schedule" | "games.live" | "games.magazine" | "club.about" | "club.gallery" | "club.supporters" | "club.directions";
   href: string;
 }
 
 type DropdownKey = "teams" | "spiele" | "verein";
 
 interface NavLink {
-  label: string;
+  labelKey: "nav.news" | "nav.teams" | "nav.games" | "nav.club" | "nav.partner";
   href?: string;
   dropdown?: DropdownKey;
   staticItems?: StaticDropdownItem[];
 }
 
 const SPIELE_ITEMS: StaticDropdownItem[] = [
-  { label: "Spielplan & Ergebnisse", href: "/spielplan" },
-  { label: "Live-Ticker", href: "/live" },
-  { label: "Spieltagsmagazin", href: "/spieltagsmagazin" },
+  { labelKey: "games.schedule", href: "/spielplan" },
+  { labelKey: "games.live", href: "/live" },
+  { labelKey: "games.magazine", href: "/spieltagsmagazin" },
 ];
 
 const VEREIN_ITEMS: StaticDropdownItem[] = [
-  { label: "Über uns", href: "/ueberuns" },
-  { label: "Impressionen", href: "/impressionen" },
-  { label: "Förderverein", href: "/foerderverein" },
-  { label: "Anfahrt", href: "/ueberuns#anfahrt" },
+  { labelKey: "club.about", href: "/ueberuns" },
+  { labelKey: "club.gallery", href: "/impressionen" },
+  { labelKey: "club.supporters", href: "/foerderverein" },
+  { labelKey: "club.directions", href: "/ueberuns#anfahrt" },
 ];
 
 const NAV_LINKS: NavLink[] = [
-  { label: "News", href: "/news" },
-  { label: "Teams", href: "/teams", dropdown: "teams" },
-  { label: "Spiele", dropdown: "spiele", staticItems: SPIELE_ITEMS },
-  { label: "Verein", dropdown: "verein", staticItems: VEREIN_ITEMS },
-  { label: "Partner", href: "/partner" },
+  { labelKey: "nav.news", href: "/news" },
+  { labelKey: "nav.teams", href: "/teams", dropdown: "teams" },
+  { labelKey: "nav.games", dropdown: "spiele", staticItems: SPIELE_ITEMS },
+  { labelKey: "nav.club", dropdown: "verein", staticItems: VEREIN_ITEMS },
+  { labelKey: "nav.partner", href: "/partner" },
 ];
 
 const FANSHOP_HREF = "/fanshop";
@@ -81,6 +77,7 @@ export default function HeaderClient({
   clubName,
   teams,
 }: HeaderClientProps) {
+  const t = useTranslations("header");
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -190,11 +187,11 @@ export default function HeaderClient({
         </Link>
 
         {/* Desktop navigation */}
-        <nav className="hidden lg:flex items-center gap-0.5" aria-label="Hauptnavigation">
+        <nav className="hidden lg:flex items-center gap-0.5" aria-label={t("mainNav")}>
           {NAV_LINKS.map((link) =>
             link.dropdown ? (
               <div
-                key={link.label}
+                key={link.labelKey}
                 className="relative"
                 onMouseEnter={() => openMenu(link.dropdown!)}
                 onMouseLeave={scheduleClose}
@@ -202,14 +199,14 @@ export default function HeaderClient({
                 <button
                   aria-haspopup="true"
                   aria-expanded={openDropdown === link.dropdown}
-                  aria-label={`${link.label} – Untermenü`}
+                  aria-label={t("submenu", { label: t(link.labelKey) })}
                   className={`relative flex items-center gap-1.5 px-4 py-2 text-[15px] font-bold uppercase tracking-[0.12em] rounded-sm transition-colors ${
                     isActive(link)
                       ? "text-white"
                       : "text-white/75 hover:text-white"
                   }`}
                 >
-                  {link.label}
+                  {t(link.labelKey)}
                   <motion.span
                     animate={{ rotate: openDropdown === link.dropdown ? 180 : 0 }}
                     transition={{ duration: prefersReduced ? 0 : 0.2 }}
@@ -238,7 +235,7 @@ export default function HeaderClient({
                     >
                       {link.dropdown === "teams" && (
                         <>
-                          {TEAM_GROUPS.map(({ key, label }) => {
+                          {TEAM_GROUPS.map((key) => {
                             const groupTeams = teams.filter((t) => t.category === key);
                             if (groupTeams.length === 0) return null;
                             const expanded = openDesktopGroups.has(key);
@@ -248,7 +245,7 @@ export default function HeaderClient({
                                   onClick={() => toggleDesktopGroup(key)}
                                   className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] font-bold uppercase tracking-wider text-gray-700 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
                                 >
-                                  {label}
+                                  {t(`teamGroups.${key}`)}
                                   <motion.span
                                     animate={{ rotate: expanded ? 180 : 0 }}
                                     transition={{ duration: prefersReduced ? 0 : 0.18 }}
@@ -300,7 +297,7 @@ export default function HeaderClient({
                             href="/teams"
                             className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/70 dark:hover:text-white dark:hover:bg-white/10 transition-colors border-t border-gray-100 dark:border-white/10"
                           >
-                            Alle Teams →
+                            {t("allTeams")}
                           </Link>
                         </>
                       )}
@@ -310,7 +307,7 @@ export default function HeaderClient({
                             href={item.href}
                             className="block px-4 py-3 text-[13px] font-bold uppercase tracking-wider text-gray-900 hover:bg-red-50 dark:text-white dark:hover:bg-white/10 dark:hover:text-white transition-colors border-b border-gray-200 dark:border-white/10 last:border-0"
                           >
-                            {item.label}
+                            {t(item.labelKey)}
                           </Link>
                         ))}
                     </motion.div>
@@ -319,7 +316,7 @@ export default function HeaderClient({
               </div>
             ) : (
               <Link
-                key={link.label}
+                key={link.labelKey}
                 href={link.href!}
                 className={`relative px-4 py-2 text-[15px] font-bold uppercase tracking-[0.12em] rounded-sm transition-colors ${
                   isActive(link)
@@ -327,7 +324,7 @@ export default function HeaderClient({
                     : "text-white/75 hover:text-white"
                 }`}
               >
-                {link.label}
+                {t(link.labelKey)}
                 {isActive(link) && (
                   <motion.span
                     layoutId="nav-underline"
@@ -345,13 +342,15 @@ export default function HeaderClient({
             className="ml-3 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[13px] font-bold uppercase tracking-[0.12em] text-primary hover:bg-white/90 dark:bg-primary dark:text-white dark:hover:bg-primary-light press"
           >
             <ShoppingBag size={15} aria-hidden />
-            Fanshop
+            {t("fanshop")}
           </Link>
+
+          <LanguageSwitcher />
 
           {/* Theme toggle — desktop */}
           <button
             onClick={toggleTheme}
-            aria-label={isDark ? "Helles Design aktivieren" : "Dunkles Design aktivieren"}
+            aria-label={isDark ? t("themeLight") : t("themeDark")}
             className="ml-2 p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 press"
           >
             {isDark ? <Sun size={17} /> : <Moon size={17} />}
@@ -363,7 +362,7 @@ export default function HeaderClient({
           <LiveNavBadge className="mr-1" />
           <button
             onClick={toggleTheme}
-            aria-label={isDark ? "Helles Design aktivieren" : "Dunkles Design aktivieren"}
+            aria-label={isDark ? t("themeLight") : t("themeDark")}
             className="p-2 text-white/80 hover:text-white press"
           >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
@@ -371,7 +370,7 @@ export default function HeaderClient({
           <button
             className="p-2 text-white/90 hover:text-white press"
             onClick={() => setMobileOpen(true)}
-            aria-label="Menü öffnen"
+            aria-label={t("openMenu")}
           >
             <Menu size={24} />
           </button>
@@ -405,19 +404,19 @@ export default function HeaderClient({
               {/* Drawer header */}
               <div className="flex items-center justify-between px-6 h-[68px] border-b border-gray-200 dark:border-white/10">
                 <span className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-[0.12em]">
-                  Navigation
+                  {t("drawerTitle")}
                 </span>
                 <button
                   onClick={() => setMobileOpen(false)}
                   className="text-gray-500 hover:text-gray-900 dark:text-white/70 dark:hover:text-white p-1 transition-colors"
-                  aria-label="Menü schließen"
+                  aria-label={t("closeMenu")}
                 >
                   <X size={22} />
                 </button>
               </div>
 
               {/* Drawer links */}
-              <nav className="flex-1 overflow-y-auto py-4" aria-label="Mobile Navigation">
+              <nav className="flex-1 overflow-y-auto py-4" aria-label={t("mobileNav")}>
                 {/* Home — mobile only */}
                 <motion.div
                   initial={{ opacity: 0, x: prefersReduced ? 0 : 16 }}
@@ -433,13 +432,13 @@ export default function HeaderClient({
                         : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
                     }`}
                   >
-                    Home
+                    {t("home")}
                   </Link>
                 </motion.div>
 
                 {NAV_LINKS.map((link, i) => (
                   <motion.div
-                    key={link.label}
+                    key={link.labelKey}
                     initial={{ opacity: 0, x: 16 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: prefersReduced ? 0 : (i + 1) * 0.055, duration: prefersReduced ? 0 : 0.22 }}
@@ -454,7 +453,7 @@ export default function HeaderClient({
                             : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
                         }`}
                       >
-                        {link.label}
+                        {t(link.labelKey)}
                         <motion.span
                           animate={{ rotate: mobileExpanded.has(link.dropdown) ? 180 : 0 }}
                           transition={{ duration: prefersReduced ? 0 : 0.2 }}
@@ -473,7 +472,7 @@ export default function HeaderClient({
                             : "text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5"
                         }`}
                       >
-                        {link.label}
+                        {t(link.labelKey)}
                       </Link>
                     )}
 
@@ -487,7 +486,7 @@ export default function HeaderClient({
                           transition={{ duration: prefersReduced ? 0 : 0.22, ease: "easeInOut" }}
                           className="overflow-hidden bg-gray-50 dark:bg-black/20"
                         >
-                          {TEAM_GROUPS.map(({ key, label }) => {
+                          {TEAM_GROUPS.map((key) => {
                             const groupTeams = teams.filter((t) => t.category === key);
                             if (groupTeams.length === 0) return null;
                             const groupKey = `tg_${key}`;
@@ -498,7 +497,7 @@ export default function HeaderClient({
                                   onClick={() => toggleMobileSection(groupKey)}
                                   className="w-full flex items-center justify-between pl-10 pr-6 py-2.5 text-[12px] font-bold uppercase tracking-[0.12em] text-gray-700 dark:text-white/75 hover:text-gray-900 dark:hover:text-white hover:bg-red-50 dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                                 >
-                                  {label}
+                                  {t(`teamGroups.${key}`)}
                                   <motion.span
                                     animate={{ rotate: expanded ? 180 : 0 }}
                                     transition={{ duration: prefersReduced ? 0 : 0.18 }}
@@ -548,7 +547,7 @@ export default function HeaderClient({
                             onClick={() => setMobileOpen(false)}
                             className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-t border-gray-200 dark:border-white/10"
                           >
-                            Alle Teams →
+                            {t("allTeams")}
                           </Link>
                         </motion.div>
                       )}
@@ -571,7 +570,7 @@ export default function HeaderClient({
                               onClick={() => setMobileOpen(false)}
                               className="flex items-center pl-10 pr-6 py-3 text-[13px] font-semibold uppercase tracking-wider text-gray-700 hover:text-gray-900 hover:bg-red-50 dark:text-white/75 dark:hover:text-white dark:hover:bg-white/5 transition-colors border-b border-gray-200 dark:border-white/5"
                             >
-                              {item.label}
+                              {t(item.labelKey)}
                             </Link>
                           ))}
                         </motion.div>
@@ -587,8 +586,12 @@ export default function HeaderClient({
                     className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-[13px] font-bold uppercase tracking-[0.12em] text-white hover:bg-primary-light dark:bg-white dark:text-primary dark:hover:bg-white/90 transition-colors"
                   >
                     <ShoppingBag size={16} aria-hidden />
-                    Fanshop
+                    {t("fanshop")}
                   </Link>
+                </div>
+
+                <div className="px-6 pt-4 pb-6">
+                  <LanguageSwitcher variant="drawer" />
                 </div>
               </nav>
             </motion.div>

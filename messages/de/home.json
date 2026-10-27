@@ -1,0 +1,58 @@
+{
+  "homePage": {
+    "metaTitle": "TG MIPA Landshut Handball – Spielplan, Teams & News aus Landshut",
+    "metaDescription": "Offizielle Website des TG MIPA Landshut: Handball in Landshut mit Herren-, Damen- und Jugendmannschaften. Aktueller Spielplan, Ergebnisse, News und Hallenadresse.",
+    "ogDescription": "Handball in Landshut – Spielplan, Teams und News des TG MIPA Landshut.",
+    "newsHeading": "Aktuelles",
+    "allNews": "Alle News",
+    "newsEmpty": "Noch keine News vorhanden. Bitte Artikel im CMS anlegen.",
+    "read": "Lesen",
+    "newsFallback": "News",
+    "teamsHeading": "Unsere Teams",
+    "allTeams": "Alle Teams",
+    "teamCount": "{count, plural, one {# Mannschaft} other {# Mannschaften}}",
+    "teamPhotoAlt": "{label} – Mannschaftsfoto",
+    "galleryHeading": "Impressionen",
+    "toGallery": "Zur Galerie",
+    "sponsorsHeading": "Exclusiv-Partner",
+    "allPartners": "Alle Partner",
+    "partnerOfDay": "Partner des Tages",
+    "partnerOfDayLabel": "Partner des Tages: {name}",
+    "visitWebsite": "Website besuchen",
+    "magazineHeading": "Spieltagsmagazin",
+    "magazineMatchday": "Spieltag {number}",
+    "magazineVersus": "vs. {opponent}",
+    "magazineFallbackTitle": "Spieltagsheft",
+    "magazineRead": "Lesen",
+    "allMagazines": "Alle Magazine"
+  },
+  "hero": {
+    "tagline": "TG MIPA Landshut — Leidenschaft seit Jahrzehnten.",
+    "headlineTop": "Handball",
+    "headlineBottom": "in Landshut",
+    "news": "Neuigkeiten",
+    "teams": "Zu den Teams"
+  },
+  "matchday": {
+    "heading": "Spieltag",
+    "nextGame": "Nächstes Spiel",
+    "following": "Danach",
+    "lastResult": "Letztes Ergebnis",
+    "versus": "vs.",
+    "kickoff": "{date} Uhr",
+    "countdownLabel": "Countdown bis zum nächsten Spiel",
+    "countdownDays": "Tage",
+    "countdownHours": "Std",
+    "countdownMinutes": "Min",
+    "countdownSeconds": "Sek",
+    "finalScore": "Endstand {score}",
+    "outcome": {
+      "sieg": "Sieg",
+      "niederlage": "Niederlage",
+      "unentschieden": "Unentschieden"
+    },
+    "gameTimeline": "Spielverlauf",
+    "otherTeams": "Spiele & Ergebnisse unserer Teams",
+    "fullSchedule": "Kompletter Spielplan"
+  }
+}

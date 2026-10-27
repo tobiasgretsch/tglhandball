@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { FileText, Users } from "lucide-react";
 import dynamic from "next/dynamic";
 import PortableText from "@/components/ui/PortableText";
@@ -15,6 +16,7 @@ interface PartnerInfoBlockProps {
 }
 
 export default function PartnerInfoBlock({ text, pdfUrl }: PartnerInfoBlockProps) {
+  const t = useTranslations("partnerInfo");
   const [viewerOpen, setViewerOpen] = useState(false);
 
   return (
@@ -34,7 +36,7 @@ export default function PartnerInfoBlock({ text, pdfUrl }: PartnerInfoBlockProps
               className="btn btn-primary w-full sm:w-auto"
             >
               <FileText size={16} className="shrink-0" aria-hidden="true" />
-              Imagebroschüre TG MIPA Landshut
+              {t("brochure")}
             </button>
           )}
           <Link
@@ -42,7 +44,7 @@ export default function PartnerInfoBlock({ text, pdfUrl }: PartnerInfoBlockProps
             className="btn press bg-accent hover:bg-accent-deep w-full sm:w-auto"
           >
             <Users size={16} className="shrink-0" aria-hidden="true" />
-            Förderverein TG MIPA Landshut
+            {t("supporters")}
           </Link>
         </div>
       </div>

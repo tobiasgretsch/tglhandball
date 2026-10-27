@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "siteTitle": "TG MIPA Landshut Handball",
+    "siteDescription": "Offizielle Website des TG MIPA Landshut: Handball in Landshut mit Herren-, Damen- und Jugendmannschaften. Spielplan, Ergebnisse, News und Hallenadresse.",
+    "logoAlt": "TG MIPA Landshut Logo"
+  },
+  "common": {
+    "skipToContent": "Zum Inhalt springen",
+    "language": "Sprache"
+  },
+  "notFound": {
+    "metaTitle": "Seite nicht gefunden",
+    "title": "Diese Seite gibt es nicht",
+    "message": "Der Link ist veraltet oder die Seite wurde verschoben. Hier geht es weiter:"
+  },
+  "error": {
+    "code": "Oops",
+    "title": "Da ist etwas schiefgelaufen",
+    "message": "Die Seite konnte nicht geladen werden. Bitte versuche es noch einmal.",
+    "retry": "Erneut versuchen"
+  },
+  "errorPanel": {
+    "home": "Zur Startseite",
+    "links": {
+      "schedule": "Spielplan & Ergebnisse",
+      "teams": "Unsere Teams",
+      "news": "Neuigkeiten"
+    }
+  }
+}

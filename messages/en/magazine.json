@@ -1,0 +1,35 @@
+{
+  "magazine": {
+    "meta": {
+      "title": "Matchday magazines",
+      "description": "All TG MIPA Landshut matchday magazines to download, sorted by season."
+    },
+    "hero": {
+      "title": "Matchday magazines",
+      "subtitle": "All TG MIPA Landshut matchday magazines to download."
+    },
+    "empty": "No matchday magazines available yet.",
+    "season": "Season",
+    "unknownSeason": "Unknown season",
+    "available": "{available}/{total} available",
+    "columns": {
+      "matchday": "Matchday",
+      "opponent": "Opponent",
+      "date": "Date",
+      "read": "Read"
+    },
+    "homeMatchday": "Home matchday {number}",
+    "fallbackTitle": "Matchday magazine",
+    "read": "Read",
+    "comingSoon": "Coming soon",
+    "comingSoonShort": "Coming soon",
+    "openPdf": "Open PDF",
+    "viewer": {
+      "previousPage": "Previous page",
+      "zoomOut": "Zoom out",
+      "zoomIn": "Zoom in",
+      "close": "Close",
+      "loadError": "The PDF could not be loaded."
+    }
+  }
+}

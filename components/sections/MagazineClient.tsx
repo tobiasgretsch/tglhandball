@@ -5,16 +5,26 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ChevronDown, BookOpen, FileX } from "lucide-react";
 import type { Magazine } from "@/types";
 import dynamic from "next/dynamic";
+import { useLocale, useTranslations } from "next-intl";
+import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
+import { dateFormatter } from "@/lib/i18n/format";
 
 // pdfjs-dist uses browser-only APIs (DOMMatrix) — never run on the server
 const PdfViewer = dynamic(() => import("@/components/sections/PdfViewer"), { ssr: false });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split("-");
-  return `${day}.${month}.${year}`;
+/** Formats a "YYYY-MM-DD" date in the active locale. */
+function useFormatDate(): (dateStr: string) => string {
+  const tag = LOCALE_TAGS[useLocale() as Locale];
+  return (dateStr) =>
+    dateFormatter(tag, { day: "2-digit", month: "2-digit", year: "numeric" }).format(
+      new Date(`${dateStr}T12:00:00Z`),
+    );
 }
+
+/** Group key for magazines without a season; shown as a translated label. */
+const UNKNOWN_SEASON = "";
 
 function getPdfUrl(magazine: Magazine): string | null {
   return magazine.pdfFile?.asset?.url ?? null;
@@ -31,7 +41,7 @@ function groupBySeason(magazines: Magazine[]): SeasonGroup[] {
   const map = new Map<string, Magazine[]>();
 
   for (const mag of magazines) {
-    const key = mag.season ?? "Unbekannte Saison";
+    const key = mag.season ?? UNKNOWN_SEASON;
     const existing = map.get(key);
     if (existing) {
       existing.push(mag);
@@ -58,6 +68,7 @@ function groupBySeason(magazines: Magazine[]): SeasonGroup[] {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function MagazineClient({ magazines }: { magazines: Magazine[] }) {
+  const t = useTranslations("magazine");
   const seasons = useMemo(() => groupBySeason(magazines), [magazines]);
   const [openSeason, setOpenSeason] = useState<string | null>(
     seasons[0]?.season ?? null
@@ -68,7 +79,7 @@ export default function MagazineClient({ magazines }: { magazines: Magazine[] })
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
         <p className="text-muted text-sm">
-          Noch keine Spieltagsmagazine verfügbar.
+          {t("empty")}
         </p>
       </div>
     );
@@ -113,6 +124,7 @@ function SeasonAccordion({
   onToggle: () => void;
   onOpenPdf: (url: string) => void;
 }) {
+  const t = useTranslations("magazine");
   const prefersReduced = useReducedMotion() ?? false;
   const availableCount = group.entries.filter(
     (m) => getPdfUrl(m) !== null
@@ -133,17 +145,17 @@ function SeasonAccordion({
           />
           <div className="text-left">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted mb-0.5">
-              Saison
+              {t("season")}
             </p>
             <p className="font-display font-bold italic uppercase text-2xl tracking-[-0.02em] text-text dark:text-gray-100 leading-tight">
-              {group.season}
+              {group.season || t("unknownSeason")}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
           <span className="hidden sm:block text-xs text-muted tabular-nums">
-            {availableCount}/{group.entries.length} verfügbar
+            {t("available", { available: availableCount, total: group.entries.length })}
           </span>
           <motion.span
             animate={{ rotate: isOpen ? 180 : 0 }}
@@ -178,15 +190,16 @@ function SeasonAccordion({
 // ─── Magazine table ───────────────────────────────────────────────────────────
 
 function MagazineTable({ entries, onOpenPdf }: { entries: Magazine[]; onOpenPdf: (url: string) => void }) {
+  const t = useTranslations("magazine");
   return (
     <>
       <table className="hidden sm:table w-full text-sm border-collapse">
         <thead>
           <tr className="text-xs font-bold uppercase tracking-[0.12em] text-muted border-b border-gray-100 dark:border-gray-700">
-            <th className="text-left px-5 py-3 w-[160px]">Spieltag</th>
-            <th className="text-left px-3 py-3">Gegner</th>
-            <th className="text-left px-3 py-3 w-[130px]">Datum</th>
-            <th className="text-right px-5 py-3 w-[160px]">Lesen</th>
+            <th className="text-left px-5 py-3 w-[160px]">{t("columns.matchday")}</th>
+            <th className="text-left px-3 py-3">{t("columns.opponent")}</th>
+            <th className="text-left px-3 py-3 w-[130px]">{t("columns.date")}</th>
+            <th className="text-right px-5 py-3 w-[160px]">{t("columns.read")}</th>
           </tr>
         </thead>
         <tbody>
@@ -216,6 +229,8 @@ function MagazineTableRow({
   striped: boolean;
   onOpenPdf: (url: string) => void;
 }) {
+  const t = useTranslations("magazine");
+  const formatDate = useFormatDate();
   const pdfUrl = getPdfUrl(magazine);
 
   return (
@@ -227,7 +242,7 @@ function MagazineTableRow({
       }`}
     >
       <td className="px-5 py-4 font-bold text-[13px] text-text dark:text-gray-100">
-        {magazine.matchday != null ? `${magazine.matchday}. Heimspieltag` : "–"}
+        {magazine.matchday != null ? t("homeMatchday", { number: magazine.matchday }) : "–"}
       </td>
       <td className="px-3 py-4 text-[13px] text-text dark:text-gray-100">
         {magazine.opponent ?? "–"}
@@ -242,12 +257,12 @@ function MagazineTableRow({
             className="press inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent text-white text-xs font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
           >
             <BookOpen size={12} aria-hidden="true" />
-            Lesen
+            {t("read")}
           </button>
         ) : (
           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted cursor-default select-none">
             <FileX size={12} aria-hidden="true" />
-            Demnächst verfügbar
+            {t("comingSoon")}
           </span>
         )}
       </td>
@@ -258,16 +273,18 @@ function MagazineTableRow({
 // ─── Mobile row ───────────────────────────────────────────────────────────────
 
 function MagazineMobileRow({ magazine, onOpenPdf }: { magazine: Magazine; onOpenPdf: (url: string) => void }) {
+  const t = useTranslations("magazine");
+  const formatDate = useFormatDate();
   const pdfUrl = getPdfUrl(magazine);
 
   return (
     <div className="flex items-center justify-between gap-3 px-4 py-4">
       <div className="min-w-0">
         <p className="font-bold text-[13px] text-text dark:text-gray-100 truncate">
-          {magazine.opponent ?? "Spieltagsheft"}
+          {magazine.opponent ?? t("fallbackTitle")}
         </p>
         <p className="text-xs text-muted mt-0.5">
-          {magazine.matchday != null ? `${magazine.matchday}. Heimspieltag` : ""}
+          {magazine.matchday != null ? t("homeMatchday", { number: magazine.matchday }) : ""}
           {magazine.matchday != null && magazine.date ? " · " : ""}
           {magazine.date ? formatDate(magazine.date) : ""}
         </p>
@@ -279,11 +296,11 @@ function MagazineMobileRow({ magazine, onOpenPdf }: { magazine: Magazine; onOpen
           className="press shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent text-white text-xs font-bold uppercase tracking-wide hover:bg-accent/85 transition-colors"
         >
           <BookOpen size={14} aria-hidden="true" />
-          Lesen
+          {t("read")}
         </button>
       ) : (
         <span className="shrink-0 text-xs text-muted font-medium">
-          Demnächst
+          {t("comingSoonShort")}
         </span>
       )}
     </div>

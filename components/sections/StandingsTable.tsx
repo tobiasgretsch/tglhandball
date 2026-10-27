@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import type { StandingRow } from "@/lib/nuliga/standings";
 
 const CLUB_NAME_PREFIX = "TG Landshut";
@@ -13,22 +14,23 @@ const CELL = "px-2 py-3 text-center tabular-nums";
 const WIDE = "hidden sm:table-cell";
 
 export default function StandingsTable({ rows, sourceUrl }: Props) {
+  const t = useTranslations("standingsTable");
   return (
     <div className="mt-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-[0_1px_2px_rgb(0_0_0/0.06),0_16px_40px_-16px_rgb(0_0_0/0.2)] bg-white dark:bg-gray-800 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-text dark:text-gray-100">
-          <caption className="sr-only">Ligatabelle</caption>
+          <caption className="sr-only">{t("caption")}</caption>
           <thead className="bg-background dark:bg-gray-700/60">
             <tr>
-              <th scope="col" className={`${HEAD} w-10 text-center`}>#</th>
-              <th scope="col" className={`${HEAD} text-left`}>Mannschaft</th>
-              <th scope="col" className={`${HEAD} text-center`}>Sp.</th>
-              <th scope="col" className={`${HEAD} text-center ${WIDE}`}>S</th>
-              <th scope="col" className={`${HEAD} text-center ${WIDE}`}>U</th>
-              <th scope="col" className={`${HEAD} text-center ${WIDE}`}>N</th>
-              <th scope="col" className={`${HEAD} text-center`}>Tore</th>
-              <th scope="col" className={`${HEAD} text-center ${WIDE}`}>+/-</th>
-              <th scope="col" className={`${HEAD} text-center`}>Pkt.</th>
+              <th scope="col" className={`${HEAD} w-10 text-center`}>{t("rank")}</th>
+              <th scope="col" className={`${HEAD} text-left`}>{t("team")}</th>
+              <th scope="col" className={`${HEAD} text-center`}>{t("played")}</th>
+              <th scope="col" className={`${HEAD} text-center ${WIDE}`}>{t("won")}</th>
+              <th scope="col" className={`${HEAD} text-center ${WIDE}`}>{t("drawn")}</th>
+              <th scope="col" className={`${HEAD} text-center ${WIDE}`}>{t("lost")}</th>
+              <th scope="col" className={`${HEAD} text-center`}>{t("goals")}</th>
+              <th scope="col" className={`${HEAD} text-center ${WIDE}`}>{t("goalDiff")}</th>
+              <th scope="col" className={`${HEAD} text-center`}>{t("points")}</th>
             </tr>
           </thead>
           <tbody>
@@ -58,7 +60,7 @@ export default function StandingsTable({ rows, sourceUrl }: Props) {
         </table>
       </div>
       <p className="px-4 py-3 text-xs text-muted border-t border-gray-100 dark:border-gray-700">
-        Quelle:{" "}
+        {t("source")}{" "}
         <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
           nuLiga
         </a>

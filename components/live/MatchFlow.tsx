@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, type PointerEvent } from "react";
+import { useTranslations } from "next-intl";
 import { isClubTeam } from "@/lib/live/fixture";
 import { formatGameClock } from "@/lib/live/events";
 import {
@@ -15,6 +16,7 @@ import {
   type LeadStep,
 } from "@/lib/live/flow";
 import type { TeamSide, TickerEntry, TickerSnapshot } from "@/lib/live/types";
+import { useLiveLabels } from "./useLiveLabels";
 
 const SECONDS_PER_MINUTE = 60;
 /** SVG user units; the graph is stretched to the container, so only the ratios matter. */
@@ -44,12 +46,6 @@ const TONES = {
 } as const;
 type Tone = (typeof TONES)[keyof typeof TONES];
 
-const CATEGORY_LABEL: Record<EventCategory, string> = {
-  goals: "Tore",
-  penalties: "Strafen",
-  timeouts: "Auszeiten",
-  other: "Sonstige",
-};
 const CATEGORY_ORDER: EventCategory[] = ["goals", "penalties", "timeouts", "other"];
 const CATEGORY_SWATCH: Record<EventCategory, string> = {
   goals: "bg-gradient-to-r from-primary to-accent",
@@ -114,9 +110,9 @@ function EventDot({ entry, tone, label }: { entry: TickerEntry; tone: Tone; labe
   return <span className={`${base} size-3/5 bg-gray-300 ring-2 ${tone.ring} dark:bg-gray-500`} title={label} />;
 }
 
-function eventLabel(entry: TickerEntry): string {
+function eventLabel(entry: TickerEntry, label: string): string {
   const who = entry.detail ? ` · ${entry.detail}` : "";
-  return `${formatGameClock(entry.second)}${who} · ${entry.label} (${entry.scoreHome}:${entry.scoreGuest})`;
+  return `${formatGameClock(entry.second)}${who} · ${label} (${entry.scoreHome}:${entry.scoreGuest})`;
 }
 
 /** Events as dots on the time axis; overlapping ones stack into lanes. */
@@ -131,6 +127,7 @@ function EventStrip({
   width: number;
   toneOf: (side: TeamSide | null) => Tone;
 }) {
+  const { entryLabel } = useLiveLabels();
   const lanes = assignLanes(
     entries.map((e) => e.second),
     length / width,
@@ -153,7 +150,7 @@ function EventStrip({
             height: DOT_PX,
           }}
         >
-          <EventDot entry={entry} tone={toneOf(entry.side)} label={eventLabel(entry)} />
+          <EventDot entry={entry} tone={toneOf(entry.side)} label={eventLabel(entry, entryLabel(entry))} />
         </span>
       ))}
     </div>
@@ -171,6 +168,7 @@ function CategoryChip({
   active: boolean;
   onToggle: () => void;
 }) {
+  const t = useTranslations("matchFlow");
   return (
     <button
       type="button"
@@ -183,13 +181,14 @@ function CategoryChip({
       }`}
     >
       <span className={`size-3 rounded-full ${CATEGORY_SWATCH[category]}`} aria-hidden="true" />
-      {CATEGORY_LABEL[category]}
+      {t(category)}
       <span className="text-xs tabular-nums text-muted">{count}</span>
     </button>
   );
 }
 
 function LayoutToggle({ layout, onChange }: { layout: Layout; onChange: (next: Layout) => void }) {
+  const t = useTranslations("matchFlow");
   const option = (value: Layout, label: string) => (
     <button
       type="button"
@@ -203,9 +202,9 @@ function LayoutToggle({ layout, onChange }: { layout: Layout; onChange: (next: L
     </button>
   );
   return (
-    <div role="group" aria-label="Ereignisse anordnen" className="inline-flex rounded-full bg-gray-100 p-0.5 dark:bg-gray-900/50">
-      {option("together", "Zusammen")}
-      {option("split", "Getrennt")}
+    <div role="group" aria-label={t("layoutLabel")} className="inline-flex rounded-full bg-gray-100 p-0.5 dark:bg-gray-900/50">
+      {option("together", t("together"))}
+      {option("split", t("split"))}
     </div>
   );
 }
@@ -219,6 +218,7 @@ const HOVER_LABEL_CLASS =
   "pointer-events-none absolute z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-gray-900 px-2.5 py-0.5 text-xs font-bold text-white shadow dark:bg-gray-100 dark:text-gray-900";
 
 export default function MatchFlow({ snapshot }: { snapshot: TickerSnapshot }) {
+  const t = useTranslations("matchFlow");
   const { game, entries } = snapshot;
   const [plotEl, setPlotEl] = useState<HTMLDivElement | null>(null);
   const width = useElementWidth(plotEl);
@@ -273,19 +273,17 @@ export default function MatchFlow({ snapshot }: { snapshot: TickerSnapshot }) {
     });
 
   const summary =
-    lead === 0
-      ? "Ausgeglichen"
-      : `${lead > 0 ? game.homeTeam : game.awayTeam} führt mit ${Math.abs(lead)} ${Math.abs(lead) === 1 ? "Tor" : "Toren"}`;
+    lead === 0 ? t("level") : t("leads", { team: lead > 0 ? game.homeTeam : game.awayTeam, goals: Math.abs(lead) });
 
   return (
     <section
-      aria-label="Spielverlauf"
+      aria-label={t("title")}
       className="rounded-3xl border border-gray-100 bg-white p-5 shadow-[0_1px_2px_rgb(0_0_0/0.05)] dark:border-gray-700 dark:bg-gray-800 sm:p-6"
     >
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-        <h2 className="font-display text-lg font-bold uppercase italic text-text dark:text-gray-100">Spielverlauf</h2>
+        <h2 className="font-display text-lg font-bold uppercase italic text-text dark:text-gray-100">{t("title")}</h2>
         <div className="hidden flex-wrap items-center gap-2 sm:flex">
-          <div role="group" aria-label="Ereignisse filtern" className="flex flex-wrap gap-2">
+          <div role="group" aria-label={t("filterLabel")} className="flex flex-wrap gap-2">
             {CATEGORY_ORDER.map((category, i) => (
               <CategoryChip
                 key={category}
@@ -309,7 +307,7 @@ export default function MatchFlow({ snapshot }: { snapshot: TickerSnapshot }) {
           )}
           <div
             role="img"
-            aria-label={`Spielverlauf: ${summary}`}
+            aria-label={t("chartLabel", { summary })}
             className="relative h-28 touch-pan-y sm:h-36"
             onPointerMove={trackPointer}
             onPointerLeave={() => setHoverFraction(null)}

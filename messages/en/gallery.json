@@ -1,0 +1,29 @@
+{
+  "gallery": {
+    "meta": {
+      "title": "Gallery",
+      "description": "Photos and impressions from games, training and events at TG MIPA Landshut."
+    },
+    "hero": {
+      "title": "Gallery",
+      "subtitle": "Photos and impressions from games, training and events."
+    },
+    "clubLabel": "Club",
+    "filters": {
+      "all": "All"
+    },
+    "count": "{count, plural, one {# photo} other {# photos}}",
+    "empty": "No photos in this selection.",
+    "imageAlt": "Gallery photo",
+    "lightbox": {
+      "close": "Close",
+      "previous": "Previous photo",
+      "next": "Next photo"
+    },
+    "row": {
+      "title": "Gallery",
+      "viewAll": "View all",
+      "photoAlt": "Photo"
+    }
+  }
+}

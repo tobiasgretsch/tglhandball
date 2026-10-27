@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowUp } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 const SHOW_AFTER_PX = 300;
 
 export default function ScrollToTop() {
+  const t = useTranslations("scrollToTop");
   const [visible, setVisible] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
 
@@ -25,7 +27,7 @@ export default function ScrollToTop() {
           exit={{ opacity: 0, scale: prefersReduced ? 1 : 0.8 }}
           transition={{ duration: prefersReduced ? 0 : 0.2 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          aria-label="Nach oben scrollen"
+          aria-label={t("label")}
           className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-primary/80 hover:bg-primary text-white shadow-lg hover:shadow-xl backdrop-blur-sm transition-colors duration-200"
         >
           <ArrowUp size={20} strokeWidth={2.5} />

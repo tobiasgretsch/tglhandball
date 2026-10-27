@@ -1,0 +1,48 @@
+{
+  "teamCategories": {
+    "herren": "Herren",
+    "damen": "Damen",
+    "jugend_m": "Jugend männlich",
+    "jugend_w": "Jugend weiblich"
+  },
+  "teamsPage": {
+    "metaTitle": "Unsere Teams",
+    "metaDescription": "Alle Mannschaften des TG MIPA Landshut – von der ersten Herrenmannschaft bis zur Jugend.",
+    "ogTitle": "Unsere Teams | TG MIPA Landshut",
+    "heroTitle": "Unsere Teams",
+    "empty": "Keine Teams gefunden. Bitte Teams im CMS anlegen.",
+    "others": "Weitere",
+    "viewTeam": "Zum Team"
+  },
+  "teamDetail": {
+    "fallbackTitle": "Mannschaft",
+    "metaDescriptionWithLeague": "{name} – {league}. Kader, Spielplan und Ergebnisse bei TG MIPA Landshut.",
+    "metaDescription": "{name} – Kader, Spielplan und Ergebnisse bei TG MIPA Landshut.",
+    "breadcrumbHome": "Startseite",
+    "breadcrumbTeams": "Teams",
+    "about": "Über uns",
+    "nextGames": "Nächste Spiele",
+    "lastResults": "Letzte Ergebnisse",
+    "fullSchedule": "Gesamter Spielplan",
+    "standings": "Tabelle",
+    "trainingTimes": "Trainingszeiten",
+    "coaches": "Trainerteam",
+    "squad": "Kader",
+    "support": "Betreuer",
+    "trainingTime": "{start} Uhr",
+    "trainingTimeRange": "{start}–{end} Uhr",
+    "versus": "vs. {team}",
+    "home": "Heim",
+    "away": "Auswärts",
+    "gameTimeline": "Spielverlauf",
+    "days": {
+      "mo": "Montag",
+      "di": "Dienstag",
+      "mi": "Mittwoch",
+      "do": "Donnerstag",
+      "fr": "Freitag",
+      "sa": "Samstag",
+      "so": "Sonntag"
+    }
+  }
+}

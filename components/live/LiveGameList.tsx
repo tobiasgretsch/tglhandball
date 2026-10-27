@@ -1,21 +1,24 @@
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
+import { dateFormatter } from "@/lib/i18n/format";
 import type { LiveGame } from "@/lib/live/types";
 
 interface LiveGameListProps {
   title: string;
   games: LiveGame[];
-  timeZone: string;
   emptyText?: string;
 }
 
-function GameRow({ game, timeZone }: { game: LiveGame; timeZone: string }) {
-  const when = new Intl.DateTimeFormat("de-DE", {
+function GameRow({ game }: { game: LiveGame }) {
+  const t = useTranslations("liveGameList");
+  const tag = LOCALE_TAGS[useLocale() as Locale];
+  const when = dateFormatter(tag, {
     weekday: "short",
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
-    timeZone,
   }).format(new Date(game.scheduled));
   const hasScore = game.live || game.scoreHome + game.scoreGuest > 0;
 
@@ -34,12 +37,12 @@ function GameRow({ game, timeZone }: { game: LiveGame; timeZone: string }) {
           <p className="mt-0.5 text-sm font-bold leading-snug text-text dark:text-gray-100">
             {game.homeTeam} <span className="font-normal text-muted">–</span> {game.awayTeam}
           </p>
-          <p className="mt-0.5 text-xs text-muted">{when} Uhr</p>
+          <p className="mt-0.5 text-xs text-muted">{t("when", { date: when })}</p>
         </div>
         <div className="shrink-0 text-right">
           {game.live && (
             <span className="mb-1 inline-flex rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-black uppercase tracking-[0.12em] text-white">
-              Live
+              {t("live")}
             </span>
           )}
           {hasScore && (
@@ -53,7 +56,7 @@ function GameRow({ game, timeZone }: { game: LiveGame; timeZone: string }) {
   );
 }
 
-export default function LiveGameList({ title, games, timeZone, emptyText }: LiveGameListProps) {
+export default function LiveGameList({ title, games, emptyText }: LiveGameListProps) {
   if (games.length === 0 && !emptyText) return null;
   return (
     <div>
@@ -63,7 +66,7 @@ export default function LiveGameList({ title, games, timeZone, emptyText }: Live
       ) : (
         <ul className="space-y-3">
           {games.map((game) => (
-            <GameRow key={game.meetingId} game={game} timeZone={timeZone} />
+            <GameRow key={game.meetingId} game={game} />
           ))}
         </ul>
       )}

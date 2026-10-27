@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { ReactNode } from "react";
 
 interface ErrorPanelProps {
@@ -10,13 +11,14 @@ interface ErrorPanelProps {
 }
 
 const QUICK_LINKS = [
-  { href: "/spielplan", label: "Spielplan & Ergebnisse" },
-  { href: "/teams", label: "Unsere Teams" },
-  { href: "/news", label: "Neuigkeiten" },
+  { href: "/spielplan", labelKey: "schedule" },
+  { href: "/teams", labelKey: "teams" },
+  { href: "/news", labelKey: "news" },
 ] as const;
 
 /** Shared body for 404 and runtime-error pages — keeps visitors inside the site. */
 export default function ErrorPanel({ code, title, message, action }: ErrorPanelProps) {
+  const t = useTranslations("errorPanel");
   return (
     <section className="min-h-[70dvh] flex items-center bg-background dark:bg-gray-900">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-24 text-center">
@@ -28,7 +30,7 @@ export default function ErrorPanel({ code, title, message, action }: ErrorPanelP
 
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/" className="btn btn-primary">
-            Zur Startseite
+            {t("home")}
           </Link>
           {action}
         </div>
@@ -40,7 +42,7 @@ export default function ErrorPanel({ code, title, message, action }: ErrorPanelP
                 href={link.href}
                 className="inline-block py-2 text-accent dark:text-accent-sky hover:underline underline-offset-4"
               >
-                {link.label}
+                {t(`links.${link.labelKey}`)}
               </Link>
             </li>
           ))}

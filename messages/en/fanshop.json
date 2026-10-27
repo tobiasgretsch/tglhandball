@@ -1,0 +1,153 @@
+{
+  "fanshop": {
+    "meta": {
+      "title": "Fan shop",
+      "description": "Official fan shop of TG MIPA Landshut: new 26/27 shirts, teamwear, indoor shoes and equipment from uhlsport.",
+      "ogDescription": "The new 26/27 shirt collection and more: show your club colours."
+    },
+    "hero": {
+      "title": "Fan shop",
+      "subtitle": "New 26/27 shirts, teamwear, indoor shoes and equipment, all in club colours."
+    },
+    "nav": {
+      "ariaLabel": "Shop categories"
+    },
+    "allShop": {
+      "title": "Entire shop",
+      "description": "All items at a glance"
+    },
+    "priceFrom": "from",
+    "priceNote": "Prices according to the club shop, as of {date}. The shop’s details are binding.",
+    "cta": {
+      "eyebrow": "Official uhlsport club shop",
+      "title": "Discover more",
+      "button": "To the fan shop"
+    },
+    "badges": {
+      "season": "26/27",
+      "youth": "Youth",
+      "kids": "Kids"
+    },
+    "categories": {
+      "herren": {
+        "title": "Men",
+        "description": "Shirts, warm-ups and teamwear, also in kids’ sizes"
+      },
+      "damen": {
+        "title": "Women",
+        "description": "Shirts, shorts and teamwear"
+      },
+      "schiedsrichter": {
+        "title": "Referees",
+        "description": "Shirts and shorts for referees"
+      },
+      "freizeit": {
+        "title": "Leisure & training",
+        "description": "Hoodies, jackets and gilets"
+      },
+      "baelle-schuhe": {
+        "title": "Balls & shoes",
+        "description": "Indoor shoes and match balls"
+      },
+      "equipment": {
+        "title": "Equipment",
+        "description": "Resin, bags and accessories"
+      }
+    },
+    "links": {
+      "herren": "Men’s items",
+      "damen": "Women’s items",
+      "schiedsrichter": "All referee items",
+      "freizeit": "All leisure items",
+      "baelle-schuhe": "All balls & shoes",
+      "equipment": "All equipment"
+    },
+    "sections": {
+      "kollektion": {
+        "eyebrow": "New for the 26/27 season",
+        "title": "The TGL collection",
+        "description": "Home and away shirts, goalkeeper kit and warm-up shirts: the official matchday outfit of our teams."
+      },
+      "teamwear": {
+        "eyebrow": "Men · Women · Youth",
+        "title": "Training & teamwear",
+        "description": "Polos, shirts, shorts and training trousers from uhlsport, for every session and the trip to the hall."
+      },
+      "freizeit": {
+        "eyebrow": "Leisure & training",
+        "title": "Hoodies, jackets & gilets",
+        "description": "Wrapped up warm on the touchline, from the hoodie to the winter jacket."
+      },
+      "baelle-schuhe": {
+        "eyebrow": "Balls & shoes",
+        "title": "Indoor shoes & match balls",
+        "description": "A selection: Kourtfly indoor shoes for women, men and kids, plus training and match balls. The shop also stocks Kempa Wing shoes and Spectrum Synergy balls."
+      },
+      "equipment": {
+        "eyebrow": "Equipment",
+        "title": "Gear for training & matchday",
+        "description": "Resin, ball bags, wristbands and trolleys: everything that belongs in the bag."
+      },
+      "schiedsrichter": {
+        "eyebrow": "Referees",
+        "title": "Referee kit",
+        "description": "Shirts in four colours and matching shorts for our referees."
+      }
+    },
+    "products": {
+      "homeShirtMen": "Home shirt men",
+      "awayShirtMen": "Away shirt men",
+      "homeShirtWomen": "Home shirt women",
+      "awayShirtWomen": "Away shirt women",
+      "keeperHomeShirt": "Goalkeeper home shirt",
+      "keeperAwayShirt": "Goalkeeper away shirt",
+      "shortMen": "Shorts men",
+      "shortWomen": "Shorts women",
+      "warmupXLite": "Warm-up X-Lite",
+      "warmupXLiteLong": "Warm-up X-Lite long sleeve",
+      "warmupXLiteDrNick": "Warm-up X-Lite “Dr. Nick”",
+      "divisionShirt": "Division shirt X-Lite",
+      "teamTShirt": "Team T-shirt",
+      "emotionShirt": "Emotion 27 shirt",
+      "emotionShirtWomen": "Emotion 27 shirt women",
+      "emotionLongSleeve": "Emotion 27 long-sleeve shirt",
+      "classicPolo": "Classic polo shirt",
+      "classicPoloWomen": "Classic polo shirt women",
+      "quarterZipTop": "1/4 zip top",
+      "teamShorts": "Team shorts",
+      "teamShortsWomen": "Team shorts women",
+      "pocketShorts": "Pocket shorts",
+      "liteTrainingPants": "Lite training trousers",
+      "liteTrainingPantsWomen": "Lite training trousers women",
+      "sweatPants": "Sweatpants",
+      "hoodie": "Hoodie",
+      "basicVest": "Basic gilet",
+      "basicVestWomen": "Basic gilet women",
+      "rainJacket": "Rain jacket",
+      "pufferJacket": "Puffer hooded jacket",
+      "winterJacket": "Winter jacket",
+      "promoTShirt": "Promo T-shirt",
+      "kourtfly": "Kourtfly",
+      "kourtflyWomen": "Kourtfly women",
+      "kourtflyMid": "Kourtfly Mid",
+      "kourtflyTwo": "Kourtfly Two",
+      "kourtflyThree": "Kourtfly Three",
+      "kourtflyJr": "Kourtfly Jr",
+      "kourtflyKids": "Kourtfly Kids",
+      "buteo": "Buteo",
+      "gecko": "Gecko",
+      "leo": "Leo",
+      "resin200": "Handball resin 200 ml",
+      "resin500": "Handball resin 500 ml",
+      "ballBag": "Ball bag for 1 ball",
+      "wristband": "Wristbands (1 pair)",
+      "athleticSupporter": "Athletic supporter",
+      "trolley": "Trolley 60 L",
+      "refShirtBlack": "Referee shirt black",
+      "refShirtBlue": "Referee shirt blue",
+      "refShirtGrey": "Referee shirt grey",
+      "refShirtGreen": "Referee shirt green",
+      "refShorts": "Referee shorts"
+    }
+  }
+}

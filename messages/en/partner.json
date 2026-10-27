@@ -1,0 +1,21 @@
+{
+  "partner": {
+    "meta": {
+      "title": "Our partners",
+      "description": "The partners and sponsors of TG MIPA Landshut: a heartfelt thank you for your support."
+    },
+    "hero": {
+      "title": "Our partners",
+      "subtitle": "A heartfelt thank you to all the partners who make handball in Landshut possible."
+    },
+    "tiers": {
+      "hauptsponsor": "Main sponsor",
+      "exclusiv": "Exclusive partner (hall name)",
+      "premium": "Premium partners",
+      "topPartner": "Top partners",
+      "fitness": "Fitness partners",
+      "supporter": "Supporter club"
+    },
+    "empty": "No partners yet. Please add partners in the CMS."
+  }
+}

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
-import { HIGHLIGHTS, HIGHLIGHT_LABEL } from "@/lib/live/highlights";
-import { OUTCOME_LABEL, type Outcome } from "@/lib/match";
+import { HIGHLIGHTS } from "@/lib/live/highlights";
+import type { Outcome } from "@/lib/match";
 import { seasonLabel, type Ort, type SpielplanFilters, type Status } from "@/lib/spielplanFilter";
 import FilterPill from "@/components/ui/FilterPill";
 
@@ -25,21 +26,20 @@ interface SpielplanFilterSheetProps {
   currentSeason: number;
 }
 
-const STATUS_OPTIONS: Array<{ value: Status; label: string }> = [
-  { value: "live", label: "Live" },
-  { value: "kommend", label: "Kommend" },
-  { value: "beendet", label: "Beendet" },
-];
-const ORT_OPTIONS: Array<{ value: Ort; label: string }> = [
-  { value: "heim", label: "Heimspiele" },
-  { value: "auswaerts", label: "Auswärtsspiele" },
-];
-const RESULT_OPTIONS: Outcome[] = ["sieg", "unentschieden", "niederlage"];
-const RESULT_LABEL: Record<Outcome, string> = {
-  sieg: "Siege",
-  unentschieden: OUTCOME_LABEL.unentschieden,
-  niederlage: "Niederlagen",
-};
+const STATUS_OPTIONS = [
+  { value: "live", label: "statusLive" },
+  { value: "kommend", label: "statusUpcoming" },
+  { value: "beendet", label: "statusFinished" },
+] as const satisfies ReadonlyArray<{ value: Status; label: string }>;
+const ORT_OPTIONS = [
+  { value: "heim", label: "home" },
+  { value: "auswaerts", label: "away" },
+] as const satisfies ReadonlyArray<{ value: Ort; label: string }>;
+const RESULT_OPTIONS = [
+  { value: "sieg", label: "wins" },
+  { value: "unentschieden", label: "draws" },
+  { value: "niederlage", label: "losses" },
+] as const satisfies ReadonlyArray<{ value: Outcome; label: string }>;
 
 function Group({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -74,6 +74,8 @@ export default function SpielplanFilterSheet({
   seasons,
   currentSeason,
 }: SpielplanFilterSheetProps) {
+  const t = useTranslations("spielplanFilters");
+  const highlightT = useTranslations("highlight");
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -124,7 +126,7 @@ export default function SpielplanFilterSheet({
         <div className="flex max-h-[88dvh] flex-col">
           <div className="flex items-center justify-between gap-3 px-5 pb-3 pt-5">
             <h2 id="spielplan-filter-title" className="text-lg font-black">
-              Filter
+              {t("title")}
             </h2>
             <div className="flex items-center gap-1">
               <button
@@ -133,12 +135,12 @@ export default function SpielplanFilterSheet({
                 disabled={!canReset}
                 className="press min-h-11 rounded-full px-3 disabled:opacity-40 text-sm font-semibold text-brand-red underline-offset-4 hover:underline"
               >
-                Zurücksetzen
+                {t("reset")}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Filter schließen"
+                aria-label={t("close")}
                 className="press flex size-11 items-center justify-center rounded-full text-muted hover:text-text dark:hover:text-gray-100"
               >
                 <X size={20} aria-hidden="true" />
@@ -149,7 +151,7 @@ export default function SpielplanFilterSheet({
           <div className="grid gap-6 overflow-y-auto overscroll-contain px-5 pb-4 sm:grid-cols-2">
             {months.length > 1 && (
               <div className="sm:col-span-2">
-                <Group label="Monat">
+                <Group label={t("month")}>
                   {months.map(({ key, label }) => (
                     <FilterPill
                       key={key}
@@ -162,44 +164,44 @@ export default function SpielplanFilterSheet({
               </div>
             )}
 
-            <Group label="Status">
+            <Group label={t("status")}>
               {STATUS_OPTIONS.map(({ value, label }) => (
                 <FilterPill
                   key={value}
-                  label={label}
+                  label={t(label)}
                   active={filters.status === value}
                   onClick={() => onChange({ status: toggled(filters.status, value) })}
                 />
               ))}
             </Group>
 
-            <Group label="Ort">
+            <Group label={t("location")}>
               {ORT_OPTIONS.map(({ value, label }) => (
                 <FilterPill
                   key={value}
-                  label={label}
+                  label={t(label)}
                   active={filters.ort === value}
                   onClick={() => onChange({ ort: toggled(filters.ort, value) })}
                 />
               ))}
             </Group>
 
-            <Group label="Ergebnis aus Sicht der TG">
-              {RESULT_OPTIONS.map((value) => (
+            <Group label={t("result")}>
+              {RESULT_OPTIONS.map(({ value, label }) => (
                 <FilterPill
                   key={value}
-                  label={RESULT_LABEL[value]}
+                  label={t(label)}
                   active={filters.ergebnis === value}
                   onClick={() => onChange({ ergebnis: toggled(filters.ergebnis, value) })}
                 />
               ))}
             </Group>
 
-            <Group label="Besondere Spiele">
+            <Group label={t("highlights")}>
               {HIGHLIGHTS.map((value) => (
                 <FilterPill
                   key={value}
-                  label={HIGHLIGHT_LABEL[value]}
+                  label={highlightT(value)}
                   active={filters.tag === value}
                   onClick={() => onChange({ tag: toggled(filters.tag, value) })}
                 />
@@ -207,7 +209,7 @@ export default function SpielplanFilterSheet({
             </Group>
 
             {leagues.length > 1 && (
-              <Group label="Liga">
+              <Group label={t("league")}>
                 {leagues.map((league) => (
                   <FilterPill
                     key={league}
@@ -220,7 +222,7 @@ export default function SpielplanFilterSheet({
             )}
 
             {seasons.length > 1 && (
-              <Group label="Saison">
+              <Group label={t("season")}>
                 {seasons.map((season) => (
                   <FilterPill
                     key={season}
@@ -239,7 +241,7 @@ export default function SpielplanFilterSheet({
               onClick={onClose}
               className="press min-h-12 w-full rounded-full bg-primary px-5 text-base font-bold text-white hover:bg-primary-light"
             >
-              {resultCount === 1 ? "1 Spiel anzeigen" : `${resultCount} Spiele anzeigen`}
+              {t("showGames", { count: resultCount })}
             </button>
           </div>
         </div>

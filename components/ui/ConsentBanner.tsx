@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
   CONSENT_ALL,
   CONSENT_NONE,
@@ -24,6 +25,7 @@ interface CategoryRowProps {
 }
 
 function CategoryRow({ title, description, checked, locked, onChange }: CategoryRowProps) {
+  const t = useTranslations("consent");
   return (
     <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
       <input
@@ -36,7 +38,7 @@ function CategoryRow({ title, description, checked, locked, onChange }: Category
       <span className="text-sm leading-relaxed text-text dark:text-gray-200">
         <span className="block font-semibold">
           {title}
-          {locked && <span className="ml-2 text-xs font-normal text-muted">immer aktiv</span>}
+          {locked && <span className="ml-2 text-xs font-normal text-muted">{t("alwaysActive")}</span>}
         </span>
         {description}
       </span>
@@ -45,6 +47,7 @@ function CategoryRow({ title, description, checked, locked, onChange }: Category
 }
 
 export default function ConsentBanner() {
+  const t = useTranslations("consent");
   const consent = useConsent();
   const [reopened, setReopened] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -124,33 +127,36 @@ export default function ConsentBanner() {
         className="consent-card max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl sm:rounded-2xl sm:p-6 dark:bg-gray-900"
       >
         <h2 id="consent-title" className="font-display text-2xl font-bold uppercase italic tracking-[-0.02em] text-text dark:text-white">
-          Deine Privatsphäre
+          {t("title")}
         </h2>
         <p id="consent-text" className="mt-2 text-sm leading-relaxed text-text dark:text-gray-300">
-          Wir verwenden nur dann zusätzliche Dienste, wenn du zustimmst. Ohne Zustimmung bleibt die Website voll nutzbar;
-          eingebundene Inhalte von Dritten (Tabellen, Karte) werden dann nicht geladen. Du kannst deine Auswahl jederzeit
-          über „Cookie-Einstellungen“ im Seitenfuß ändern. Mehr in der{" "}
-          <Link href="/datenschutz" className="text-link underline underline-offset-2">Datenschutzerklärung</Link>{" "}
-          und im <Link href="/impressum" className="text-link underline underline-offset-2">Impressum</Link>.
+          {t.rich("text", {
+            privacy: (chunks) => (
+              <Link href="/datenschutz" className="text-link underline underline-offset-2">{chunks}</Link>
+            ),
+            imprint: (chunks) => (
+              <Link href="/impressum" className="text-link underline underline-offset-2">{chunks}</Link>
+            ),
+          })}
         </p>
 
         {showDetails && (
           <div className="mt-4 space-y-3">
             <CategoryRow
-              title="Notwendig"
-              description="Speichert deine Datenschutzauswahl und die Wahl des hellen/dunklen Designs in deinem Browser. Ohne diese Einstellungen funktioniert die Website nicht wie gewünscht."
+              title={t("necessaryTitle")}
+              description={t("necessaryText")}
               checked
               locked
             />
             <CategoryRow
-              title="Statistik"
-              description="Vercel Web Analytics und Speed Insights messen anonymisiert Seitenaufrufe und Ladezeiten, um die Website zu verbessern. Anbieter: Vercel Inc., USA."
+              title={t("statisticsTitle")}
+              description={t("statisticsText")}
               checked={draft.statistics}
               onChange={(statistics) => setDraft((d) => ({ ...d, statistics }))}
             />
             <CategoryRow
-              title="Externe Inhalte"
-              description="Tabellen und Spielpläne von handball.net sowie die Karte von OpenStreetMap. Dabei wird deine IP-Adresse an den jeweiligen Anbieter übertragen."
+              title={t("externalTitle")}
+              description={t("externalText")}
               checked={draft.external}
               onChange={(external) => setDraft((d) => ({ ...d, external }))}
             />
@@ -159,15 +165,15 @@ export default function ConsentBanner() {
 
         <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <button type="button" className={BUTTON_CLASS} onClick={() => decide(CONSENT_NONE)}>
-            Nur notwendige
+            {t("onlyNecessary")}
           </button>
           {showDetails && (
             <button type="button" className={BUTTON_CLASS} onClick={() => decide(draft)}>
-              Auswahl speichern
+              {t("saveSelection")}
             </button>
           )}
           <button type="button" className={BUTTON_CLASS} onClick={() => decide(CONSENT_ALL)}>
-            Alle akzeptieren
+            {t("acceptAll")}
           </button>
         </div>
 
@@ -178,12 +184,12 @@ export default function ConsentBanner() {
               onClick={() => setShowDetails(true)}
               className="min-h-11 text-sm font-medium text-link underline underline-offset-2"
             >
-              Einstellungen anpassen
+              {t("customise")}
             </button>
           )}
           {canDismiss && (
             <button type="button" onClick={close} className="ml-auto min-h-11 text-sm text-muted underline underline-offset-2">
-              Schließen
+              {t("close")}
             </button>
           )}
         </div>

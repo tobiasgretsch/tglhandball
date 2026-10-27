@@ -1,0 +1,153 @@
+{
+  "fanshop": {
+    "meta": {
+      "title": "Fanshop",
+      "description": "Offizieller Fanshop des TG MIPA Landshut — neue Trikots 26/27, Teamwear, Hallenschuhe und Equipment von uhlsport.",
+      "ogDescription": "Neue Trikotkollektion 26/27 und mehr — zeig deine Vereinsfarben."
+    },
+    "hero": {
+      "title": "Fanshop",
+      "subtitle": "Neue Trikots 26/27, Teamwear, Hallenschuhe und Equipment — alles mit Vereinsfarben."
+    },
+    "nav": {
+      "ariaLabel": "Shop-Kategorien"
+    },
+    "allShop": {
+      "title": "Gesamter Shop",
+      "description": "Alle Artikel auf einen Blick"
+    },
+    "priceFrom": "ab",
+    "priceNote": "Preise laut Club-Shop, Stand {date}. Verbindlich sind die Angaben im Shop.",
+    "cta": {
+      "eyebrow": "Offizieller Club-Shop von uhlsport",
+      "title": "Noch mehr entdecken",
+      "button": "Zum Fanshop"
+    },
+    "badges": {
+      "season": "26/27",
+      "youth": "Jugend",
+      "kids": "Kids"
+    },
+    "categories": {
+      "herren": {
+        "title": "Herren",
+        "description": "Trikots, Warm-ups und Teamwear — auch in Kindergrößen"
+      },
+      "damen": {
+        "title": "Damen",
+        "description": "Trikots, Shorts und Teamwear"
+      },
+      "schiedsrichter": {
+        "title": "Schiedsrichter",
+        "description": "Trikots und Shorts für die Referees"
+      },
+      "freizeit": {
+        "title": "Freizeit & Training",
+        "description": "Hoodies, Jacken und Westen"
+      },
+      "baelle-schuhe": {
+        "title": "Bälle & Schuhe",
+        "description": "Hallenschuhe und Spielbälle"
+      },
+      "equipment": {
+        "title": "Equipment",
+        "description": "Harz, Taschen und Zubehör"
+      }
+    },
+    "links": {
+      "herren": "Herren-Artikel",
+      "damen": "Damen-Artikel",
+      "schiedsrichter": "Alle Schiedsrichter-Artikel",
+      "freizeit": "Alle Freizeit-Artikel",
+      "baelle-schuhe": "Alle Bälle & Schuhe",
+      "equipment": "Alles Equipment"
+    },
+    "sections": {
+      "kollektion": {
+        "eyebrow": "Neu in der Saison 26/27",
+        "title": "Die TGL-Kollektion",
+        "description": "Heim- und Auswärtstrikots, Torwartdress und Warm-up-Shirts — das offizielle Spieltags-Outfit unserer Teams."
+      },
+      "teamwear": {
+        "eyebrow": "Herren · Damen · Jugend",
+        "title": "Training & Teamwear",
+        "description": "Polos, Shirts, Shorts und Trainingshosen von uhlsport — für jede Einheit und für den Weg zur Halle."
+      },
+      "freizeit": {
+        "eyebrow": "Freizeit & Training",
+        "title": "Hoodies, Jacken & Westen",
+        "description": "Warm eingepackt an der Seitenlinie — vom Hoodie bis zur Winterjacke."
+      },
+      "baelle-schuhe": {
+        "eyebrow": "Bälle & Schuhe",
+        "title": "Hallenschuhe & Spielbälle",
+        "description": "Eine Auswahl: Kourtfly-Hallenschuhe für Damen, Herren und Kids sowie Trainings- und Spielbälle. Im Shop gibt es außerdem Kempa-Wing-Schuhe und Spectrum-Synergy-Bälle."
+      },
+      "equipment": {
+        "eyebrow": "Equipment",
+        "title": "Zubehör für Training & Spieltag",
+        "description": "Harz, Balltaschen, Schweißbänder und Trolleys — alles, was in die Tasche gehört."
+      },
+      "schiedsrichter": {
+        "eyebrow": "Schiedsrichter",
+        "title": "Referee-Ausstattung",
+        "description": "Trikots in vier Farben und passende Shorts für unsere Schiedsrichter."
+      }
+    },
+    "products": {
+      "homeShirtMen": "Heimtrikot Herren",
+      "awayShirtMen": "Auswärtstrikot Herren",
+      "homeShirtWomen": "Heimtrikot Damen",
+      "awayShirtWomen": "Auswärtstrikot Damen",
+      "keeperHomeShirt": "Torwart Heimtrikot",
+      "keeperAwayShirt": "Torwart Auswärtstrikot",
+      "shortMen": "Short Herren",
+      "shortWomen": "Short Damen",
+      "warmupXLite": "Warm-up X-Lite",
+      "warmupXLiteLong": "Warm-up X-Lite Langarm",
+      "warmupXLiteDrNick": "Warm-up X-Lite „Dr. Nick“",
+      "divisionShirt": "Abteilungsshirt X-Lite",
+      "teamTShirt": "Team T-Shirt",
+      "emotionShirt": "Emotion 27 Shirt",
+      "emotionShirtWomen": "Emotion 27 Shirt Damen",
+      "emotionLongSleeve": "Emotion 27 Langarmshirt",
+      "classicPolo": "Classic Polo Shirt",
+      "classicPoloWomen": "Classic Polo Shirt Damen",
+      "quarterZipTop": "1/4 Zip Top",
+      "teamShorts": "Team Shorts",
+      "teamShortsWomen": "Team Shorts Damen",
+      "pocketShorts": "Pocket Shorts",
+      "liteTrainingPants": "Lite Trainingshose",
+      "liteTrainingPantsWomen": "Lite Trainingshose Damen",
+      "sweatPants": "Sweathose",
+      "hoodie": "Hoodie",
+      "basicVest": "Basic Weste",
+      "basicVestWomen": "Basic Weste Damen",
+      "rainJacket": "Regenjacke",
+      "pufferJacket": "Puffer Kapuzenjacke",
+      "winterJacket": "Winterjacke",
+      "promoTShirt": "Promo T-Shirt",
+      "kourtfly": "Kourtfly",
+      "kourtflyWomen": "Kourtfly Damen",
+      "kourtflyMid": "Kourtfly Mid",
+      "kourtflyTwo": "Kourtfly Two",
+      "kourtflyThree": "Kourtfly Three",
+      "kourtflyJr": "Kourtfly Jr",
+      "kourtflyKids": "Kourtfly Kids",
+      "buteo": "Buteo",
+      "gecko": "Gecko",
+      "leo": "Leo",
+      "resin200": "Handballharz 200 ml",
+      "resin500": "Handballharz 500 ml",
+      "ballBag": "Balltasche für 1 Ball",
+      "wristband": "Schweißband (1 Paar)",
+      "athleticSupporter": "Suspensorium",
+      "trolley": "Trolley 60 L",
+      "refShirtBlack": "Schiedsrichter Trikot Schwarz",
+      "refShirtBlue": "Schiedsrichter Trikot Blau",
+      "refShirtGrey": "Schiedsrichter Trikot Grau",
+      "refShirtGreen": "Schiedsrichter Trikot Grün",
+      "refShorts": "Schiedsrichter Shorts"
+    }
+  }
+}

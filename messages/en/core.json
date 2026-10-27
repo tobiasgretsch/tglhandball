@@ -1,0 +1,30 @@
+{
+  "meta": {
+    "siteTitle": "TG MIPA Landshut Handball",
+    "siteDescription": "Official website of TG MIPA Landshut: handball in Landshut with men's, women's and youth teams. Fixtures, results, news and venue address.",
+    "logoAlt": "TG MIPA Landshut logo"
+  },
+  "common": {
+    "skipToContent": "Skip to content",
+    "language": "Language"
+  },
+  "notFound": {
+    "metaTitle": "Page not found",
+    "title": "This page doesn't exist",
+    "message": "The link is outdated or the page has moved. Here is where to go next:"
+  },
+  "error": {
+    "code": "Oops",
+    "title": "Something went wrong",
+    "message": "The page could not be loaded. Please try again.",
+    "retry": "Try again"
+  },
+  "errorPanel": {
+    "home": "Back to home",
+    "links": {
+      "schedule": "Fixtures & results",
+      "teams": "Our teams",
+      "news": "News"
+    }
+  }
+}

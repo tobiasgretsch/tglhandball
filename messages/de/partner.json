@@ -1,0 +1,21 @@
+{
+  "partner": {
+    "meta": {
+      "title": "Unsere Partner",
+      "description": "Die Partner und Sponsoren des TG MIPA Landshut – ein herzliches Dankeschön für eure Unterstützung."
+    },
+    "hero": {
+      "title": "Unsere Partner",
+      "subtitle": "Ein herzliches Dankeschön an alle Partner, die den Handball in Landshut möglich machen."
+    },
+    "tiers": {
+      "hauptsponsor": "Hauptsponsor",
+      "exclusiv": "Exclusiv-Partner Hallenname",
+      "premium": "Premiumpartner",
+      "topPartner": "Top-Partner",
+      "fitness": "Fitness-Partner",
+      "supporter": "Supporter-Club"
+    },
+    "empty": "Noch keine Partner hinterlegt. Bitte Partner im CMS anlegen."
+  }
+}

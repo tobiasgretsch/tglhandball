@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { PersonPhoto } from "@/lib/personPhoto";
 
 const CARD_SIZES = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw";
@@ -44,6 +45,7 @@ export default function PersonCard({
   badge,
   surfaceClassName,
 }: PersonCardProps) {
+  const t = useTranslations("personCard");
   const [flipped, setFlipped] = useState(false);
   // The back photo is only requested once the visitor shows interest in the card,
   // so cards nobody touches cost one image instead of two.
@@ -83,7 +85,7 @@ export default function PersonCard({
           <button
             type="button"
             aria-pressed={flipped}
-            aria-label={`Zweites Foto von ${name} ${flipped ? "ausblenden" : "anzeigen"}`}
+            aria-label={t(flipped ? "hideSecond" : "showSecond", { name })}
             onClick={handleClick}
             onPointerDown={(event) => {
               lastInput.current = event.pointerType;
@@ -102,7 +104,7 @@ export default function PersonCard({
             </div>
             <div className="absolute inset-0 overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]">
               {backRequested && photoBack && (
-                <PhotoFace photo={photoBack} alt={`${name} – zweites Foto`} />
+                <PhotoFace photo={photoBack} alt={t("secondAlt", { name })} />
               )}
             </div>
           </button>

@@ -29,6 +29,35 @@ export interface LiveGame {
 
 export type GameStatus = "scheduled" | "running" | "break" | "finished";
 
+/** Stable codes for the status line; the client turns them into text. */
+export type StatusLabel =
+  | "finished"
+  | "periodRunning"
+  | "halftimeBreak"
+  | "regularTimeEnd"
+  | "break"
+  | "running"
+  | "notStarted";
+
+/** Stable codes for a feed row's headline; the client turns them into text. */
+export type EntryLabel =
+  | "goal"
+  | "sevenMeterGoal"
+  | "sevenMeterMiss"
+  | "ownGoal"
+  | "timePenalty"
+  | "warning"
+  | "disqualificationBlue"
+  | "disqualificationRed"
+  | "timeout"
+  | "teamPenalty"
+  | "kickoff"
+  | "periodStart"
+  | "halftime"
+  | "regularTimeEnd"
+  | "extraTimeEnd"
+  | "gameEnd";
+
 export type EntryKind =
   | "goal"
   | "seven-meter-goal"
@@ -48,8 +77,9 @@ export interface TickerEntry {
   /** Game seconds since kick-off, as reported by the score sheet. */
   second: number;
   kind: EntryKind;
-  /** Short headline ("Tor", "Zeitstrafe", …). */
-  label: string;
+  label: EntryLabel;
+  /** Number of the period a `periodStart` / `extraTimeEnd` row refers to (1 = first half, 3 = first extra time); 0 otherwise. */
+  period: number;
   /** Player line ("#7 Nicolas Schühle") or team name; may be empty. */
   detail: string;
   side: TeamSide | null;
@@ -98,7 +128,9 @@ export interface TableStanding {
 export interface TickerSnapshot {
   game: LiveGame;
   status: GameStatus;
-  statusLabel: string;
+  statusLabel: StatusLabel;
+  /** Period a `periodRunning` label refers to; 0 otherwise. */
+  statusPeriod: number;
   scoreHome: number;
   scoreGuest: number;
   /** Newest first. */

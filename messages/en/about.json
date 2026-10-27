@@ -1,0 +1,31 @@
+{
+  "about": {
+    "meta": {
+      "title": "About us",
+      "description": "History, board, contacts and how to get in touch with TG MIPA Landshut."
+    },
+    "hero": {
+      "title": "About us",
+      "subtitle": "The history, people and values of TG MIPA Landshut."
+    },
+    "history": {
+      "heading": "Club history",
+      "empty": "No text yet. Please add it in the CMS under <em>Settings → Club history</em>.",
+      "photoAlt": "TG MIPA Landshut"
+    },
+    "board": {
+      "heading": "Board & contacts"
+    },
+    "anfahrt": {
+      "heading": "Getting here",
+      "gameHall": "Sports hall"
+    }
+  },
+  "anfahrtSection": {
+    "chooseLocation": "Choose a location",
+    "route": "Plan route →",
+    "mapLabel": "The map",
+    "openInGoogleMaps": "Open location in Google Maps",
+    "mapLoading": "Loading map …"
+  }
+}

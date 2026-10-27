@@ -1,0 +1,31 @@
+{
+  "about": {
+    "meta": {
+      "title": "Über uns",
+      "description": "Geschichte, Vorstand, Ansprechpartner und Kontakt des TG MIPA Landshut."
+    },
+    "hero": {
+      "title": "Über uns",
+      "subtitle": "Geschichte, Menschen und Werte des TG MIPA Landshut."
+    },
+    "history": {
+      "heading": "Vereinsgeschichte",
+      "empty": "Noch kein Text hinterlegt. Bitte den Text im CMS unter <em>Einstellungen → Vereinsgeschichte</em> pflegen.",
+      "photoAlt": "TG MIPA Landshut"
+    },
+    "board": {
+      "heading": "Vorstand & Ansprechpartner"
+    },
+    "anfahrt": {
+      "heading": "Anfahrt",
+      "gameHall": "Spielhalle"
+    }
+  },
+  "anfahrtSection": {
+    "chooseLocation": "Standort wählen",
+    "route": "Route planen →",
+    "mapLabel": "Die Karte",
+    "openInGoogleMaps": "Standort in Google Maps öffnen",
+    "mapLoading": "Karte wird geladen …"
+  }
+}

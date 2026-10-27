@@ -20,6 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Animation | Framer Motion |
 | Icons | lucide-react |
 | CMS | Sanity v5 — next-sanity@12, @sanity/client@7, @sanity/image-url@2, @sanity/vision@5 |
+| i18n | next-intl@4 — `de` (default, unprefixed) + `en` (`/en/…`), same slugs; see `docs/i18n.md` |
 | Sitemap | next-sitemap@4 — runs as `postbuild`, generates `public/sitemap.xml` + `public/robots.txt` |
 | Analytics | `@vercel/speed-insights` |
 | Runtime | Node.js 24.14.0 LTS · npm |
@@ -48,12 +49,13 @@ npm run lint      # ESLint check
 
 ```
 app/
-  layout.tsx                    # Root layout — Inter font, lang="de",
+  [locale]/                     # EVERYTHING public lives under [locale] (de | en); proxy.ts rewrites unprefixed URLs to /de
+  [locale]/layout.tsx           # Root layout — owns <html lang={locale}>, Inter font,
                                 #   metadataBase, title template, JSON-LD SportsOrganization
   globals.css                   # Tailwind v4 @import + @theme color tokens + focus-visible
                                 #   ring + .skip-link accessibility class
 
-  (site)/                       # Public website — wrapped with Header + Footer
+  [locale]/(site)/              # Public website — wrapped with Header + Footer
     layout.tsx                  # Skip-to-content link + <main id="main-content">
     page.tsx                    # Homepage (Hero, Matches, News, Partners)
     news/
@@ -284,6 +286,10 @@ Claude must treat every mistake as a learning event and record it in this file.
 | 2026-10-23 | Game archive / privacy default | A transient failure of the nuLiga `groups/{id}` lookup returned an empty league; `isYouthGame("")` is true, so 8 Herren/Damen games were archived with names stripped, permanently (names are not recoverable from the archive). | A privacy default must not be triggered by a failed lookup: skip and retry (`archiveGame` returns `unknown` on empty league). Repair by deleting the doc and re-running `archiveGame` via `npx tsx` (an `.mts` file, `file:///` import paths). |
 | 2026-10-27 | Serverless limits | A Vercel "execution-time limit" mail was first read as "no fetch timeouts" because a case-sensitive grep missed `REQUEST_TIMEOUT_MS`. The real gap: per-request timeouts did not bound the ticker's sequential phases (summary → meeting → events/players/table), worst case ~17 s, and `/live` ran one function per view. | Grep case-insensitively before claiming something is absent. Give every request path one overall deadline (`lib/live/budget.ts`), let decorative data fall back early on the live path only (never in the archive), and serve list pages from ISR instead of `force-dynamic`. |
 | 2026-10-27 | Game-day consistency | A finished game was "finished" on `/live` at once but on the Spielplan, homepage and team pages only after the nightly sync (result), and the Verlauf link only after a fan had opened the ticker (archive). Homepage/team queries used `date > now && !result`, so a game vanished from "next" at kickoff. | Every page must agree on a game's state within minutes: write the score into the Sanity `match` when the archive is written (`recordResult`), trigger the archive from the polled `/api/live` (`archiveFinishedSoon`) instead of from viewers, and keep started games in "upcoming" for `upcomingSince()`. Never put `Date.now()` in a page body (react-hooks/purity): use a helper. |
+| 2026-10-27 | i18n / proxy matcher | The `proxy.ts` matcher was written `.*..*` with a single backslash inside a TS string, which becomes `.*..*` (any 2 chars): the proxy only ran for `/`, every unprefixed German URL matched `[locale]` = the page name and returned 500 ("static to dynamic"). The build passed anyway. | After touching `proxy.ts`, curl an unprefixed subpage (`/spielplan`) against `next start`, not just `/`. Escape regex dots as `\.` in matcher strings (check `.next/server/functions-config-manifest.json`). |
+| 2026-10-27 | i18n / language switch | `router.replace(…, {locale})` swaps the root layout, so React recreates `<html>` and drops the `dark` class the inline script set. next-intl also redirected `/spielplan` back to `/en/…` via the `NEXT_LOCALE` cookie, so DE could not be chosen. | The switcher uses plain `<a>` links (full load) and `localeDetection: false` keeps the URL the only source of truth. Test language switching in the browser with the theme set, not only by curl. |
+| 2026-10-27 | i18n / sitemap | next-sitemap lists pages under their internal `/de/…` path and applies `transform` only to build-discovered paths, not to `additionalPaths`: URLs came out as `/en/de/…` and `/de/…`. | Treat `/<code>/` as the internal form, map to public URLs in `transform`, and give `additionalPaths` entries their final loc + `alternateRefs`. Inspect `public/sitemap-0.xml` after changing it. |
+| 2026-10-27 | i18n / metadata files | `opengraph-image`/`twitter-image` at `app/` root sit above `[locale]/layout`, so `metadataBase` is missing for them (warning, wrong absolute URLs). | Keep metadata file routes inside `app/[locale]/`; `/og` imports from there. |
 
 ### Active Rules Derived from Past Mistakes
 

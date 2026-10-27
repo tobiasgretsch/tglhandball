@@ -1,5 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 
 export interface PartnerBandItem {
   _id: string;
@@ -23,7 +24,7 @@ const LOGO_BOX: Record<Tier, string> = {
   standard: "h-10 w-28",
 };
 
-function PartnerLogo({ partner, tier }: { partner: PartnerBandItem; tier: Tier }) {
+function PartnerLogo({ partner, tier, visitLabel }: { partner: PartnerBandItem; tier: Tier; visitLabel: string }) {
   const content = partner.logoUrl ? (
     <span className={`partner-logo relative block ${LOGO_BOX[tier]}`}>
       <Image
@@ -52,7 +53,7 @@ function PartnerLogo({ partner, tier }: { partner: PartnerBandItem; tier: Tier }
       href={partner.websiteUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${partner.name} – Website besuchen`}
+      aria-label={visitLabel}
       className="partner-link block rounded-lg"
     >
       {content}
@@ -60,7 +61,13 @@ function PartnerLogo({ partner, tier }: { partner: PartnerBandItem; tier: Tier }
   );
 }
 
-function StaticRow({ partners, tier }: { partners: PartnerBandItem[]; tier: Tier }) {
+interface RowProps {
+  partners: PartnerBandItem[];
+  tier: Tier;
+  visitLabel: (name: string) => string;
+}
+
+function StaticRow({ partners, tier, visitLabel }: RowProps) {
   return (
     <div
       className={`flex flex-wrap items-center justify-center ${
@@ -68,20 +75,20 @@ function StaticRow({ partners, tier }: { partners: PartnerBandItem[]; tier: Tier
       }`}
     >
       {partners.map((p) => (
-        <PartnerLogo key={p._id} partner={p} tier={tier} />
+        <PartnerLogo key={p._id} partner={p} tier={tier} visitLabel={visitLabel(p.name)} />
       ))}
     </div>
   );
 }
 
-function MarqueeRow({ partners, tier }: { partners: PartnerBandItem[]; tier: Tier }) {
+function MarqueeRow({ partners, tier, visitLabel }: RowProps) {
   return (
     <div className="partner-marquee">
       <div className="partner-marquee-track">
         {[0, 1].map((copy) =>
           partners.map((p) => (
             <div key={`${copy}-${p._id}`} className="px-5" aria-hidden={copy === 1 || undefined}>
-              <PartnerLogo partner={p} tier={tier} />
+              <PartnerLogo partner={p} tier={tier} visitLabel={visitLabel(p.name)} />
             </div>
           ))
         )}
@@ -90,8 +97,10 @@ function MarqueeRow({ partners, tier }: { partners: PartnerBandItem[]; tier: Tie
   );
 }
 
-export default function PartnerBand({ premium, standard }: Props) {
+export default async function PartnerBand({ premium, standard }: Props) {
   if (premium.length === 0 && standard.length === 0) return null;
+  const t = await getTranslations("partnerBand");
+  const visitLabel = (name: string) => t("visit", { name });
 
   return (
     <section aria-labelledby="partner-heading" className="border-b border-transparent bg-white dark:border-white/10 dark:bg-gray-950">
@@ -100,10 +109,10 @@ export default function PartnerBand({ premium, standard }: Props) {
           id="partner-heading"
           className="mb-10 text-center text-sm font-semibold text-gray-600 dark:text-gray-300"
         >
-          Unsere Partner
+          {t("heading")}
         </h2>
 
-        {premium.length > 0 && <StaticRow partners={premium} tier="premium" />}
+        {premium.length > 0 && <StaticRow partners={premium} tier="premium" visitLabel={visitLabel} />}
 
         {premium.length > 0 && standard.length > 0 && (
           <div className="mx-auto my-10 h-px max-w-xs bg-gray-200 dark:bg-white/10" />
@@ -111,9 +120,9 @@ export default function PartnerBand({ premium, standard }: Props) {
 
         {standard.length > 0 &&
           (standard.length >= MARQUEE_MIN_PARTNERS ? (
-            <MarqueeRow partners={standard} tier="standard" />
+            <MarqueeRow partners={standard} tier="standard" visitLabel={visitLabel} />
           ) : (
-            <StaticRow partners={standard} tier="standard" />
+            <StaticRow partners={standard} tier="standard" visitLabel={visitLabel} />
           ))}
 
         <div className="mt-10 flex justify-center">
@@ -121,7 +130,7 @@ export default function PartnerBand({ premium, standard }: Props) {
             href="/partner"
             className="press text-sm font-semibold text-accent hover:underline dark:text-accent-sky"
           >
-            Alle Partner ansehen →
+            {t("all")}
           </Link>
         </div>
       </div>

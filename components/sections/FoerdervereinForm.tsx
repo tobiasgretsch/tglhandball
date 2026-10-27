@@ -11,9 +11,12 @@ import {
 } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { LOCALE_TAGS, type Locale } from "@/i18n/routing";
+import { currencyFormatter } from "@/lib/i18n/format";
 import {
   FOERDERVEREIN,
-  formatEuro,
   formatIban,
   isValidIban,
   maskIban,
@@ -39,7 +42,8 @@ type FormValues = {
 };
 
 type FieldName = keyof FormValues;
-type Errors = Partial<Record<FieldName, string>>;
+type ErrorKey = "required" | "email" | "plz" | "iban" | "mandat" | "datenschutz";
+type Errors = Partial<Record<FieldName, ErrorKey>>;
 type Status = "idle" | "submitting" | "success" | "error";
 type SetField = <K extends FieldName>(field: K, value: FormValues[K]) => void;
 
@@ -61,10 +65,8 @@ const INITIAL_VALUES: FormValues = {
   website: "",
 };
 
-const REQUIRED_MESSAGE = "Pflichtfeld";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PLZ_PATTERN = /^\d{5}$/;
-const FEE_PLACEHOLDER = "[Betrag]";
 
 const REQUIRED_FIELDS: FieldName[] = [
   "anrede",
@@ -91,19 +93,19 @@ const inputClass =
 function validate(values: FormValues): Errors {
   const errors: Errors = {};
   for (const field of REQUIRED_FIELDS) {
-    if (!String(values[field]).trim()) errors[field] = REQUIRED_MESSAGE;
+    if (!String(values[field]).trim()) errors[field] = "required";
   }
   if (!errors.email && !EMAIL_PATTERN.test(values.email.trim())) {
-    errors.email = "Bitte eine gültige E-Mail-Adresse eingeben";
+    errors.email = "email";
   }
   if (!errors.plz && !PLZ_PATTERN.test(values.plz.trim())) {
-    errors.plz = "Bitte eine 5-stellige PLZ eingeben";
+    errors.plz = "plz";
   }
   if (!errors.iban && !isValidIban(values.iban)) {
-    errors.iban = "Diese IBAN ist ungültig – bitte prüfe sie auf Tippfehler";
+    errors.iban = "iban";
   }
-  if (!values.mandat) errors.mandat = "Bitte erteile das SEPA-Lastschriftmandat";
-  if (!values.datenschutz) errors.datenschutz = "Bitte stimme der Datenschutzerklärung zu";
+  if (!values.mandat) errors.mandat = "mandat";
+  if (!values.datenschutz) errors.datenschutz = "datenschutz";
   return errors;
 }
 
@@ -118,6 +120,8 @@ function caretAfterSignificantChars(formatted: string, count: number): number {
 }
 
 export default function FoerdervereinForm() {
+  const t = useTranslations("foerderverein.form");
+  const tag = LOCALE_TAGS[useLocale() as Locale];
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>("idle");
@@ -197,31 +201,35 @@ export default function FoerdervereinForm() {
           tabIndex={-1}
           className="font-display font-bold italic uppercase text-2xl md:text-3xl tracking-[-0.02em] text-text dark:text-gray-100 mb-3 focus:outline-none"
         >
-          Vielen Dank, {values.vorname.trim()}!
+          {t("success.title", { name: values.vorname.trim() })}
         </h3>
         <p className="text-muted text-sm max-w-md mx-auto leading-relaxed">
-          Deine Anmeldung ist eingegangen. Eine Bestätigung senden wir an{" "}
-          <strong className="font-semibold text-text dark:text-gray-200">{values.email.trim()}</strong>.
+          {t.rich("success.text", {
+            email: values.email.trim(),
+            b: (chunks) => <strong className="font-semibold text-text dark:text-gray-200">{chunks}</strong>,
+          })}
         </p>
         <p className="mt-4 text-xs text-muted">
-          Abbuchung per SEPA-Lastschrift von{" "}
-          <span className="font-mono">{maskIban(values.iban)}</span>
+          {t.rich("success.debit", {
+            iban: maskIban(values.iban),
+            mono: (chunks) => <span className="font-mono">{chunks}</span>,
+          })}
         </p>
       </motion.div>
     );
   }
 
   const submitting = status === "submitting";
-  const fee = FOERDERVEREIN.yearlyFeeEur > 0 ? formatEuro(FOERDERVEREIN.yearlyFeeEur) : FEE_PLACEHOLDER;
+  const fee = FOERDERVEREIN.yearlyFeeEur > 0 ? currencyFormatter(tag).format(FOERDERVEREIN.yearlyFeeEur) : t("fee.placeholder");
 
   const textProps = { values, errors, set, onLeave: validateOnLeave };
 
   return (
     <form onSubmit={handleSubmit} noValidate className="relative text-left space-y-10">
-      <p className="text-xs text-muted">* Pflichtfeld</p>
+      <p className="text-xs text-muted">{t("requiredHint")}</p>
 
-      <Fieldset legend="Persönliche Daten">
-        <Field name="anrede" label="Anrede" error={errors.anrede}>
+      <Fieldset legend={t("sections.personal")}>
+        <Field name="anrede" label={t("fields.anrede")} error={errors.anrede}>
           <select
             id={fieldId("anrede")}
             className={inputClass}
@@ -232,31 +240,30 @@ export default function FoerdervereinForm() {
             autoComplete="honorific-prefix"
             onChange={(e) => set("anrede", e.target.value)}
           >
-            <option value="">Bitte wählen</option>
-            <option value="Frau">Frau</option>
-            <option value="Herr">Herr</option>
-            <option value="Divers">Divers</option>
+            <option value="">{t("salutation.placeholder")}</option>
+            <option value="Frau">{t("salutation.frau")}</option>
+            <option value="Herr">{t("salutation.herr")}</option>
+            <option value="Divers">{t("salutation.divers")}</option>
           </select>
         </Field>
-        <TextField name="geburtsdatum" label="Geburtsdatum (optional)" type="date" autoComplete="bday" {...textProps} />
-        <TextField name="vorname" label="Vorname" autoComplete="given-name" {...textProps} />
-        <TextField name="nachname" label="Nachname" autoComplete="family-name" {...textProps} />
-        <TextField name="strasse" label="Straße und Hausnummer" autoComplete="street-address" wide {...textProps} />
-        <TextField name="plz" label="PLZ" autoComplete="postal-code" inputMode="numeric" {...textProps} />
-        <TextField name="ort" label="Ort" autoComplete="address-level2" {...textProps} />
-        <TextField name="email" label="E-Mail" type="email" autoComplete="email" {...textProps} />
-        <TextField name="telefon" label="Telefon (optional)" type="tel" autoComplete="tel" {...textProps} />
+        <TextField name="geburtsdatum" label={t("fields.geburtsdatum")} type="date" autoComplete="bday" {...textProps} />
+        <TextField name="vorname" label={t("fields.vorname")} autoComplete="given-name" {...textProps} />
+        <TextField name="nachname" label={t("fields.nachname")} autoComplete="family-name" {...textProps} />
+        <TextField name="strasse" label={t("fields.strasse")} autoComplete="street-address" wide {...textProps} />
+        <TextField name="plz" label={t("fields.plz")} autoComplete="postal-code" inputMode="numeric" {...textProps} />
+        <TextField name="ort" label={t("fields.ort")} autoComplete="address-level2" {...textProps} />
+        <TextField name="email" label={t("fields.email")} type="email" autoComplete="email" {...textProps} />
+        <TextField name="telefon" label={t("fields.telefon")} type="tel" autoComplete="tel" {...textProps} />
       </Fieldset>
 
-      <Fieldset legend="Jahresbeitrag">
+      <Fieldset legend={t("sections.fee")}>
         <div className="sm:col-span-2 rounded-xl bg-accent-tint dark:bg-accent/15 px-5 py-4 text-sm leading-relaxed text-text dark:text-gray-200">
-          Der Jahresbeitrag beträgt <strong className="font-bold">{fee}</strong> und wird einmal jährlich
-          per SEPA-Lastschrift eingezogen.
+          {t.rich("fee.text", { fee, b: (chunks) => <strong className="font-bold">{chunks}</strong> })}
         </div>
       </Fieldset>
 
-      <Fieldset legend="SEPA-Lastschriftmandat">
-        <Field name="iban" label="IBAN" error={errors.iban} wide>
+      <Fieldset legend={t("sections.mandate")}>
+        <Field name="iban" label={t("fields.iban")} error={errors.iban} wide>
           <input
             ref={ibanRef}
             id={fieldId("iban")}
@@ -275,33 +282,33 @@ export default function FoerdervereinForm() {
             onBlur={() => validateOnLeave("iban")}
           />
         </Field>
-        <TextField name="kontoinhaber" label="Kontoinhaber (falls abweichend)" autoComplete="off" wide {...textProps} />
-        <TextField name="bank" label="Kreditinstitut (optional)" autoComplete="off" wide {...textProps} />
+        <TextField name="kontoinhaber" label={t("fields.kontoinhaber")} autoComplete="off" wide {...textProps} />
+        <TextField name="bank" label={t("fields.bank")} autoComplete="off" wide {...textProps} />
 
         <div className="sm:col-span-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-5 text-[13px] leading-relaxed text-muted dark:text-gray-300">
           <p className="mb-2 font-semibold text-text dark:text-gray-100">
-            Gläubiger: {FOERDERVEREIN.name}, {FOERDERVEREIN.street}, {FOERDERVEREIN.city}
+            {t("mandate.creditor", {
+              name: FOERDERVEREIN.name,
+              street: FOERDERVEREIN.street,
+              city: FOERDERVEREIN.city,
+            })}
             <br />
-            Gläubiger-Identifikationsnummer: {FOERDERVEREIN.creditorId}
+            {t("mandate.creditorId", { id: FOERDERVEREIN.creditorId })}
           </p>
-          <p>
-            Ich ermächtige den {FOERDERVEREIN.name}, Zahlungen von meinem Konto mittels SEPA-Basislastschrift
-            einzuziehen. Zugleich weise ich mein Kreditinstitut an, die vom {FOERDERVEREIN.name} auf mein Konto
-            gezogenen Lastschriften einzulösen. Hinweis: Ich kann innerhalb von acht Wochen, beginnend mit dem
-            Belastungsdatum, die Erstattung des belasteten Betrages verlangen. Es gelten dabei die mit meinem
-            Kreditinstitut vereinbarten Bedingungen. Die Mandatsreferenz wird mir separat mitgeteilt.
-          </p>
+          <p>{t("mandate.text", { name: FOERDERVEREIN.name })}</p>
         </div>
 
         <Checkbox name="mandat" checked={values.mandat} error={errors.mandat} onChange={(v) => set("mandat", v)}>
-          Ich erteile das SEPA-Lastschriftmandat für den jährlichen Mitgliedsbeitrag. *
+          {t("consent.mandate")}
         </Checkbox>
         <Checkbox name="datenschutz" checked={values.datenschutz} error={errors.datenschutz} onChange={(v) => set("datenschutz", v)}>
-          Ich habe die{" "}
-          <a href="/datenschutz" className="underline underline-offset-2 hover:text-primary">
-            Datenschutzerklärung
-          </a>{" "}
-          gelesen und stimme der Verarbeitung meiner Daten zu. *
+          {t.rich("consent.privacy", {
+            link: (chunks) => (
+              <Link href="/datenschutz" className="underline underline-offset-2 hover:text-primary">
+                {chunks}
+              </Link>
+            ),
+          })}
         </Checkbox>
       </Fieldset>
 
@@ -325,8 +332,7 @@ export default function FoerdervereinForm() {
             role="alert"
             className="rounded-xl bg-primary-tint dark:bg-primary/10 px-4 py-3 text-sm text-primary-dark dark:text-primary-glow"
           >
-            Die Anmeldung konnte gerade nicht übermittelt werden. Deine Eingaben bleiben erhalten – bitte
-            versuche es gleich noch einmal.
+            {t("submitError")}
           </p>
         )}
       </div>
@@ -339,7 +345,7 @@ export default function FoerdervereinForm() {
           className="btn btn-primary w-full sm:w-auto min-h-12 disabled:opacity-60 disabled:pointer-events-none"
         >
           {submitting && <Loader2 size={18} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />}
-          {submitting ? "Wird gesendet…" : "Verbindlich Mitglied werden"}
+          {submitting ? t("submit.sending") : t("submit.label")}
         </button>
       </div>
     </form>
@@ -368,10 +374,11 @@ function Field({
 }: {
   name: FieldName;
   label: string;
-  error?: string;
+  error?: ErrorKey;
   wide?: boolean;
   children: ReactNode;
 }) {
+  const t = useTranslations("foerderverein.form");
   return (
     <div className={wide ? "sm:col-span-2" : undefined}>
       <label htmlFor={fieldId(name)} className="block text-sm font-medium text-text dark:text-gray-200 mb-1.5">
@@ -381,7 +388,7 @@ function Field({
       {children}
       {error && (
         <p id={errorId(name)} className="mt-1.5 text-[13px] leading-snug text-primary-dark dark:text-primary-glow">
-          {error}
+          {t(`errors.${error}`)}
         </p>
       )}
     </div>
@@ -431,10 +438,11 @@ function Checkbox({
 }: {
   name: FieldName;
   checked: boolean;
-  error?: string;
+  error?: ErrorKey;
   onChange: (value: boolean) => void;
   children: ReactNode;
 }) {
+  const t = useTranslations("foerderverein.form");
   return (
     <div className="sm:col-span-2">
       {/* Whole row is the hit target (≥44px) and reacts instantly on press. */}
@@ -453,7 +461,7 @@ function Checkbox({
       </label>
       {error && (
         <p id={errorId(name)} className="ml-8 text-[13px] leading-snug text-primary-dark dark:text-primary-glow">
-          {error}
+          {t(`errors.${error}`)}
         </p>
       )}
     </div>

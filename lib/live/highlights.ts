@@ -5,12 +5,6 @@ export type Highlight = "krimi" | "comeback" | "kantersieg";
 
 export const HIGHLIGHTS: readonly Highlight[] = ["krimi", "comeback", "kantersieg"];
 
-export const HIGHLIGHT_LABEL: Record<Highlight, string> = {
-  krimi: "Krimi",
-  comeback: "Aufholjagd",
-  kantersieg: "Kantersieg",
-};
-
 /** Decided by this many goals or fewer. */
 const KRIMI_MAX_MARGIN = 2;
 /** The winner won by at least this many goals. */

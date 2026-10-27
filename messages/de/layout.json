@@ -1,0 +1,115 @@
+{
+  "header": {
+    "mainNav": "Hauptnavigation",
+    "mobileNav": "Mobile Navigation",
+    "drawerTitle": "Navigation",
+    "home": "Home",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "submenu": "{label} – Untermenü",
+    "allTeams": "Alle Teams →",
+    "fanshop": "Fanshop",
+    "themeLight": "Helles Design aktivieren",
+    "themeDark": "Dunkles Design aktivieren",
+    "nav": {
+      "news": "News",
+      "teams": "Teams",
+      "games": "Spiele",
+      "club": "Verein",
+      "partner": "Partner"
+    },
+    "games": {
+      "schedule": "Spielplan & Ergebnisse",
+      "live": "Live-Ticker",
+      "magazine": "Spieltagsmagazin"
+    },
+    "club": {
+      "about": "Über uns",
+      "gallery": "Impressionen",
+      "supporters": "Förderverein",
+      "directions": "Anfahrt"
+    },
+    "teamGroups": {
+      "herren": "Herren",
+      "damen": "Damen",
+      "jugend_m": "Jugend männlich",
+      "jugend_w": "Jugend weiblich"
+    }
+  },
+  "footer": {
+    "tagline": "Handball in Landshut — Leidenschaft, Teamgeist und Sport auf höchstem Niveau.",
+    "quickLinks": "Schnelllinks",
+    "contact": "Kontakt",
+    "contactMissing": "Kontaktdaten werden im CMS konfiguriert.",
+    "copyright": "© {year} TG MIPA Landshut",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "links": {
+      "news": "News",
+      "teams": "Teams",
+      "live": "Live-Ticker",
+      "partner": "Partner",
+      "fanshop": "Fanshop",
+      "club": "Abteilung"
+    }
+  },
+  "switcher": {
+    "label": "Sprache"
+  },
+  "scrollToTop": {
+    "label": "Nach oben scrollen"
+  },
+  "cookieSettings": {
+    "label": "Cookie-Einstellungen"
+  },
+  "consent": {
+    "title": "Deine Privatsphäre",
+    "text": "Wir verwenden nur dann zusätzliche Dienste, wenn du zustimmst. Ohne Zustimmung bleibt die Website voll nutzbar; eingebundene Inhalte von Dritten (Tabellen, Karte) werden dann nicht geladen. Du kannst deine Auswahl jederzeit über „Cookie-Einstellungen“ im Seitenfuß ändern. Mehr in der <privacy>Datenschutzerklärung</privacy> und im <imprint>Impressum</imprint>.",
+    "alwaysActive": "immer aktiv",
+    "necessaryTitle": "Notwendig",
+    "necessaryText": "Speichert deine Datenschutzauswahl und die Wahl des hellen/dunklen Designs in deinem Browser. Ohne diese Einstellungen funktioniert die Website nicht wie gewünscht.",
+    "statisticsTitle": "Statistik",
+    "statisticsText": "Vercel Web Analytics und Speed Insights messen anonymisiert Seitenaufrufe und Ladezeiten, um die Website zu verbessern. Anbieter: Vercel Inc., USA.",
+    "externalTitle": "Externe Inhalte",
+    "externalText": "Tabellen und Spielpläne von handball.net sowie die Karte von OpenStreetMap. Dabei wird deine IP-Adresse an den jeweiligen Anbieter übertragen.",
+    "onlyNecessary": "Nur notwendige",
+    "saveSelection": "Auswahl speichern",
+    "acceptAll": "Alle akzeptieren",
+    "customise": "Einstellungen anpassen",
+    "close": "Schließen"
+  },
+  "consentGate": {
+    "notice": "<b>{label}</b> wird von {provider} bereitgestellt. Beim Laden wird deine IP-Adresse an {provider} übertragen.",
+    "allow": "Externe Inhalte erlauben",
+    "settings": "Einstellungen"
+  },
+  "calendarButton": {
+    "label": "Zum Kalender hinzufügen",
+    "labelFor": "Zum Kalender hinzufügen: {home} gegen {away}"
+  },
+  "matchReport": {
+    "label": "Spielbericht"
+  },
+  "legalDocument": {
+    "cookieName": "Name des Cookies",
+    "duration": "Speicherdauer"
+  },
+  "partnerBand": {
+    "heading": "Unsere Partner",
+    "all": "Alle Partner ansehen →",
+    "visit": "{name} – Website besuchen"
+  },
+  "partnerCards": {
+    "visitSite": "Website besuchen",
+    "visit": "{name} – Website besuchen"
+  },
+  "partnerInfo": {
+    "brochure": "Imagebroschüre TG MIPA Landshut",
+    "supporters": "Förderverein TG MIPA Landshut"
+  },
+  "personCard": {
+    "showSecond": "Zweites Foto von {name} anzeigen",
+    "hideSecond": "Zweites Foto von {name} ausblenden",
+    "secondAlt": "{name} – zweites Foto"
+  }
+}

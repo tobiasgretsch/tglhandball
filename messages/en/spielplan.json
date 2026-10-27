@@ -1,0 +1,104 @@
+{
+  "spielplanPage": {
+    "breadcrumbHome": "Home",
+    "title": "Fixtures & results",
+    "description": "All games, dates and results of the TG MIPA Landshut teams at a glance.",
+    "heroSubtitle": "All games and results of the TG MIPA Landshut teams."
+  },
+  "spielplanClient": {
+    "allTeams": "All teams",
+    "searchLabel": "Search opponents",
+    "searchPlaceholder": "Search opponents …",
+    "filter": "Filter",
+    "filterActive": "Filter, {count} active",
+    "tableLink": "{team} table",
+    "reset": "Reset",
+    "nothingFound": "No games found.",
+    "nothingFoundFiltered": "No games match these filters.",
+    "nothingFoundEmpty": "No games have been added yet.",
+    "resetFilters": "Reset filters",
+    "upcoming": "Upcoming games",
+    "results": "Results",
+    "homeGame": "Home game",
+    "showAll": "Show all {count}"
+  },
+  "spielplanFilters": {
+    "title": "Filters",
+    "reset": "Reset",
+    "close": "Close filters",
+    "month": "Month",
+    "status": "Status",
+    "statusLive": "Live",
+    "statusUpcoming": "Upcoming",
+    "statusFinished": "Finished",
+    "location": "Venue",
+    "home": "Home games",
+    "away": "Away games",
+    "result": "Result from TG's point of view",
+    "wins": "Wins",
+    "draws": "Draws",
+    "losses": "Defeats",
+    "highlights": "Special games",
+    "league": "League",
+    "season": "Season",
+    "showGames": "{count, plural, one {# game to show} other {# games to show}}"
+  },
+  "spielplanRow": {
+    "kickoffSuffix": "kick-off",
+    "homeGameSr": ", home game",
+    "awayGameSr": ", away game",
+    "versusSr": "versus",
+    "highlightsLabel": "Highlights",
+    "historyLabel": "Match flow: {home} versus {away}",
+    "historyShort": "Flow",
+    "history": "Match flow"
+  },
+  "spielplanSummary": {
+    "label": "Record of the games shown",
+    "games": "Games",
+    "record": "Record (W-D-L)",
+    "goals": "Goals",
+    "form": "Form",
+    "formLabel": "Latest results, oldest first",
+    "formLetter": {
+      "sieg": "W",
+      "unentschieden": "D",
+      "niederlage": "L"
+    }
+  },
+  "outcome": {
+    "sieg": "Win",
+    "unentschieden": "Draw",
+    "niederlage": "Defeat"
+  },
+  "highlight": {
+    "krimi": "Nail-biter",
+    "comeback": "Comeback",
+    "kantersieg": "Landslide"
+  },
+  "gamePage": {
+    "breadcrumbHome": "Home",
+    "breadcrumbSchedule": "Fixtures & results",
+    "title": "Match flow",
+    "metaDescription": "Match flow, goal sequence and statistics: {home} against {away} ended {scoreHome}:{scoreGuest}.",
+    "metaDescriptionLeague": "Match flow, goal sequence and statistics: {home} against {away} ended {scoreHome}:{scoreGuest} ({league}).",
+    "allGames": "All games",
+    "highlightsLabel": "Highlights of this game",
+    "otherGames": "More games",
+    "previous": "Previous game",
+    "next": "Next game"
+  },
+  "standingsTable": {
+    "caption": "League table",
+    "rank": "#",
+    "team": "Team",
+    "played": "P",
+    "won": "W",
+    "drawn": "D",
+    "lost": "L",
+    "goals": "Goals",
+    "goalDiff": "+/-",
+    "points": "Pts",
+    "source": "Source:"
+  }
+}

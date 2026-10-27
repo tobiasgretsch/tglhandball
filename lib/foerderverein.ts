@@ -47,6 +47,3 @@ export function maskIban(value: string): string {
   return masked.replace(/(.{4})/g, "$1 ").trim();
 }
 
-export function formatEuro(amount: number): string {
-  return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(amount);
-}

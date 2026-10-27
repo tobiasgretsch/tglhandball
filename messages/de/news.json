@@ -1,0 +1,32 @@
+{
+  "newsCategories": {
+    "all": "Alle",
+    "herren": "Herren",
+    "damen": "Damen",
+    "jugend": "Jugend",
+    "verein": "Verein"
+  },
+  "newsPage": {
+    "metaTitle": "Neuigkeiten",
+    "metaDescription": "Aktuelle Nachrichten, Spielberichte und Vereinsnews von TG MIPA Landshut.",
+    "ogTitle": "Neuigkeiten | TG MIPA Landshut",
+    "heroTitle": "Neuigkeiten",
+    "heroSubtitle": "Spielberichte, Vereinsnews und alles rund um TG MIPA Landshut.",
+    "empty": "Keine Artikel in dieser Kategorie gefunden.",
+    "loadMore": "Mehr laden",
+    "count": "{shown} von {total, plural, one {# Artikel} other {# Artikeln}}"
+  },
+  "newsCard": {
+    "readMore": "Weiterlesen",
+    "placeholder": "NEWS"
+  },
+  "newsDetail": {
+    "fallbackTitle": "News | TG MIPA Landshut",
+    "breadcrumbHome": "Startseite",
+    "breadcrumbNews": "Neuigkeiten",
+    "backToAll": "Alle Neuigkeiten",
+    "by": "Von <b>{author}</b>",
+    "relatedHeading": "Weitere Neuigkeiten",
+    "allNews": "Alle News"
+  }
+}

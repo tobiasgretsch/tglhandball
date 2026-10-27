@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { FileText } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 // pdfjs-dist uses browser-only APIs (DOMMatrix) — never run on the server
 const PdfViewer = dynamic(() => import("@/components/sections/PdfViewer"), { ssr: false });
@@ -20,6 +21,7 @@ const TONE_CLASS = {
 
 /** Opens the nuLiga match report (Spielbericht) in the in-page PDF viewer. */
 export default function MatchReportButton({ meetingId, tone = "light" }: MatchReportButtonProps) {
+  const t = useTranslations("matchReport");
   const [open, setOpen] = useState(false);
 
   return (
@@ -33,7 +35,7 @@ export default function MatchReportButton({ meetingId, tone = "light" }: MatchRe
         className={`${TONE_CLASS[tone]} px-3.5! py-1.5! text-xs!`}
       >
         <FileText size={13} aria-hidden="true" />
-        Spielbericht
+        {t("label")}
       </button>
     </>
   );

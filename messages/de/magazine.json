@@ -1,0 +1,35 @@
+{
+  "magazine": {
+    "meta": {
+      "title": "Spieltagsmagazine",
+      "description": "Alle Spieltagsmagazine der TG MIPA Landshut zum Download – sortiert nach Saison."
+    },
+    "hero": {
+      "title": "Spieltagsmagazine",
+      "subtitle": "Alle Spieltagsmagazine der TG MIPA Landshut zum Download."
+    },
+    "empty": "Noch keine Spieltagsmagazine verfügbar.",
+    "season": "Saison",
+    "unknownSeason": "Unbekannte Saison",
+    "available": "{available}/{total} verfügbar",
+    "columns": {
+      "matchday": "Spieltag",
+      "opponent": "Gegner",
+      "date": "Datum",
+      "read": "Lesen"
+    },
+    "homeMatchday": "{number}. Heimspieltag",
+    "fallbackTitle": "Spieltagsheft",
+    "read": "Lesen",
+    "comingSoon": "Demnächst verfügbar",
+    "comingSoonShort": "Demnächst",
+    "openPdf": "PDF öffnen",
+    "viewer": {
+      "previousPage": "Vorherige Seite",
+      "zoomOut": "Verkleinern",
+      "zoomIn": "Vergrößern",
+      "close": "Schließen",
+      "loadError": "PDF konnte nicht geladen werden."
+    }
+  }
+}
