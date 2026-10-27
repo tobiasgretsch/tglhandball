@@ -54,7 +54,8 @@
     }
   },
   "switcher": {
-    "label": "Language"
+    "label": "Language",
+    "current": "Language: {language}"
   },
   "scrollToTop": {
     "label": "Scroll to top"
