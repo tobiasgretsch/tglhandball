@@ -9,11 +9,10 @@ import { LOCALES, LOCALE_LABELS, LOCALE_TAGS, type Locale } from "@/i18n/routing
 
 type Variant = "header" | "drawer";
 
-const DRAWER_ITEM_BASE = "flex-1 min-w-9 rounded-full px-2.5 py-2 text-center text-xs font-bold tracking-[0.12em] transition-colors";
-const DRAWER_GROUP = "flex items-center gap-1 rounded-full border border-gray-200 p-1 dark:border-white/25";
-const DRAWER_ACTIVE = "bg-primary text-white dark:bg-white dark:text-primary";
+const DRAWER_ITEM_BASE = "flex min-h-12 items-center justify-between gap-3 px-4 py-3 text-sm font-semibold transition-colors";
+const DRAWER_ACTIVE = "text-primary dark:text-white";
 const DRAWER_IDLE =
-  "text-gray-700 hover:bg-red-50 hover:text-gray-900 dark:text-white/75 dark:hover:bg-white/10 dark:hover:text-white";
+  "text-gray-700 hover:bg-red-50 hover:text-gray-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white";
 
 /** Links to the current page in every language, keeping path, query string and hash. */
 export default function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) {
@@ -37,16 +36,24 @@ export default function LanguageSwitcher({ variant = "header" }: { variant?: Var
 
   if (variant === "drawer") {
     return (
-      <div role="group" aria-label={t("label")} className={DRAWER_GROUP}>
-        {LOCALES.map((locale) => (
-          <a
-            key={locale}
-            {...linkProps(locale)}
-            className={`${DRAWER_ITEM_BASE} ${locale === current ? DRAWER_ACTIVE : DRAWER_IDLE}`}
-          >
-            {LOCALE_LABELS[locale]}
-          </a>
-        ))}
+      <div>
+        <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-gray-500 dark:text-white/70">
+          <Globe size={14} aria-hidden />
+          {t("label")}
+        </p>
+        <ul
+          aria-label={t("label")}
+          className="overflow-hidden rounded-lg border border-gray-200 dark:border-white/20"
+        >
+          {LOCALES.map((locale) => (
+            <li key={locale} className="border-b border-gray-100 last:border-0 dark:border-white/10">
+              <a {...linkProps(locale)} className={`${DRAWER_ITEM_BASE} ${locale === current ? DRAWER_ACTIVE : DRAWER_IDLE}`}>
+                {LOCALE_LABELS[locale]}
+                {locale === current && <Check size={16} aria-hidden />}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }
