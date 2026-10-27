@@ -7,12 +7,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { getPathname, usePathname } from "@/i18n/navigation";
 import { LOCALES, LOCALE_LABELS, LOCALE_TAGS, type Locale } from "@/i18n/routing";
 
-type Variant = "header" | "drawer";
-
-const DRAWER_ITEM_BASE = "flex min-h-12 items-center justify-between gap-3 px-4 py-3 text-sm font-semibold transition-colors";
-const DRAWER_ACTIVE = "text-primary dark:text-white";
-const DRAWER_IDLE =
-  "text-gray-700 hover:bg-red-50 hover:text-gray-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white";
+/** `header`: globe + code + chevron (desktop). `compact`: globe icon only, matching the mobile top bar buttons. */
+type Variant = "header" | "compact";
 
 /** Links to the current page in every language, keeping path, query string and hash. */
 export default function LanguageSwitcher({ variant = "header" }: { variant?: Variant }) {
@@ -34,41 +30,26 @@ export default function LanguageSwitcher({ variant = "header" }: { variant?: Var
     onClick: locale === current ? (event: MouseEvent) => event.preventDefault() : carryQueryAndHash,
   });
 
-  if (variant === "drawer") {
-    return (
-      <div>
-        <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-gray-500 dark:text-white/70">
-          <Globe size={14} aria-hidden />
-          {t("label")}
-        </p>
-        <ul
-          aria-label={t("label")}
-          className="overflow-hidden rounded-lg border border-gray-200 dark:border-white/20"
-        >
-          {LOCALES.map((locale) => (
-            <li key={locale} className="border-b border-gray-100 last:border-0 dark:border-white/10">
-              <a {...linkProps(locale)} className={`${DRAWER_ITEM_BASE} ${locale === current ? DRAWER_ACTIVE : DRAWER_IDLE}`}>
-                {LOCALE_LABELS[locale]}
-                {locale === current && <Check size={16} aria-hidden />}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-
-  return <LanguageDropdown current={current} label={t("label")} currentLabel={t("current", { language: LOCALE_LABELS[current] })} linkProps={linkProps} />;
+  return (
+    <LanguageDropdown
+      compact={variant === "compact"}
+      current={current}
+      label={t("label")}
+      currentLabel={t("current", { language: LOCALE_LABELS[current] })}
+      linkProps={linkProps}
+    />
+  );
 }
 
 interface LanguageDropdownProps {
+  compact: boolean;
   current: Locale;
   label: string;
   currentLabel: string;
   linkProps: (locale: Locale) => Record<string, unknown>;
 }
 
-function LanguageDropdown({ current, label, currentLabel, linkProps }: LanguageDropdownProps) {
+function LanguageDropdown({ compact, current, label, currentLabel, linkProps }: LanguageDropdownProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -94,7 +75,7 @@ function LanguageDropdown({ current, label, currentLabel, linkProps }: LanguageD
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative ml-2">
+    <div ref={rootRef} className={compact ? "relative" : "relative ml-2"}>
       <button
         ref={triggerRef}
         type="button"
@@ -103,17 +84,25 @@ function LanguageDropdown({ current, label, currentLabel, linkProps }: LanguageD
         aria-controls={listId}
         aria-label={currentLabel}
         onClick={() => setOpen((value) => !value)}
-        className="flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-bold uppercase tracking-[0.12em] text-white/75 transition-colors hover:bg-white/10 hover:text-white"
+        className={
+          compact
+            ? "p-2 text-white/80 hover:text-white press"
+            : "flex items-center gap-1.5 rounded-full px-2.5 py-2 text-[13px] font-bold uppercase tracking-[0.12em] text-white/75 transition-colors hover:bg-white/10 hover:text-white"
+        }
       >
-        <Globe size={16} aria-hidden />
-        {current}
-        <motion.span
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: prefersReduced ? 0 : 0.2 }}
-          className="inline-flex"
-        >
-          <ChevronDown size={13} aria-hidden />
-        </motion.span>
+        <Globe size={compact ? 18 : 16} aria-hidden />
+        {!compact && (
+          <>
+            {current}
+            <motion.span
+              animate={{ rotate: open ? 180 : 0 }}
+              transition={{ duration: prefersReduced ? 0 : 0.2 }}
+              className="inline-flex"
+            >
+              <ChevronDown size={13} aria-hidden />
+            </motion.span>
+          </>
+        )}
       </button>
 
       <AnimatePresence>
@@ -124,14 +113,14 @@ function LanguageDropdown({ current, label, currentLabel, linkProps }: LanguageD
             initial={{ opacity: 0, y: prefersReduced ? 0 : 6, scale: prefersReduced ? 1 : 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: prefersReduced ? 0 : 6, scale: prefersReduced ? 1 : 0.97 }}
-            transition={{ duration: prefersReduced ? 0 : 0.16, ease: "easeOut" }}
-            className="absolute right-0 top-full z-10 mt-1 max-h-[70dvh] min-w-44 overflow-y-auto rounded-lg bg-white shadow-2xl ring-1 ring-black/5 dark:bg-gray-900/95 dark:ring-white/15 dark:backdrop-blur-xl dark:saturate-150"
+            transition={{ duration: prefersReduced ? 0.12 : 0.16, ease: "easeOut" }}
+            className="absolute right-0 top-full z-10 mt-1 origin-top-right max-h-[70dvh] min-w-44 overflow-y-auto rounded-lg bg-white shadow-2xl ring-1 ring-black/5 dark:bg-gray-900/95 dark:ring-white/15 dark:backdrop-blur-xl dark:saturate-150"
           >
             {LOCALES.map((locale) => (
               <li key={locale} className="border-b border-gray-100 last:border-0 dark:border-white/10">
                 <a
                   {...linkProps(locale)}
-                  className={`flex items-center justify-between gap-3 px-4 py-2.5 text-sm font-semibold transition-colors ${
+                  className={`flex items-center justify-between gap-3 px-4 ${compact ? "min-h-12 py-3" : "py-2.5"} text-sm font-semibold transition-colors ${
                     locale === current
                       ? "text-primary dark:text-white"
                       : "text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"

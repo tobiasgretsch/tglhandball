@@ -168,7 +168,7 @@ export default function HeaderClient({
         scrolled ? "h-[54px] lg:h-[60px]" : "h-[68px] lg:h-[76px]"
       }`}>
         {/* Logo + club name */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 max-[359px]:gap-2 group">
           {logoUrl && (
             <Image
               src={logoUrl}
@@ -179,7 +179,7 @@ export default function HeaderClient({
               priority
             />
           )}
-          <span className="font-black text-white text-xl lg:text-2xl tracking-tight uppercase leading-none select-none">
+          <span className="font-black text-white text-xl max-[359px]:text-lg lg:text-2xl tracking-tight uppercase leading-none select-none">
             TG{" "}
             <span className="font-bold" style={{ color: "#004f9e" }}>MIPA</span>{" "}
             <span className="text-white/70 font-bold">LANDSHUT</span>
@@ -357,9 +357,10 @@ export default function HeaderClient({
           </button>
         </nav>
 
-        {/* Mobile: theme toggle + hamburger */}
+        {/* Mobile: language + theme toggle + hamburger */}
         <div className="lg:hidden flex items-center gap-1">
           <LiveNavBadge className="mr-1" />
+          <LanguageSwitcher variant="compact" />
           <button
             onClick={toggleTheme}
             aria-label={isDark ? t("themeLight") : t("themeDark")}
@@ -579,7 +580,7 @@ export default function HeaderClient({
                   </motion.div>
                 ))}
 
-                <div className="px-6 pt-5">
+                <div className="px-6 pt-5 pb-6">
                   <Link
                     href={FANSHOP_HREF}
                     onClick={() => setMobileOpen(false)}
@@ -590,9 +591,6 @@ export default function HeaderClient({
                   </Link>
                 </div>
 
-                <div className="px-6 pt-4 pb-6">
-                  <LanguageSwitcher variant="drawer" />
-                </div>
               </nav>
             </motion.div>
           </>
