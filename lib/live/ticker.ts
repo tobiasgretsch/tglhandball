@@ -1,4 +1,5 @@
 /** Assembles the full ticker for one game: meeting + events + player names. */
+import { withDeadline, withinBudget } from "./budget";
 import { coalesce, withStaleFallback } from "./coalesce";
 import { buildEntries, deriveScore, deriveStatus } from "./events";
 import { isClubTeam } from "./fixture";
@@ -10,6 +11,10 @@ import type { LiveGame, TickerSnapshot } from "./types";
 import { fetchEvents, fetchGroupName, fetchMeeting, fetchPlayers } from "./upstream";
 
 const TICKER_TTL_MS = 4_000;
+/** Everything a ticker request may spend, summary included — well inside the serverless time limit. */
+const TICKER_BUDGET_MS = 8_000;
+/** Players, league name and standings only decorate the ticker; the live path does not wait long for them. */
+const OPTIONAL_BUDGET_MS = 2_500;
 
 /** Everything nuLiga tells us about one game — the input of `deriveSnapshot` and the archive's payload. */
 export interface RawGame {
@@ -19,19 +24,28 @@ export interface RawGame {
   table?: TickerSnapshot["table"];
 }
 
-/** `null` when the id is unknown or not a TG game. Does not apply the live-window gate. */
-export async function fetchRawGame(meetingId: string): Promise<RawGame | null> {
+/**
+ * `null` when the id is unknown or not a TG game. Does not apply the live-window gate.
+ * `optionalBudgetMs` caps the wait for the decorative parts (they fall back to empty); leave it unset
+ * where a partial result must not be kept, like the archive.
+ */
+export async function fetchRawGame(meetingId: string, optionalBudgetMs?: number): Promise<RawGame | null> {
   const meeting = await fetchMeeting(meetingId);
   // Only our own games: keeps this from becoming an open proxy for all of nuLiga.
   if (!meeting || !(isClubTeam(meeting.homeTeam) || isClubTeam(meeting.awayTeam))) return null;
 
+  const optional = <T>(promise: Promise<T>, fallback: T): Promise<T> =>
+    optionalBudgetMs === undefined
+      ? promise.catch(() => fallback)
+      : withinBudget(promise, optionalBudgetMs).then((value) => value ?? fallback);
+
   const [events, players, league, table] = await Promise.all([
     fetchEvents(meetingId, meeting.versionUid),
     // Names and shirt numbers are a nicety — the ticker works without them.
-    fetchPlayers(meetingId).catch(() => []),
-    fetchGroupName(meeting.groupId).catch(() => ""),
+    optional<RawPlayer[]>(fetchPlayers(meetingId), []),
+    optional(fetchGroupName(meeting.groupId), ""),
     // Likewise optional: a missing table just hides the standings line.
-    fetchTableFor(meeting.groupId, meeting.homeTeam, meeting.awayTeam).catch(() => undefined),
+    optional(fetchTableFor(meeting.groupId, meeting.homeTeam, meeting.awayTeam), undefined),
   ]);
 
   return { game: { ...meeting, league }, events, players, table };
@@ -56,8 +70,8 @@ export function deriveSnapshot({ game, events, players, table }: RawGame, now: n
   };
 }
 
-async function buildTicker(meetingId: string): Promise<TickerSnapshot | null> {
-  const raw = await fetchRawGame(meetingId);
+async function buildTicker(meetingId: string, budgetMs: number): Promise<TickerSnapshot | null> {
+  const raw = await withDeadline(fetchRawGame(meetingId, OPTIONAL_BUDGET_MS), budgetMs);
   return raw ? deriveSnapshot(raw, Date.now()) : null;
 }
 
@@ -67,12 +81,13 @@ async function buildTicker(meetingId: string): Promise<TickerSnapshot | null> {
  */
 export async function getTicker(meetingId: string): Promise<{ snapshot: TickerSnapshot; stale: boolean } | null> {
   if (!isValidMeetingId(meetingId)) return null;
+  const deadline = Date.now() + TICKER_BUDGET_MS;
   // Unknown ids are rejected from our own (cached) game list without touching nuLiga.
   const { games } = await getLiveSummary();
   if (!games.some((g) => g.meetingId === meetingId)) return null;
 
   const result = await coalesce(`ticker:${meetingId}`, TICKER_TTL_MS, () =>
-    withStaleFallback(`ticker:${meetingId}`, async () => buildTicker(meetingId)),
+    withStaleFallback(`ticker:${meetingId}`, () => buildTicker(meetingId, deadline - Date.now())),
   );
   return result.value ? { snapshot: result.value, stale: result.stale } : null;
 }

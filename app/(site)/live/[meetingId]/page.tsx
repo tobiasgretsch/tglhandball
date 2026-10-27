@@ -12,6 +12,8 @@ import LiveTicker from "@/components/live/LiveTicker";
 import { LiveListSkeleton } from "@/components/live/LiveSkeleton";
 
 export const dynamic = "force-dynamic";
+/** The ticker read has its own 8 s budget; this only stops a hung function from running to the plan default. */
+export const maxDuration = 15;
 
 interface PageProps {
   params: Promise<{ meetingId: string }>;

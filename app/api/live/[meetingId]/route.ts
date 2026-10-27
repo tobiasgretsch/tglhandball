@@ -4,9 +4,10 @@ import { getTicker } from "@/lib/live/ticker";
 
 export const dynamic = "force-dynamic";
 /** A cold cache reads every club group once (~60 requests). */
-export const maxDuration = 30;
+export const maxDuration = 15;
 
-const CACHE_HEADER = "public, s-maxage=4, stale-while-revalidate=8";
+/** nuLiga publishes in 15 s steps, so an 8 s shared copy still keeps fans within one step of the hall. */
+const CACHE_HEADER = "public, s-maxage=8, stale-while-revalidate=15";
 const NOT_FOUND_CACHE_HEADER = "public, s-maxage=30";
 const NO_CACHE = { "Cache-Control": "no-store" };
 

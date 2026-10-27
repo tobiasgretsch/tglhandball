@@ -3,7 +3,7 @@ import { getLiveSummary } from "@/lib/live/schedule";
 
 export const dynamic = "force-dynamic";
 /** A cold cache reads every club group once (~60 requests). */
-export const maxDuration = 30;
+export const maxDuration = 15;
 
 /** One cached answer is shared by all visitors, so nuLiga sees a few requests per minute at most. */
 const CACHE_HEADER = "public, s-maxage=10, stale-while-revalidate=20";

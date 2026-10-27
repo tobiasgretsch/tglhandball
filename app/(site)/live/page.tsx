@@ -18,7 +18,9 @@ export const metadata: Metadata = {
   openGraph: { title: "Live-Ticker | TG MIPA Landshut", type: "website" },
 };
 
-export const dynamic = "force-dynamic";
+/** One shared render per interval instead of one function per visitor; the header badge polls the live flag itself. */
+export const revalidate = 15;
+export const maxDuration = 15;
 
 const LIST_LIMIT = 8;
 

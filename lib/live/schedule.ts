@@ -5,6 +5,7 @@
  *  - slow: every group the club plays in, cached for ten minutes
  *  - fast: only groups with a game in its "hot" window, re-read every 15 s
  */
+import { withinBudget } from "./budget";
 import { coalesce, withStaleFallback } from "./coalesce";
 import { isClubTeam } from "./fixture";
 import type { ClubGroup } from "./parse";
@@ -115,12 +116,6 @@ let downUntil = 0;
 function summaryWhileDown(now: number): LiveSummary {
   const games = previousGames.filter((g) => startsAt(g) >= now - LOOKBACK_MS && startsAt(g) <= now + LOOKAHEAD_MS);
   return { games, pollAfterMs: Math.min(pollInterval(games, now), POLL_DOWN_MS), updatedAt: now, partial: true };
-}
-
-/** `null` when the promise fails or takes longer than `ms`. */
-async function withinBudget<T>(promise: Promise<T>, ms: number): Promise<T | null> {
-  const timeout = new Promise<null>((resolve) => setTimeout(resolve, ms, null));
-  return Promise.race([promise.catch(() => null), timeout]);
 }
 
 async function buildSummary(now: number): Promise<LiveSummary> {
