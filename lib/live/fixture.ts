@@ -5,7 +5,7 @@
  */
 import type { LiveGame } from "./types";
 
-const MAX_KICKOFF_DRIFT_MS = 3 * 60 * 60 * 1000;
+export const MAX_KICKOFF_DRIFT_MS = 3 * 60 * 60 * 1000;
 const CLUB_NAME = /^tg (?:mipa )?landshut\b/i;
 
 export function normalizeTeamName(name: string): string {

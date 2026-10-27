@@ -4,6 +4,7 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { groq } from "next-sanity";
+import { upcomingSince } from "@/lib/match";
 import JsonLd from "@/components/ui/JsonLd";
 import { breadcrumbJsonLd, fixturesJsonLd, sportsTeamJsonLd } from "@/lib/seo";
 import MatchReportButton from "@/components/ui/MatchReportButton";
@@ -23,7 +24,7 @@ import { toPersonPhoto } from "@/lib/personPhoto";
 import PortableText from "@/components/ui/PortableText";
 import Reveal from "@/components/ui/Reveal";
 import { CLUB_TIME_ZONE } from "@/lib/dates";
-import { gamePagePath } from "@/lib/match";
+import { gamePagePath, hasKickedOff } from "@/lib/match";
 import PricingSection from "@/components/sections/PricingSection";
 import StandingsTable from "@/components/sections/StandingsTable";
 import GalleryRow from "@/components/sections/GalleryRow";
@@ -92,7 +93,7 @@ export const revalidate = 3600;
 
 export default async function TeamDetailPage({ params }: Props) {
   const { slug } = await params;
-  const now = new Date().toISOString();
+  const since = upcomingSince();
 
   const team = await client
     .fetch<Team>(teamDetailQuery, { slug }, { next: { revalidate: 3600 } })
@@ -104,7 +105,7 @@ export default async function TeamDetailPage({ params }: Props) {
     client
       .fetch<Match[]>(
         teamUpcomingMatchesQuery,
-        { teamId: team._id, now },
+        { teamId: team._id, since },
         { next: { revalidate: 3600 } }
       )
       .catch(() => [] as Match[]),
@@ -477,7 +478,7 @@ function MatchRow({ match, isResult }: { match: Match; isResult: boolean }) {
             <MatchReportButton meetingId={match.meetingId} />
           </span>
         )}
-        {!isResult && (
+        {!isResult && !hasKickedOff(match.date) && (
           <span className="ml-auto">
             <AddToCalendarButton match={match} compact />
           </span>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { upcomingSince } from "@/lib/match";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ExternalLink, FileText } from "lucide-react";
@@ -60,6 +61,7 @@ export const revalidate = 300;
 export default async function HomePage() {
   const now = new Date().toISOString(); // match date filter
   const today = now.slice(0, 10); // "YYYY-MM-DD" — magazine date filter
+  const since = upcomingSince();
 
   const [settings, news, teams, partnerOfDay, upcomingMagazine, topSponsors, upcomingMatches, lastResult, galleryItems] =
     await Promise.all([
@@ -82,7 +84,7 @@ export default async function HomePage() {
         .fetch<Partner[]>(topSponsorsQuery, {}, { next: { revalidate: 3600 } })
         .catch(() => [] as Partner[]),
       client
-        .fetch<Match[]>(homeUpcomingMatchesQuery, { now }, { next: { revalidate: 300 } })
+        .fetch<Match[]>(homeUpcomingMatchesQuery, { since }, { next: { revalidate: 300 } })
         .catch(() => [] as Match[]),
       client
         .fetch<Match | null>(latestResultQuery, {}, { next: { revalidate: 300 } })

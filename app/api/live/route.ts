@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
+import { archiveFinishedSoon } from "@/lib/live/archiveWrite";
 import { getLiveSummary } from "@/lib/live/schedule";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,10 @@ const NO_CACHE = { "Cache-Control": "no-store" };
 
 export async function GET() {
   try {
-    return NextResponse.json(await getLiveSummary(), { headers: { "Cache-Control": CACHE_HEADER } });
+    const summary = await getLiveSummary();
+    // Every visitor polls this, so a finished game is archived (and shows up as a result) without anyone opening it.
+    after(() => archiveFinishedSoon(summary.games));
+    return NextResponse.json(summary, { headers: { "Cache-Control": CACHE_HEADER } });
   } catch (error) {
     console.error("[live]", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: "Live data unavailable" }, { status: 502, headers: NO_CACHE });

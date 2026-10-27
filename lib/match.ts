@@ -7,6 +7,19 @@ export function parseResult(result: string): [number, number] | null {
   return [Number(match[1]), Number(match[2])];
 }
 
+/** A game that kicked off this recently may still be under way, so "upcoming" lists keep it until its result lands. */
+const MATCH_GRACE_MS = 3 * 60 * 60 * 1000;
+
+/** True once kick-off has passed — the game is under way or over, even if its result is not in yet. */
+export function hasKickedOff(date: string): boolean {
+  return new Date(date).getTime() <= Date.now();
+}
+
+/** ISO start of the "upcoming" window: the fixtures that kicked off since then still count as upcoming. */
+export function upcomingSince(): string {
+  return new Date(Date.now() - MATCH_GRACE_MS).toISOString();
+}
+
 export type Outcome = "sieg" | "niederlage" | "unentschieden";
 
 /** Result from the TG's point of view; null when unknown or not a score. */

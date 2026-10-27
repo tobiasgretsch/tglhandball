@@ -198,7 +198,7 @@ export const relatedNewsQuery = groq`
 const FLAGSHIP_TEAM_ID = `(*[_type == "team" && category == "herren"] | order(order asc)[0]._id)`;
 
 export const homeUpcomingMatchesQuery = groq`
-  *[_type == "match" && team._ref == ${FLAGSHIP_TEAM_ID} && date > $now && !defined(result)] | order(date asc) [0...2] {
+  *[_type == "match" && team._ref == ${FLAGSHIP_TEAM_ID} && date > $since && !defined(result)] | order(date asc) [0...2] {
     _id,
     date,
     homeTeam,
@@ -252,7 +252,7 @@ export const homeMagazineQuery = groq`
 // ─── Team-specific match queries ─────────────────────────────────────────────
 
 export const teamUpcomingMatchesQuery = groq`
-  *[_type == "match" && team._ref == $teamId && date > $now && !defined(result)]
+  *[_type == "match" && team._ref == $teamId && date > $since && !defined(result)]
   | order(date asc) [0...1] {
     _id,
     date,
